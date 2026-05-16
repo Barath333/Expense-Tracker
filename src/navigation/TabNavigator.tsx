@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import HomeScreen from '../screens/HomeScreen';
@@ -63,60 +63,62 @@ function TabBarButton({
 
 export default function TabNavigator() {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarShowLabel: true,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textMuted,
-        tabBarLabelStyle: styles.tabLabel,
-        tabBarIcon: ({ color, focused }) => {
-          if (route.name === 'Add') return null; // custom button handles it
-          return (
-            <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.6 }}>
-              {TAB_ICONS[route.name]}
-            </Text>
-          );
-        },
-      })}
-    >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Analytics" component={AnalyticsScreen} options={{ tabBarLabel: 'Charts' }} />
-      <Tab.Screen
-        name="Add"
-        component={AddExpenseScreen}
-        options={{
-          tabBarLabel: 'Add',
-          tabBarButton: (props) => (
-            <TabBarButton
-              onPress={props.onPress as () => void}
-              isAdd
-            >
-              {props.children}
-            </TabBarButton>
-          ),
-        }}
-      />
-  <Tab.Screen 
-  name="History" 
-  component={HistoryScreen} 
-  options={{ tabBarLabel: 'History',
-     freezeOnBlur: true,
-   }}
-/>
-      {/* <Tab.Screen name="Profile" component={ProfileScreen} /> */}
-      <Tab.Screen 
-  name="AIInsights" 
-  component={AIInsightsScreen} 
-  options={{ 
-    tabBarLabel: 'AI',
-    tabBarIcon: ({ focused }) => (
-      <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.6 }}>🤖</Text>
-    )
-  }} 
-/>
-    </Tab.Navigator>
+    <>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarShowLabel: true,
+          tabBarStyle: styles.tabBar,
+          tabBarActiveTintColor: COLORS.primary,
+          tabBarInactiveTintColor: COLORS.textMuted,
+          tabBarLabelStyle: styles.tabLabel,
+          tabBarIcon: ({ color, focused }) => {
+            if (route.name === 'Add') return null;
+            return (
+              <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.6 }}>
+                {TAB_ICONS[route.name]}
+              </Text>
+            );
+          },
+        })}
+      >
+        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Analytics" component={AnalyticsScreen} options={{ tabBarLabel: 'Charts' }} />
+        <Tab.Screen
+          name="Add"
+          component={AddExpenseScreen}
+          options={{
+            tabBarLabel: 'Add',
+            tabBarStyle: { display: 'none' },
+            tabBarButton: (props) => (
+              <TabBarButton
+                onPress={props.onPress as () => void}
+                isAdd
+              >
+                {props.children}
+              </TabBarButton>
+            ),
+          }}
+        />
+        <Tab.Screen 
+          name="History" 
+          component={HistoryScreen} 
+          options={{ tabBarLabel: 'History', freezeOnBlur: true }}
+        />
+        {/* <Tab.Screen name="Profile" component={ProfileScreen} /> */}
+        <Tab.Screen 
+          name="AIInsights" 
+          component={AIInsightsScreen} 
+          options={{ 
+            tabBarLabel: 'AI',
+            tabBarIcon: ({ focused }) => (
+              <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.6 }}>🤖</Text>
+            )
+          }} 
+        />
+      </Tab.Navigator>
+    </>
   );
 }
 

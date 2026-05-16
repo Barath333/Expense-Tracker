@@ -8,50 +8,28 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import auth from '@react-native-firebase/auth';
 import { getItem, saveItem, removeItem } from '../utils/storage';
+import { useAlertStore } from '../services/stores/alertStore';
 
 export default function LoginScreen({ navigation }: any) {
-  // ✅ All hooks MUST be called in the same order every time
+  // State declarations
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [rememberedEmail, setRememberedEmail] = useState('');
-  const [isFirstLaunch, setIsFirstLaunch] = useState(true);
-  const [hasCheckedLaunch, setHasCheckedLaunch] = useState(false);
+  
+  const { showAlert } = useAlertStore();
 
-  // ✅ useEffect for checking first launch - runs once
+  // Load saved email on mount
   useEffect(() => {
-    const initialize = async () => {
-      await checkFirstLaunch();
-      await loadSavedEmail();
-    };
-    initialize();
+    loadSavedEmail();
   }, []);
-
-  const checkFirstLaunch = async () => {
-    try {
-      const hasLaunched = await getItem('hasLaunched');
-      if (hasLaunched === 'true') {
-        setIsFirstLaunch(false);
-        setActiveTab('login');
-      } else {
-        setIsFirstLaunch(true);
-        setActiveTab('signup');
-        await saveItem('hasLaunched', 'true');
-      }
-    } catch (error) {
-      console.log('Error checking first launch:', error);
-    } finally {
-      setHasCheckedLaunch(true);
-    }
-  };
 
   const loadSavedEmail = async () => {
     try {
@@ -59,6 +37,9 @@ export default function LoginScreen({ navigation }: any) {
       if (savedEmail) {
         setEmail(savedEmail);
         setRememberedEmail(savedEmail);
+        setActiveTab('login'); // If we have saved email, default to login tab
+      } else {
+        setActiveTab('signup'); // No saved email, show signup tab for new users
       }
     } catch (error) {
       console.log('Error loading saved email:', error);
@@ -74,10 +55,11 @@ export default function LoginScreen({ navigation }: any) {
   };
 
   const clearSavedEmail = () => {
-    Alert.alert(
-      'Clear Saved Email',
-      'Are you sure you want to clear the saved email?',
-      [
+    showAlert({
+      title: 'Clear Saved Email',
+      message: 'Are you sure you want to clear the saved email?',
+      type: 'warning',
+      buttons: [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Clear',
@@ -86,11 +68,16 @@ export default function LoginScreen({ navigation }: any) {
             await removeItem('lastUserEmail');
             setEmail('');
             setRememberedEmail('');
-            Alert.alert('Success', 'Saved email cleared!');
+            setActiveTab('signup');
+            showAlert({
+              title: 'Success',
+              message: 'Saved email cleared!',
+              type: 'success',
+            });
           }
         }
       ]
-    );
+    });
   };
 
   const signIn = async (email: string, password: string) => {
@@ -104,15 +91,27 @@ export default function LoginScreen({ navigation }: any) {
 
   const handleAuth = async () => {
     if (!email.trim()) {
-      Alert.alert('Error', 'Please enter your email');
+      showAlert({
+        title: 'Error',
+        message: 'Please enter your email',
+        type: 'error',
+      });
       return;
     }
     if (!password.trim()) {
-      Alert.alert('Error', 'Please enter your password');
+      showAlert({
+        title: 'Error',
+        message: 'Please enter your password',
+        type: 'error',
+      });
       return;
     }
     if (activeTab === 'signup' && password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+      showAlert({
+        title: 'Error',
+        message: 'Password must be at least 6 characters',
+        type: 'error',
+      });
       return;
     }
 
@@ -124,12 +123,34 @@ export default function LoginScreen({ navigation }: any) {
         
         if (user) {
           saveEmail(email);
-          Alert.alert('Success', 'Logged in successfully!');
-          navigation.replace('Main');
+          showAlert({
+            title: 'Success',
+            message: 'Logged in successfully!',
+            type: 'success',
+            onDismiss: () => navigation.replace('Main'),
+          });
         } else {
           let errorMessage = 'Login failed';
           if (error?.code === 'auth/user-not-found') {
             errorMessage = 'No account found. Please sign up first.';
+            // Offer to switch to signup tab
+            showAlert({
+              title: 'Login Failed',
+              message: errorMessage,
+              type: 'error',
+              buttons: [
+                { text: 'Cancel', style: 'cancel' },
+                { 
+                  text: 'Sign Up', 
+                  style: 'default',
+                  onPress: () => {
+                    setActiveTab('signup');
+                    setPassword('');
+                  }
+                }
+              ]
+            });
+            return;
           } else if (error?.code === 'auth/wrong-password') {
             errorMessage = 'Incorrect password. Please try again.';
           } else if (error?.code === 'auth/invalid-email') {
@@ -139,7 +160,11 @@ export default function LoginScreen({ navigation }: any) {
           } else if (error?.code === 'auth/network-request-failed') {
             errorMessage = 'Network error. Check your connection.';
           }
-          Alert.alert('Login Failed', errorMessage);
+          showAlert({
+            title: 'Login Failed',
+            message: errorMessage,
+            type: 'error',
+          });
         }
       } else {
         try {
@@ -158,6 +183,24 @@ export default function LoginScreen({ navigation }: any) {
           let errorMessage = 'Signup failed';
           if (error?.code === 'auth/email-already-in-use') {
             errorMessage = 'Email already registered. Please login instead.';
+            // Offer to switch to login tab
+            showAlert({
+              title: 'Sign Up Failed',
+              message: errorMessage,
+              type: 'error',
+              buttons: [
+                { text: 'Cancel', style: 'cancel' },
+                { 
+                  text: 'Login', 
+                  style: 'default',
+                  onPress: () => {
+                    setActiveTab('login');
+                    setPassword('');
+                  }
+                }
+              ]
+            });
+            return;
           } else if (error?.code === 'auth/invalid-email') {
             errorMessage = 'Invalid email format.';
           } else if (error?.code === 'auth/weak-password') {
@@ -165,24 +208,23 @@ export default function LoginScreen({ navigation }: any) {
           } else if (error?.code === 'auth/network-request-failed') {
             errorMessage = 'Network error. Check your connection.';
           }
-          Alert.alert('Sign Up Failed', errorMessage);
+          showAlert({
+            title: 'Sign Up Failed',
+            message: errorMessage,
+            type: 'error',
+          });
         }
       }
     } catch (err: any) {
-      Alert.alert('Error', err?.message || 'An unexpected error occurred');
+      showAlert({
+        title: 'Error',
+        message: err?.message || 'An unexpected error occurred',
+        type: 'error',
+      });
     } finally {
       setLoading(false);
     }
   };
-
-  // Show loading screen while checking first launch
-  if (!hasCheckedLaunch) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1A9B5E" />
-      </View>
-    );
-  }
 
   return (
     <KeyboardAvoidingView
@@ -220,7 +262,6 @@ export default function LoginScreen({ navigation }: any) {
               style={[styles.tab, activeTab === 'signup' && styles.activeTab]}
               onPress={() => {
                 setActiveTab('signup');
-                setEmail('');
                 setPassword('');
               }}
             >
@@ -382,10 +423,4 @@ const styles = StyleSheet.create({
   dividerText: { fontSize: 12, color: '#888', textAlign: 'center' },
   infoText: { alignItems: 'center', paddingTop: 10 },
   infoTextContent: { fontSize: 13, color: '#0a4f3c', textAlign: 'center' },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#eaf7f1',
-  },
 });

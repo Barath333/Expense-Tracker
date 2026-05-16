@@ -8,7 +8,6 @@ import {
   StatusBar,
   ScrollView,
   ActivityIndicator,
-  Alert,
   Animated,
   Dimensions,
 } from 'react-native';
@@ -18,6 +17,7 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { useExpenseStore } from '../services/stores/expenseStore';
 import { deleteExpense, updateExpense } from '../services/firebase/expenseService';
 import { useUserStore } from '../services/stores/userStore';
+import { useAlertStore } from '../services/stores/alertStore';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -112,6 +112,7 @@ interface Section {
 export default function HistoryScreen({ navigation }: any) {
   const { expenses, loading, deleteExpense: deleteFromStore, updateExpense: updateExpenseInStore } = useExpenseStore();
   const { fetchBudget } = useUserStore();
+  const { showAlert } = useAlertStore();
   const [activeFilter, setActiveFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
@@ -144,10 +145,11 @@ export default function HistoryScreen({ navigation }: any) {
 
   // Handle delete with confirmation
   const handleDelete = (expenseId: string, expenseNote: string) => {
-    Alert.alert(
-      'Delete Expense',
-      `Are you sure you want to delete "${expenseNote}"?`,
-      [
+    showAlert({
+      title: 'Delete Expense',
+      message: `Are you sure you want to delete "${expenseNote}"?`,
+      type: 'warning',
+      buttons: [
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'Delete', 
@@ -155,16 +157,25 @@ export default function HistoryScreen({ navigation }: any) {
           onPress: async () => {
             const { error } = await deleteExpense(expenseId);
             if (error) {
-              Alert.alert('Error', 'Failed to delete expense. Please try again.');
+              showAlert({
+                title: 'Error',
+                message: 'Failed to delete expense. Please try again.',
+                type: 'error',
+              });
             } else {
               deleteFromStore(expenseId);
               // Refresh budget data
               await fetchBudget();
+              showAlert({
+                title: 'Success',
+                message: 'Expense deleted successfully!',
+                type: 'success',
+              });
             }
           }
         }
       ]
-    );
+    });
   };
 
   // Handle edit
@@ -181,7 +192,11 @@ export default function HistoryScreen({ navigation }: any) {
     
     const amountNum = parseFloat(editAmount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount');
+      showAlert({
+        title: 'Error',
+        message: 'Please enter a valid amount',
+        type: 'error',
+      });
       return;
     }
 
@@ -194,11 +209,19 @@ export default function HistoryScreen({ navigation }: any) {
     const { error } = await updateExpense(editingExpense.id, updatedExpense);
     
     if (error) {
-      Alert.alert('Error', 'Failed to update expense');
+      showAlert({
+        title: 'Error',
+        message: 'Failed to update expense',
+        type: 'error',
+      });
     } else {
       updateExpenseInStore(editingExpense.id, updatedExpense);
       await fetchBudget();
-      Alert.alert('Success', 'Expense updated successfully');
+      showAlert({
+        title: 'Success! 🎉',
+        message: 'Expense updated successfully',
+        type: 'success',
+      });
     }
     
     setEditingExpense(null);

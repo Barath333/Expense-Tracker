@@ -7,7 +7,6 @@ import {
   Switch,
   ScrollView,
   StatusBar,
-  Alert,
   ActivityIndicator,
   Modal,
   TextInput,
@@ -17,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import auth from '@react-native-firebase/auth';
 import { useUserStore } from '../services/stores/userStore';
 import { signOut } from '../services/firebase/authService';
+import { useAlertStore } from '../services/stores/alertStore';
 
 const COLORS = {
   primary: '#1A9B5E',
@@ -32,8 +32,31 @@ const COLORS = {
   dangerLight: '#FFF0F0',
 };
 
+// Predefined icons for custom categories
+const ICON_OPTIONS = [
+  '🍔', '🚕', '🛒', '💊', '📱', '🎬', '🏠', '💰', '🍕', '☕', 
+  '🎮', '📚', '💪', '🎵', '✈️', '🏨', '🎁', '💻', '⌚', '👕',
+  '🐶', '🐱', '🌱', '💡', '🔧', '📷', '🎨', '⚽', '🏀', '🎾'
+];
+
 export default function ProfileScreen({ navigation }: any) {
-  const { monthlyBudget, categoryBudgets, fetchBudget, setMonthlyBudget, setCategoryBudget, loading } = useUserStore();
+  // Move all hooks to the top, in the same order every time
+  const userStore = useUserStore();
+  const { 
+    monthlyBudget, 
+    categoryBudgets, 
+    customCategories = [], 
+    fetchBudget, 
+    setMonthlyBudget, 
+    setCategoryBudget,
+    addCustomCategory,
+    removeCustomCategory,
+    loading 
+  } = userStore;
+  
+  const { showAlert } = useAlertStore();
+  
+  // All useState hooks must be declared in the same order every render
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [budgetAlerts, setBudgetAlerts] = useState(true);
@@ -46,7 +69,16 @@ export default function ProfileScreen({ navigation }: any) {
   const [categoryModalVisible, setCategoryModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [tempCategoryBudget, setTempCategoryBudget] = useState('');
+  
+  // Add Category Modal States
+  const [addCategoryModalVisible, setAddCategoryModalVisible] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryIcon, setNewCategoryIcon] = useState('📌');
+  const [newCategoryBudget, setNewCategoryBudget] = useState('');
+  const [showIconPicker, setShowIconPicker] = useState(false);
+  const [addingCategory, setAddingCategory] = useState(false);
 
+  // All useEffect hooks must be in the same order
   useEffect(() => {
     loadUserData();
   }, []);
@@ -61,10 +93,11 @@ export default function ProfileScreen({ navigation }: any) {
   };
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
+    showAlert({
+      title: 'Logout',
+      message: 'Are you sure you want to logout?',
+      type: 'warning',
+      buttons: [
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'Logout', 
@@ -77,34 +110,7 @@ export default function ProfileScreen({ navigation }: any) {
           }
         },
       ]
-    );
-  };
-
-  const handleEditProfile = () => {
-    const user = auth().currentUser;
-    Alert.alert(
-      'Edit Profile',
-      'Update your display name:',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Save',
-          onPress: async (newName) => {
-            if (newName && user) {
-              try {
-                await user.updateProfile({ displayName: newName });
-                setUserName(newName);
-                Alert.alert('Success', 'Profile updated!');
-              } catch (error) {
-                Alert.alert('Error', 'Failed to update profile');
-              }
-            }
-          },
-        },
-      ],
-      'plain-text',
-      userName
-    );
+    });
   };
 
   // Monthly Budget Modal Handlers
@@ -116,11 +122,27 @@ export default function ProfileScreen({ navigation }: any) {
   const saveMonthlyBudget = async () => {
     const numAmount = parseFloat(tempMonthlyBudget);
     if (!isNaN(numAmount) && numAmount > 0) {
-      await setMonthlyBudget(numAmount);
-      setMonthlyModalVisible(false);
-      Alert.alert('Success', `Monthly budget updated to ₹${numAmount.toLocaleString('en-IN')}`);
+      const result = await setMonthlyBudget(numAmount);
+      if (result.success) {
+        setMonthlyModalVisible(false);
+        showAlert({
+          title: 'Success',
+          message: `Monthly budget updated to ₹${numAmount.toLocaleString('en-IN')}`,
+          type: 'success',
+        });
+      } else {
+        showAlert({
+          title: 'Error',
+          message: result.error || 'Failed to update monthly budget',
+          type: 'error',
+        });
+      }
     } else {
-      Alert.alert('Error', 'Please enter a valid amount');
+      showAlert({
+        title: 'Error',
+        message: 'Please enter a valid amount',
+        type: 'error',
+      });
     }
   };
 
@@ -134,20 +156,202 @@ export default function ProfileScreen({ navigation }: any) {
   const saveCategoryBudget = async () => {
     const numAmount = parseFloat(tempCategoryBudget);
     if (!isNaN(numAmount) && numAmount >= 0) {
-      await setCategoryBudget(selectedCategory, numAmount);
-      setCategoryModalVisible(false);
-      Alert.alert('Success', `${selectedCategory} budget updated to ₹${numAmount.toLocaleString('en-IN')}`);
+      const result = await setCategoryBudget(selectedCategory, numAmount);
+      if (result.success) {
+        setCategoryModalVisible(false);
+        showAlert({
+          title: 'Success',
+          message: `${selectedCategory} budget updated to ₹${numAmount.toLocaleString('en-IN')}`,
+          type: 'success',
+        });
+      } else {
+        showAlert({
+          title: 'Error',
+          message: result.error || 'Failed to update category budget',
+          type: 'error',
+        });
+      }
     } else {
-      Alert.alert('Error', 'Please enter a valid amount');
+      showAlert({
+        title: 'Error',
+        message: 'Please enter a valid amount',
+        type: 'error',
+      });
     }
   };
+
+  // Add Custom Category Handlers
+  const openAddCategoryModal = () => {
+    setNewCategoryName('');
+    setNewCategoryIcon('📌');
+    setNewCategoryBudget('');
+    setAddCategoryModalVisible(true);
+  };
+
+  const handleAddCustomCategory = async () => {
+    if (!newCategoryName.trim()) {
+      showAlert({
+        title: 'Error',
+        message: 'Please enter a category name',
+        type: 'error',
+      });
+      return;
+    }
+
+    const categoryName = newCategoryName.trim();
+    
+    // Check against default categories
+    const defaultCategories = ['Food', 'Travel', 'Shopping', 'Health', 'Bills', 'Entertainment', 'Rent', 'Other'];
+    if (defaultCategories.includes(categoryName)) {
+      showAlert({
+        title: 'Error',
+        message: 'This is a default category. Please choose a different name.',
+        type: 'error',
+      });
+      return;
+    }
+    
+    if (categoryBudgets[categoryName] || (customCategories && customCategories.some((c: any) => c.name === categoryName))) {
+      showAlert({
+        title: 'Error',
+        message: 'Category already exists',
+        type: 'error',
+      });
+      return;
+    }
+
+    const budgetNum = parseFloat(newCategoryBudget);
+    if (isNaN(budgetNum) || budgetNum <= 0) {
+      showAlert({
+        title: 'Error',
+        message: 'Please enter a valid budget amount',
+        type: 'error',
+      });
+      return;
+    }
+
+    setAddingCategory(true);
+    try {
+      const result = await addCustomCategory(categoryName, newCategoryIcon, budgetNum);
+      if (result && result.success) {
+        setAddCategoryModalVisible(false);
+        setNewCategoryName('');
+        setNewCategoryIcon('📌');
+        setNewCategoryBudget('');
+        showAlert({
+          title: 'Success',
+          message: `${categoryName} category added successfully!`,
+          type: 'success',
+        });
+        // Refresh the budget data to ensure UI updates
+        await fetchBudget();
+      } else {
+        showAlert({
+          title: 'Error',
+          message: result?.error || 'Failed to add category',
+          type: 'error',
+        });
+      }
+    } catch (error: any) {
+      console.error('Error adding category:', error);
+      showAlert({
+        title: 'Error',
+        message: error.message || 'Failed to add category. Please try again.',
+        type: 'error',
+      });
+    } finally {
+      setAddingCategory(false);
+    }
+  };
+
+  const handleRemoveCustomCategory = (categoryName: string) => {
+    showAlert({
+      title: 'Remove Category',
+      message: `Are you sure you want to remove "${categoryName}"?`,
+      type: 'warning',
+      buttons: [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Remove', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const result = await removeCustomCategory(categoryName);
+              if (result && result.success) {
+                showAlert({
+                  title: 'Success',
+                  message: `${categoryName} category removed`,
+                  type: 'success',
+                });
+                await fetchBudget();
+              } else {
+                showAlert({
+                  title: 'Error',
+                  message: result?.error || 'Failed to remove category',
+                  type: 'error',
+                });
+              }
+            } catch (error: any) {
+              showAlert({
+                title: 'Error',
+                message: error.message || 'Failed to remove category',
+                type: 'error',
+              });
+            }
+          }
+        }
+      ]
+    });
+  };
+
+  // Icon Picker Modal
+  const renderIconPickerModal = () => (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={showIconPicker}
+      onRequestClose={() => setShowIconPicker(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Choose an Icon</Text>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={styles.iconGrid}>
+              {ICON_OPTIONS.map((item, index) => (
+                <TouchableOpacity
+                  key={`icon-${index}-${item}`}
+                  style={[styles.iconOption, newCategoryIcon === item && styles.iconOptionSelected]}
+                  onPress={() => {
+                    setNewCategoryIcon(item);
+                    setShowIconPicker(false);
+                  }}
+                >
+                  <Text style={styles.iconOptionText}>{item}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+          <TouchableOpacity
+            style={styles.closeModalBtn}
+            onPress={() => setShowIconPicker(false)}
+          >
+            <Text style={styles.closeModalBtnText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
 
   if (loading && monthlyBudget === 15000 && Object.keys(categoryBudgets).length === 0) {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
         <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
         <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Text style={styles.backButtonText}>←</Text>
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>Profile & Settings</Text>
+          <View style={styles.placeholder} />
         </View>
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color={COLORS.primary} />
@@ -162,14 +366,18 @@ export default function ProfileScreen({ navigation }: any) {
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
 
       <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile & Settings</Text>
+        <View style={styles.placeholder} />
       </View>
 
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Profile Card */}
+        {/* Profile Card - No edit button */}
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{userName.charAt(0).toUpperCase()}</Text>
@@ -178,15 +386,12 @@ export default function ProfileScreen({ navigation }: any) {
             <Text style={styles.profileName}>{userName}</Text>
             <Text style={styles.profileEmail}>{userEmail}</Text>
           </View>
-          <TouchableOpacity style={styles.editBtn} onPress={handleEditProfile} activeOpacity={0.8}>
-            <Text style={styles.editIcon}>✏️</Text>
-          </TouchableOpacity>
         </View>
 
         {/* BUDGET Section */}
         <Text style={styles.sectionLabel}>BUDGET</Text>
 
-        {/* Monthly Budget Card - FIXED */}
+        {/* Monthly Budget Card */}
         <TouchableOpacity style={styles.settingsCard} onPress={openMonthlyBudgetModal} activeOpacity={0.8}>
           <View style={[styles.settingsIconWrap, { backgroundColor: '#E8F8F0' }]}>
             <Text style={styles.settingsIcon}>💰</Text>
@@ -195,37 +400,49 @@ export default function ProfileScreen({ navigation }: any) {
           <Text style={styles.settingsValue}>₹{monthlyBudget.toLocaleString('en-IN')} ›</Text>
         </TouchableOpacity>
 
-        {/* Category Budgets Card */}
-        <TouchableOpacity style={styles.settingsCard} onPress={() => navigation.navigate('BudgetEdit')} activeOpacity={0.8}>
-          <View style={[styles.settingsIconWrap, { backgroundColor: '#E8F8F0' }]}>
-            <Text style={styles.settingsIcon}>📋</Text>
-          </View>
-          <Text style={styles.settingsLabel}>Category Budgets</Text>
-          <Text style={styles.settingsValue}>
-            {Object.keys(categoryBudgets).length} categories ›
-          </Text>
-        </TouchableOpacity>
+        {/* Category Budgets Section */}
+        <View style={styles.categoryHeader}>
+          <Text style={styles.sectionLabel}>CATEGORY BUDGETS</Text>
+          <TouchableOpacity onPress={openAddCategoryModal} style={styles.addCategoryBtn}>
+            <Text style={styles.addCategoryBtnText}>+ Add New</Text>
+          </TouchableOpacity>
+        </View>
 
-        {/* Display current category budgets - Make them clickable */}
-        {Object.entries(categoryBudgets).length > 0 && (
-          <View style={styles.categoryList}>
-            <Text style={styles.categoryListTitle}>Current Category Limits:</Text>
-            {Object.entries(categoryBudgets).map(([category, amount]) => (
-              <TouchableOpacity 
-                key={category} 
-                style={styles.categoryItem}
-                onPress={() => openCategoryBudgetModal(category, amount as number)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.categoryName}>{category}</Text>
-                <View style={styles.categoryValueRow}>
+        {/* Display all categories (default + custom) */}
+        <View style={styles.categoryList}>
+          {Object.entries(categoryBudgets).map(([category, amount]) => {
+            const isCustomCategory = customCategories && customCategories.some((c: any) => c.name === category);
+            const categoryIcon = isCustomCategory 
+              ? (customCategories.find((c: any) => c.name === category)?.icon || '📌')
+              : getDefaultIcon(category);
+            
+            return (
+              <View key={category} style={styles.categoryItem}>
+                <TouchableOpacity 
+                  style={styles.categoryInfo}
+                  onPress={() => openCategoryBudgetModal(category, amount as number)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.categoryIcon}>{categoryIcon}</Text>
+                  <Text style={styles.categoryName}>{category}</Text>
                   <Text style={styles.categoryAmount}>₹{(amount as number).toLocaleString('en-IN')}</Text>
-                  <Text style={styles.editIconSmall}>✏️</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+                </TouchableOpacity>
+                {isCustomCategory && (
+                  <TouchableOpacity
+                    onPress={() => handleRemoveCustomCategory(category)}
+                    style={styles.removeCategoryBtn}
+                  >
+                    <Text style={styles.removeCategoryBtnText}>🗑️</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            );
+          })}
+          
+          {Object.keys(categoryBudgets).length === 0 && (
+            <Text style={styles.emptyText}>No categories added yet. Tap "+ Add New" to create one.</Text>
+          )}
+        </View>
 
         {/* PREFERENCES Section */}
         <Text style={styles.sectionLabel}>PREFERENCES</Text>
@@ -344,9 +561,90 @@ export default function ProfileScreen({ navigation }: any) {
           </View>
         </View>
       </Modal>
+
+      {/* Add Custom Category Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={addCategoryModalVisible}
+        onRequestClose={() => setAddCategoryModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add Custom Category</Text>
+            
+            <Text style={styles.modalLabel}>Category Name</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={newCategoryName}
+              onChangeText={setNewCategoryName}
+              placeholder="e.g., Coffee, Gym, Subscription"
+              placeholderTextColor="#999"
+            />
+            
+            <Text style={styles.modalLabel}>Category Icon</Text>
+            <TouchableOpacity
+              style={styles.iconPickerBtn}
+              onPress={() => setShowIconPicker(true)}
+            >
+              <Text style={styles.iconPickerText}>{newCategoryIcon}</Text>
+              <Text style={styles.iconPickerChange}>Change</Text>
+            </TouchableOpacity>
+            
+            <Text style={styles.modalLabel}>Monthly Budget (₹)</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={newCategoryBudget}
+              onChangeText={setNewCategoryBudget}
+              keyboardType="numeric"
+              placeholder="Enter budget"
+              placeholderTextColor="#999"
+            />
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setAddCategoryModalVisible(false)}
+                disabled={addingCategory}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.saveButton]}
+                onPress={handleAddCustomCategory}
+                disabled={addingCategory}
+              >
+                {addingCategory ? (
+                  <ActivityIndicator size="small" color={COLORS.white} />
+                ) : (
+                  <Text style={styles.saveButtonText}>Add Category</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Icon Picker Modal */}
+      {renderIconPickerModal()}
     </SafeAreaView>
   );
 }
+
+// Helper function to get default icons for standard categories
+const getDefaultIcon = (category: string): string => {
+  const iconMap: Record<string, string> = {
+    'Food': '🍔',
+    'Travel': '🚕',
+    'Shopping': '🛒',
+    'Health': '💊',
+    'Bills': '📱',
+    'Entertainment': '🎬',
+    'Rent': '🏠',
+    'Other': '💰',
+  };
+  return iconMap[category] || '📌';
+};
 
 const styles = StyleSheet.create({
   safe: {
@@ -358,11 +656,30 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 18,
     backgroundColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    color: COLORS.white,
+    fontSize: 28,
+    fontWeight: '600',
   },
   headerTitle: {
     color: COLORS.white,
-    fontSize: 26,
-    fontWeight: '800',
+    fontSize: 20,
+    fontWeight: '700',
+    flex: 1,
+    textAlign: 'center',
+  },
+  placeholder: {
+    width: 40,
   },
   content: {
     backgroundColor: COLORS.bg,
@@ -407,22 +724,29 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     marginTop: 3,
   },
-  editBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: COLORS.primaryLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  editIcon: { fontSize: 18 },
-  editIconSmall: { fontSize: 14, color: COLORS.primary, marginLeft: 8 },
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
     color: COLORS.textMuted,
     letterSpacing: 1,
     marginBottom: 10,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  addCategoryBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 8,
+  },
+  addCategoryBtnText: {
+    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: '600',
   },
   settingsCard: {
     flexDirection: 'row',
@@ -463,12 +787,6 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
   },
-  categoryListTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginBottom: 12,
-  },
   categoryItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -477,18 +795,37 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
+  categoryInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  categoryIcon: {
+    fontSize: 20,
+  },
   categoryName: {
     fontSize: 14,
     color: COLORS.text,
-  },
-  categoryValueRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1,
   },
   categoryAmount: {
     fontSize: 14,
     fontWeight: '600',
     color: COLORS.primary,
+  },
+  removeCategoryBtn: {
+    padding: 8,
+    marginLeft: 8,
+  },
+  removeCategoryBtnText: {
+    fontSize: 16,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: COLORS.textMuted,
+    fontSize: 14,
+    paddingVertical: 20,
   },
   version: {
     textAlign: 'center',
@@ -545,6 +882,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
+  modalLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 8,
+    marginTop: 10,
+  },
   modalInput: {
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -552,7 +896,6 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     marginBottom: 20,
-    textAlign: 'center',
   },
   modalButtons: {
     flexDirection: 'row',
@@ -578,4 +921,40 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontWeight: '600',
   },
+  iconPickerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 10,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: 20,
+  },
+  iconPickerText: { fontSize: 30 },
+  iconPickerChange: { fontSize: 14, color: COLORS.primary, fontWeight: '500' },
+  closeModalBtn: { marginTop: 15, paddingVertical: 10, alignItems: 'center' },
+  closeModalBtnText: { color: '#999', fontWeight: '500' },
+  iconGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconOption: { 
+    width: 50, 
+    height: 50, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    margin: 5, 
+    borderRadius: 10, 
+    backgroundColor: '#f5f5f5' 
+  },
+  iconOptionSelected: { 
+    backgroundColor: COLORS.primary, 
+    borderWidth: 2, 
+    borderColor: '#fff' 
+  },
+  iconOptionText: { fontSize: 28 },
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -41,7 +42,6 @@ const COLORS = {
   border: '#D1E9DC',
 };
 
-// Category icons mapping
 const getCategoryIcon = (category: string): string => {
   const icons: Record<string, string> = {
     Food: '🍔',
@@ -51,71 +51,145 @@ const getCategoryIcon = (category: string): string => {
     Bills: '📱',
     Entertainment: '🎬',
     Rent: '🏠',
-    Other: '···',
+    Other: '💰',
   };
   return icons[category] || '💰';
 };
 
 export default function HomeScreen({ navigation }: Props) {
-  const { expenses, subscribeToExpenses, loading: expensesLoading } = useExpenseStore();
-  const { monthlyBudget, fetchBudget, loading: budgetLoading } = useUserStore();
-  const [budgetStatus, setBudgetStatus] = useState({ totalSpent: 0, remaining: 0, percentageSpent: 0 });
+  const {
+    expenses,
+    subscribeToExpenses,
+    loading: expensesLoading,
+    error: expensesError,
+    refreshExpenses,
+  } = useExpenseStore();
+
+  const {
+    monthlyBudget,
+    categoryBudgets,
+    fetchBudget,
+    loading: budgetLoading,
+    error: budgetError,
+  } = useUserStore();
+
+  const [budgetStatus, setBudgetStatus] = useState({
+    totalSpent: 0,
+    remaining: 0,
+    percentageSpent: 0,
+  });
   const [userName, setUserName] = useState('User');
+  const [refreshing, setRefreshing] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-  useEffect(() => {
-    // Initialize notifications
-    initializeNotifications();
-    
-    // Setup notification press listener
-    const unsubscribeNotification = setupNotificationListener(navigation);
-    
-    // Get current user name
-    const user = auth().currentUser;
-    if (user?.displayName) {
-      setUserName(user.displayName.split(' ')[0]);
-    } else if (user?.email) {
-      setUserName(user.email.split('@')[0]);
+  // ─── Load user data ───────────────────────────────────────────────────────
+  const loadUserData = useCallback(async () => {
+    try {
+      const user = auth().currentUser;
+      if (user?.displayName) {
+        setUserName(user.displayName.split(' ')[0]);
+      } else if (user?.email) {
+        setUserName(user.email.split('@')[0]);
+      } else {
+        setUserName('Guest');
+      }
+    } catch (err) {
+      console.error('Error loading user data:', err);
     }
-
-    // Subscribe to expenses and fetch budget
-    const unsubscribeExpenses = subscribeToExpenses();
-    fetchBudget();
-    
-    return () => {
-      unsubscribeExpenses();
-      unsubscribeNotification();
-    };
   }, []);
 
+  // ─── Initialize on mount ──────────────────────────────────────────────────
   useEffect(() => {
-    const calculateStatus = async () => {
-      if (expenses.length > 0) {
-        const status = await calculateBudgetStatus(expenses);
-        setBudgetStatus({
-          totalSpent: status.totalSpent,
-          remaining: status.remaining,
-          percentageSpent: status.percentageSpent,
-        });
-      } else {
-        setBudgetStatus({
-          totalSpent: 0,
-          remaining: monthlyBudget,
-          percentageSpent: 0,
-        });
+    let unsubscribeExpenses: (() => void) | undefined;
+    let unsubscribeNotification: (() => void) | undefined;
+    let isMounted = true;
+
+    const initializeData = async () => {
+      try {
+        await loadUserData();
+        await initializeNotifications();
+        unsubscribeNotification = setupNotificationListener(navigation);
+
+        const user = auth().currentUser;
+        if (!user) {
+          if (isMounted) navigation.navigate('Login');
+          return;
+        }
+
+        unsubscribeExpenses = subscribeToExpenses();
+
+        // Non-blocking — budgetLoaded guard in the store means this is a no-op
+        // on every re-mount after the first successful fetch.
+        fetchBudget().catch(err => console.error('Budget fetch error:', err));
+
+        if (isMounted) setInitialized(true);
+      } catch (err) {
+        console.error('Error initializing data:', err);
+        if (isMounted) setInitialized(true);
       }
     };
-    calculateStatus();
-  }, [expenses, monthlyBudget]);
 
-  // Get recent expenses (last 3)
-  const recentExpenses = expenses.slice(0, 3).map(exp => ({
-    id: exp.id,
-    icon: getCategoryIcon(exp.category),
-    title: exp.note || exp.category,
-    category: exp.category,
-    time: exp.date ? new Date((exp.date as any).toDate?.() || exp.date).toLocaleDateString() : 'Today',
-    amount: exp.amount,
-  }));
+    initializeData();
+
+    return () => {
+      isMounted = false;
+      unsubscribeExpenses?.();
+      unsubscribeNotification?.();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── Sync budget status whenever expenses or budget values change ──────────
+  // calculateBudgetStatus is now pure / synchronous — no extra Firestore call.
+  useEffect(() => {
+    const budget = monthlyBudget || 50000;
+    const budgets = categoryBudgets || {};
+
+    if (expenses && expenses.length > 0) {
+      const status = calculateBudgetStatus(expenses, budget, budgets);
+      setBudgetStatus({
+        totalSpent: status.totalSpent,
+        remaining: status.remaining,
+        percentageSpent: status.percentageSpent,
+      });
+    } else {
+      setBudgetStatus({
+        totalSpent: 0,
+        remaining: budget,
+        percentageSpent: 0,
+      });
+    }
+  }, [expenses, monthlyBudget, categoryBudgets]);
+
+  // ─── Pull-to-refresh ──────────────────────────────────────────────────────
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await loadUserData();
+      await fetchBudget();
+      await refreshExpenses();
+    } catch (err) {
+      console.error('Error refreshing data:', err);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadUserData, fetchBudget, refreshExpenses]);
+
+  // ─── Derived data ─────────────────────────────────────────────────────────
+  const recentExpenses =
+    expenses && expenses.length > 0
+      ? expenses.slice(0, 5).map(exp => ({
+          id: exp.id,
+          icon: getCategoryIcon(exp.category),
+          title: exp.note || exp.category,
+          category: exp.category,
+          time: exp.date
+            ? new Date(
+                (exp.date as any).toDate?.() || exp.date,
+              ).toLocaleDateString()
+            : 'Today',
+          amount: exp.amount,
+        }))
+      : [];
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -124,19 +198,33 @@ export default function HomeScreen({ navigation }: Props) {
     return 'Good evening';
   };
 
-  // Navigate to Profile screen when avatar is tapped
-  const goToProfile = () => {
-    navigation.navigate('Profile');
-  };
+  // ─── Loading / error gates ────────────────────────────────────────────────
+  const showLoading = !initialized || (expensesLoading && expenses.length === 0);
 
-  if (expensesLoading || budgetLoading) {
+  if (showLoading) {
     return (
-      <SafeAreaView style={[styles.safe, { justifyContent: 'center', alignItems: 'center' }]}>
+      <SafeAreaView style={[styles.safe, styles.centered]}>
         <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.loadingText}>Loading your expenses...</Text>
+        <Text style={styles.loadingSubText}>
+          {expensesLoading ? 'Loading expenses...' : 'Initializing...'}
+        </Text>
       </SafeAreaView>
     );
   }
 
+  if (expensesError) {
+    return (
+      <SafeAreaView style={[styles.safe, styles.centered]}>
+        <Text style={styles.errorText}>⚠️ {expensesError}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={onRefresh}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
+
+  // ─── Main render ──────────────────────────────────────────────────────────
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
@@ -147,8 +235,10 @@ export default function HomeScreen({ navigation }: Props) {
           <Text style={styles.greeting}>{getGreeting()} 🌿</Text>
           <Text style={styles.userName}>{userName}</Text>
         </View>
-        {/* Avatar - Now Clickable to navigate to Profile */}
-        <TouchableOpacity onPress={goToProfile} activeOpacity={0.7}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Profile')}
+          activeOpacity={0.7}
+        >
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{userName.charAt(0).toUpperCase()}</Text>
           </View>
@@ -159,26 +249,76 @@ export default function HomeScreen({ navigation }: Props) {
         <ScrollView
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[COLORS.primary]}
+            />
+          }
         >
           {/* Budget Card */}
           <View style={styles.budgetCard}>
-            <Text style={styles.budgetLabel}>TOTAL SPENT THIS MONTH</Text>
-            <Text style={styles.budgetAmount}>₹{budgetStatus.totalSpent.toLocaleString('en-IN')}</Text>
-            <Text style={styles.budgetSub}>
-              Budget: ₹{monthlyBudget.toLocaleString('en-IN')} · Remaining: ₹{budgetStatus.remaining.toLocaleString('en-IN')}
-            </Text>
-            <View style={styles.progressRow}>
-              <Text style={styles.progressLabel}>Spent {Math.round(budgetStatus.percentageSpent)}%</Text>
-              <Text style={styles.progressLabel}>₹{monthlyBudget.toLocaleString('en-IN')}</Text>
-            </View>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${Math.min(budgetStatus.percentageSpent, 100)}%` as any }]} />
-            </View>
+            {budgetLoading ? (
+              <>
+                <Text style={styles.budgetLabel}>LOADING BUDGET...</Text>
+                <ActivityIndicator
+                  size="small"
+                  color={COLORS.primary}
+                  style={{ marginVertical: 20 }}
+                />
+                <Text style={styles.budgetSub}>Fetching your budget information</Text>
+              </>
+            ) : budgetError ? (
+              <>
+                <Text style={styles.budgetLabel}>BUDGET UNAVAILABLE</Text>
+                <Text style={styles.budgetAmount}>
+                  ₹{budgetStatus.totalSpent.toLocaleString('en-IN')}
+                </Text>
+                <Text style={styles.budgetSub}>Spent this month</Text>
+                <Text style={[styles.budgetSub, { color: COLORS.textMuted, marginTop: 8 }]}>
+                  Default budget: ₹50,000
+                </Text>
+                <TouchableOpacity
+                  onPress={() => fetchBudget()}
+                  style={styles.budgetRetry}
+                >
+                  <Text style={styles.budgetRetryText}>↻ Retry loading budget</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <Text style={styles.budgetLabel}>TOTAL SPENT THIS MONTH</Text>
+                <Text style={styles.budgetAmount}>
+                  ₹{budgetStatus.totalSpent.toLocaleString('en-IN')}
+                </Text>
+                <Text style={styles.budgetSub}>
+                  Budget: ₹{(monthlyBudget || 50000).toLocaleString('en-IN')} · Remaining: ₹
+                  {budgetStatus.remaining.toLocaleString('en-IN')}
+                </Text>
+                <View style={styles.progressRow}>
+                  <Text style={styles.progressLabel}>
+                    Spent {Math.round(budgetStatus.percentageSpent)}%
+                  </Text>
+                  <Text style={styles.progressLabel}>
+                    ₹{(monthlyBudget || 50000).toLocaleString('en-IN')}
+                  </Text>
+                </View>
+                <View style={styles.progressBar}>
+                  <View
+                    style={[
+                      styles.progressFill,
+                      { width: `${Math.min(budgetStatus.percentageSpent, 100)}%` },
+                    ]}
+                  />
+                </View>
+              </>
+            )}
           </View>
 
-          {/* AI Insight - CLICKABLE CARD */}
-          <TouchableOpacity 
-            style={styles.insightCard} 
+          {/* AI Insight Card */}
+          <TouchableOpacity
+            style={styles.insightCard}
             onPress={() => navigation.navigate('AIInsights')}
             activeOpacity={0.8}
           >
@@ -187,7 +327,7 @@ export default function HomeScreen({ navigation }: Props) {
               <Text style={styles.insightArrow}>→</Text>
             </View>
             <Text style={styles.insightText}>
-              {budgetStatus.percentageSpent > 80 
+              {budgetStatus.percentageSpent > 80
                 ? `⚠️ You've spent ${Math.round(budgetStatus.percentageSpent)}% of your budget. Tap for detailed insights.`
                 : `🎯 You're on track! ${Math.round(100 - budgetStatus.percentageSpent)}% of budget remaining. Tap for AI analysis.`}
             </Text>
@@ -229,7 +369,7 @@ export default function HomeScreen({ navigation }: Props) {
             </TouchableOpacity>
           </View>
 
-          {/* Recent Expenses Header */}
+          {/* Recent Expenses */}
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Expenses</Text>
             <TouchableOpacity onPress={() => navigation.navigate('History')}>
@@ -237,13 +377,14 @@ export default function HomeScreen({ navigation }: Props) {
             </TouchableOpacity>
           </View>
 
-          {/* Expense Items */}
           {recentExpenses.length === 0 ? (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>No expenses yet. Tap + to add your first expense!</Text>
+              <Text style={styles.emptyStateText}>
+                No expenses yet. Tap + to add your first expense!
+              </Text>
             </View>
           ) : (
-            recentExpenses.map((exp) => (
+            recentExpenses.map(exp => (
               <View key={exp.id} style={styles.expenseItem}>
                 <View style={styles.expenseIconWrap}>
                   <Text style={styles.expenseIcon}>{exp.icon}</Text>
@@ -254,7 +395,9 @@ export default function HomeScreen({ navigation }: Props) {
                     {exp.category} · {exp.time}
                   </Text>
                 </View>
-                <Text style={styles.expenseAmount}>-₹{exp.amount.toLocaleString('en-IN')}</Text>
+                <Text style={styles.expenseAmount}>
+                  -₹{exp.amount.toLocaleString('en-IN')}
+                </Text>
               </View>
             ))
           )}
@@ -274,10 +417,29 @@ export default function HomeScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  safe: {
+  safe: { flex: 1, backgroundColor: COLORS.primary },
+  centered: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: COLORS.primary,
   },
+  loadingText: { marginTop: 12, color: COLORS.white, fontSize: 14 },
+  loadingSubText: { marginTop: 8, color: COLORS.white, fontSize: 12, opacity: 0.8 },
+  errorText: {
+    color: COLORS.white,
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 20,
+  },
+  retryButton: {
+    backgroundColor: COLORS.accent,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  retryButtonText: { color: COLORS.white, fontSize: 16, fontWeight: '600' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -287,17 +449,8 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     backgroundColor: COLORS.primary,
   },
-  greeting: {
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: 14,
-    fontWeight: '400',
-    marginBottom: 2,
-  },
-  userName: {
-    color: COLORS.white,
-    fontSize: 24,
-    fontWeight: '700',
-  },
+  greeting: { color: 'rgba(255,255,255,0.85)', fontSize: 14, fontWeight: '400', marginBottom: 2 },
+  userName: { color: COLORS.white, fontSize: 24, fontWeight: '700' },
   avatar: {
     width: 44,
     height: 44,
@@ -306,20 +459,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  avatarText: {
-    color: COLORS.white,
-    fontWeight: '700',
-    fontSize: 15,
-  },
-  scrollWrapper: {
-    flex: 1,
-    backgroundColor: COLORS.primary,
-  },
-  content: {
-    backgroundColor: COLORS.bg,
-    paddingHorizontal: 16,
-    paddingBottom: 100,
-  },
+  avatarText: { color: COLORS.white, fontWeight: '700', fontSize: 15 },
+  scrollWrapper: { flex: 1, backgroundColor: COLORS.primary },
+  content: { backgroundColor: COLORS.bg, paddingHorizontal: 16, paddingBottom: 100 },
   budgetCard: {
     backgroundColor: COLORS.white,
     borderRadius: 20,
@@ -339,38 +481,14 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 4,
   },
-  budgetAmount: {
-    fontSize: 38,
-    fontWeight: '800',
-    color: COLORS.text,
-    marginBottom: 4,
-  },
-  budgetSub: {
-    fontSize: 13,
-    color: COLORS.textMuted,
-    marginBottom: 14,
-  },
-  progressRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  progressLabel: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    fontWeight: '500',
-  },
-  progressBar: {
-    height: 10,
-    backgroundColor: '#D1E9DC',
-    borderRadius: 6,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: COLORS.primary,
-    borderRadius: 6,
-  },
+  budgetAmount: { fontSize: 38, fontWeight: '800', color: COLORS.text, marginBottom: 4 },
+  budgetSub: { fontSize: 13, color: COLORS.textMuted, marginBottom: 14 },
+  progressRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  progressLabel: { fontSize: 12, color: COLORS.textMuted, fontWeight: '500' },
+  progressBar: { height: 10, backgroundColor: '#D1E9DC', borderRadius: 6, overflow: 'hidden' },
+  progressFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 6 },
+  budgetRetry: { marginTop: 10, paddingVertical: 8, alignItems: 'center' },
+  budgetRetryText: { color: COLORS.primary, fontSize: 14, fontWeight: '600' },
   insightCard: {
     backgroundColor: COLORS.primaryDark,
     borderRadius: 16,
@@ -387,28 +505,10 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     marginBottom: 12,
   },
-  insightBadgeText: {
-    color: COLORS.white,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  insightArrow: {
-    color: COLORS.white,
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  insightText: {
-    color: 'rgba(255,255,255,0.95)',
-    fontSize: 15,
-    lineHeight: 22,
-    fontWeight: '400',
-  },
-  quickActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 22,
-    gap: 10,
-  },
+  insightBadgeText: { color: COLORS.white, fontSize: 13, fontWeight: '600' },
+  insightArrow: { color: COLORS.white, fontSize: 12, fontWeight: '500' },
+  insightText: { color: 'rgba(255,255,255,0.95)', fontSize: 15, lineHeight: 22, fontWeight: '400' },
+  quickActions: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 22, gap: 10 },
   actionBtn: {
     flex: 1,
     alignItems: 'center',
@@ -421,40 +521,18 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 1,
   },
-  actionIconWrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionIconPlus: {
-    fontSize: 26,
-    color: COLORS.text,
-    lineHeight: 30,
-    fontWeight: '300',
-  },
-  actionIcon: {
-    fontSize: 22,
-  },
-  actionLabel: {
-    fontSize: 13,
-    color: COLORS.textMuted,
-    fontWeight: '500',
-  },
+  actionIconWrap: { alignItems: 'center', justifyContent: 'center' },
+  actionIconPlus: { fontSize: 26, color: COLORS.text, lineHeight: 30, fontWeight: '300' },
+  actionIcon: { fontSize: 22 },
+  actionLabel: { fontSize: 13, color: COLORS.textMuted, fontWeight: '500' },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
   },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  seeAll: {
-    fontSize: 14,
-    color: COLORS.primary,
-    fontWeight: '600',
-  },
+  sectionTitle: { fontSize: 17, fontWeight: '700', color: COLORS.text },
+  seeAll: { fontSize: 14, color: COLORS.primary, fontWeight: '600' },
   expenseItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -477,27 +555,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 14,
   },
-  expenseIcon: {
-    fontSize: 22,
-  },
-  expenseInfo: {
-    flex: 1,
-  },
-  expenseTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: COLORS.text,
-  },
-  expenseMeta: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    marginTop: 3,
-  },
-  expenseAmount: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#E53E3E',
-  },
+  expenseIcon: { fontSize: 22 },
+  expenseInfo: { flex: 1 },
+  expenseTitle: { fontSize: 15, fontWeight: '600', color: COLORS.text },
+  expenseMeta: { fontSize: 12, color: COLORS.textMuted, marginTop: 3 },
+  expenseAmount: { fontSize: 15, fontWeight: '700', color: '#E53E3E' },
   fab: {
     position: 'absolute',
     right: 20,
@@ -514,21 +576,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
   },
-  fabText: {
-    color: COLORS.white,
-    fontSize: 28,
-    fontWeight: '300',
-    lineHeight: 32,
-  },
+  fabText: { color: COLORS.white, fontSize: 28, fontWeight: '300', lineHeight: 32 },
   emptyState: {
     backgroundColor: COLORS.white,
     borderRadius: 14,
     padding: 40,
     alignItems: 'center',
   },
-  emptyStateText: {
-    color: COLORS.textMuted,
-    fontSize: 14,
-    textAlign: 'center',
-  },
+  emptyStateText: { color: COLORS.textMuted, fontSize: 14, textAlign: 'center' },
 });

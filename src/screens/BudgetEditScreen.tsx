@@ -6,12 +6,12 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  Alert,
   ActivityIndicator,
   StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUserStore } from '../services/stores/userStore';
+import { useAlertStore } from '../services/stores/alertStore';
 
 const COLORS = {
   primary: '#1A9B5E',
@@ -37,6 +37,8 @@ export default function BudgetEditScreen({ navigation }: any) {
   );
   const [saving, setSaving] = useState(false);
 
+  const { showAlert } = useAlertStore();
+
   const updateCategory = (category: string, value: string) => {
     setEditCategories(prev => ({ ...prev, [category]: value }));
   };
@@ -44,23 +46,46 @@ export default function BudgetEditScreen({ navigation }: any) {
   const handleSaveAll = async () => {
     setSaving(true);
     
-    // Save monthly budget
+    // Validate monthly budget
     const monthlyNum = parseFloat(editMonthly);
-    if (!isNaN(monthlyNum) && monthlyNum > 0) {
+    if (isNaN(monthlyNum) || monthlyNum <= 0) {
+      showAlert({
+        title: 'Invalid Budget',
+        message: 'Please enter a valid monthly budget amount.',
+        type: 'error',
+      });
+      setSaving(false);
+      return;
+    }
+    
+    try {
+      // Save monthly budget
       await setMonthlyBudget(monthlyNum);
-    }
-    
-    // Save all category budgets
-    for (const [category, amount] of Object.entries(editCategories)) {
-      const amountNum = parseFloat(amount);
-      if (!isNaN(amountNum) && amountNum >= 0) {
-        await setCategoryBudget(category, amountNum);
+      
+      // Save all category budgets
+      for (const [category, amount] of Object.entries(editCategories)) {
+        const amountNum = parseFloat(amount);
+        if (!isNaN(amountNum) && amountNum >= 0) {
+          await setCategoryBudget(category, amountNum);
+        }
       }
+      
+      showAlert({
+        title: 'Success! 🎉',
+        message: 'All budgets updated successfully!',
+        type: 'success',
+        onDismiss: () => navigation.goBack(),
+      });
+    } catch (error: any) {
+      console.error('Error saving budgets:', error);
+      showAlert({
+        title: 'Error',
+        message: 'Failed to update budgets. Please try again.',
+        type: 'error',
+      });
+    } finally {
+      setSaving(false);
     }
-    
-    setSaving(false);
-    Alert.alert('Success', 'All budgets updated successfully!');
-    navigation.goBack();
   };
 
   const totalCategoryBudget = Object.values(editCategories).reduce(
@@ -134,11 +159,16 @@ export default function BudgetEditScreen({ navigation }: any) {
               ₹{remaining.toLocaleString('en-IN')}
             </Text>
           </View>
+          {remaining < 0 && (
+            <Text style={styles.warningMessage}>
+              ⚠️ Category budgets exceed monthly budget!
+            </Text>
+          )}
         </View>
 
         {/* Save Button */}
-        <TouchableOpacity style={styles.saveBtn} onPress={handleSaveAll} disabled={saving}>
-          {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Save All Changes</Text>}
+        <TouchableOpacity style={styles.saveBtn} onPress={handleSaveAll} disabled={saving || loading}>
+          {saving || loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveBtnText}>Save All Changes</Text>}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -174,6 +204,7 @@ const styles = StyleSheet.create({
   summaryValue: { fontWeight: '600', color: COLORS.text },
   warningRow: { borderTopWidth: 1, borderTopColor: COLORS.danger, paddingTop: 8, marginTop: 8 },
   warningText: { color: COLORS.danger },
+  warningMessage: { fontSize: 12, color: COLORS.danger, marginTop: 8, textAlign: 'center' },
   saveBtn: { backgroundColor: COLORS.primary, borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 8 },
   saveBtnText: { color: COLORS.white, fontSize: 16, fontWeight: 'bold' },
 });

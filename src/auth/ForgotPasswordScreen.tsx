@@ -8,25 +8,35 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import auth from '@react-native-firebase/auth';
+import { useAlertStore } from '../services/stores/alertStore';
 
 export default function ForgotPasswordScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  
+  const { showAlert } = useAlertStore();
 
   const handleResetPassword = async () => {
     if (!email.trim()) {
-      Alert.alert('Error', 'Please enter your email address');
+      showAlert({
+        title: 'Error',
+        message: 'Please enter your email address',
+        type: 'error',
+      });
       return;
     }
 
     if (!email.includes('@') || !email.includes('.')) {
-      Alert.alert('Error', 'Please enter a valid email address');
+      showAlert({
+        title: 'Error',
+        message: 'Please enter a valid email address',
+        type: 'error',
+      });
       return;
     }
 
@@ -35,16 +45,17 @@ export default function ForgotPasswordScreen({ navigation }: any) {
     try {
       await auth().sendPasswordResetEmail(email);
       setEmailSent(true);
-      Alert.alert(
-        'Password Reset Email Sent',
-        `We've sent a password reset link to ${email}.\n\nPlease check your inbox and follow the instructions to reset your password.`,
-        [
+      showAlert({
+        title: 'Password Reset Email Sent',
+        message: `We've sent a password reset link to ${email}.\n\nPlease check your inbox and follow the instructions to reset your password.`,
+        type: 'success',
+        buttons: [
           {
             text: 'OK',
             onPress: () => navigation.navigate('Login'),
           },
-        ]
-      );
+        ],
+      });
     } catch (error: any) {
       console.error('Password reset error:', error);
       
@@ -57,7 +68,11 @@ export default function ForgotPasswordScreen({ navigation }: any) {
         errorMessage = 'Too many requests. Please try again later.';
       }
       
-      Alert.alert('Error', errorMessage);
+      showAlert({
+        title: 'Error',
+        message: errorMessage,
+        type: 'error',
+      });
     } finally {
       setLoading(false);
     }

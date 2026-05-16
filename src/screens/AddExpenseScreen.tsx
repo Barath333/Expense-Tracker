@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,12 @@ import {
   TextInput,
   ScrollView,
   StatusBar,
-  Alert,
   Dimensions,
   ActivityIndicator,
+  Modal,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { TabParamList } from '../navigation/TabNavigator';
@@ -22,6 +25,9 @@ import { addExpense } from '../services/firebase/expenseService';
 import { useExpenseStore } from '../services/stores/expenseStore';
 import { initializeNotifications, showBudgetAlert, showCategoryBudgetAlert } from '../services/notificationService';
 import { getMonthlyBudget } from '../services/firebase/budgetService';
+import { useUserStore } from '../services/stores/userStore';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, getDay, startOfWeek, endOfWeek, addDays, isToday } from 'date-fns';
+import { useAlertStore } from '../services/stores/alertStore';
 
 type Props = BottomTabScreenProps<TabParamList, 'Add'>;
 
@@ -38,7 +44,8 @@ const COLORS = {
   danger: '#E53E3E',
 };
 
-const CATEGORIES = [
+// Default categories
+const DEFAULT_CATEGORIES = [
   { id: 'Food', icon: '🍔', label: 'Food' },
   { id: 'Travel', icon: '🚕', label: 'Travel' },
   { id: 'Shopping', icon: '🛒', label: 'Shopping' },
@@ -46,13 +53,15 @@ const CATEGORIES = [
   { id: 'Bills', icon: '📱', label: 'Bills' },
   { id: 'Entertainment', icon: '🎬', label: 'Entertainment' },
   { id: 'Rent', icon: '🏠', label: 'Rent' },
-  { id: 'Other', icon: '···', label: 'Other' },
+  { id: 'Other', icon: '💰', label: 'Other' },
 ];
 
 const { width } = Dimensions.get('window');
 const ITEM_SIZE = (width - 32 - 30) / 4;
+const CALENDAR_DAY_SIZE = (width - 48) / 7;
 
 export default function AddExpenseScreen({ navigation }: Props) {
+  // ========== ALL useState Hooks First ==========
   const [amount, setAmount] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Food');
   const [note, setNote] = useState('');
@@ -60,34 +69,91 @@ export default function AddExpenseScreen({ navigation }: Props) {
   const [receiptUri, setReceiptUri] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [allCategories, setAllCategories] = useState(DEFAULT_CATEGORIES);
+  const [calendarVisible, setCalendarVisible] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [calendarDays, setCalendarDays] = useState<Date[]>([]);
   
+  // ========== Refs ==========
+  const scrollViewRef = useRef<ScrollView>(null);
+  const noteInputRef = useRef<TextInput>(null);
+  
+  // ========== ALL Store Hooks Next ==========
   const { addExpenseToStore } = useExpenseStore();
+  const { categoryBudgets, customCategories, fetchBudget } = useUserStore();
+  const { showAlert } = useAlertStore();
+  
+  // ========== ALL useCallback Hooks Next ==========
+  const loadCategories = useCallback(async () => {
+    try {
+      await fetchBudget();
+      const customCats = (customCategories || []).map((cat: any) => ({
+        id: cat.name,
+        icon: cat.icon || '📌',
+        label: cat.name,
+        isCustom: true
+      }));
+      setAllCategories([...DEFAULT_CATEGORIES, ...customCats]);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  }, [customCategories, fetchBudget]);
+
+  // Generate calendar days
+  const generateCalendarDays = useCallback(() => {
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(currentMonth);
+    const startDate = startOfWeek(monthStart, { weekStartsOn: 0 }); // Sunday first
+    const endDate = endOfWeek(monthEnd, { weekStartsOn: 0 });
+    
+    const days = eachDayOfInterval({ start: startDate, end: endDate });
+    setCalendarDays(days);
+  }, [currentMonth]);
+
+  // ========== ALL useEffect Hooks Next ==========
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
 
   useEffect(() => {
     initializeNotifications();
   }, []);
 
-  const dateStr = selectedDate.toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    weekday: 'long',
-  });
+  useEffect(() => {
+    if (calendarVisible) {
+      generateCalendarDays();
+    }
+  }, [calendarVisible, currentMonth, generateCalendarDays]);
 
-  const handleDateChange = () => {
-    Alert.alert(
-      'Select Date',
-      'Choose a date for this expense',
-      [
-        { text: 'Today', onPress: () => setSelectedDate(new Date()) },
-        { text: 'Yesterday', onPress: () => {
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          setSelectedDate(yesterday);
-        }},
-        { text: 'Cancel', style: 'cancel' },
-      ]
-    );
+  // ========== Helper Functions ==========
+  const formatDateDisplay = (date: Date) => {
+    return format(date, 'EEEE, MMMM d, yyyy');
+  };
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    setCalendarVisible(false);
+  };
+
+  const handlePreviousMonth = () => {
+    setCurrentMonth(subMonths(currentMonth, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(addMonths(currentMonth, 1));
+  };
+
+  const handleTodayPress = () => {
+    setCurrentMonth(new Date());
+    setSelectedDate(new Date());
+    setCalendarVisible(false);
+  };
+
+  const handleNoteFocus = () => {
+    // Scroll to note input when it gains focus
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
   };
 
   const handleImagePick = (type: 'camera' | 'gallery') => {
@@ -101,12 +167,20 @@ export default function AddExpenseScreen({ navigation }: Props) {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.error) {
-        Alert.alert('Error', 'Failed to pick image: ' + response.error);
+        showAlert({
+          title: 'Error',
+          message: 'Failed to pick image: ' + response.error,
+          type: 'error',
+        });
       } else if (response.assets && response.assets[0]) {
         const uri = response.assets[0].uri;
         if (uri) {
           setReceiptUri(uri);
-          Alert.alert('Success', 'Receipt attached successfully!');
+          showAlert({
+            title: 'Success',
+            message: 'Receipt attached successfully!',
+            type: 'success',
+          });
         }
       }
     };
@@ -118,10 +192,8 @@ export default function AddExpenseScreen({ navigation }: Props) {
     }
   };
 
-  // Function to check and send notifications after expense is saved
   const checkBudgetAndSendNotifications = async (userId: string, selectedCat: string) => {
     try {
-      // Get current month start and end
       const monthStart = new Date();
       monthStart.setDate(1);
       monthStart.setHours(0, 0, 0, 0);
@@ -131,7 +203,6 @@ export default function AddExpenseScreen({ navigation }: Props) {
       monthEnd.setDate(0);
       monthEnd.setHours(23, 59, 59, 999);
       
-      // Get all expenses for current month
       const snapshot = await firestore()
         .collection('users')
         .doc(userId)
@@ -143,17 +214,14 @@ export default function AddExpenseScreen({ navigation }: Props) {
       const monthExpenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as any[];
       const totalSpent = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
       
-      // Get monthly budget
-      const { monthlyBudget, categoryBudgets } = await getMonthlyBudget();
+      const { monthlyBudget, categoryBudgets: budgets } = await getMonthlyBudget();
       const percentageSpent = (totalSpent / monthlyBudget) * 100;
       
-      // Check and send monthly budget alert
       if (percentageSpent >= 80) {
         await showBudgetAlert(percentageSpent, totalSpent, monthlyBudget);
       }
       
-      // Check category budget
-      const categoryBudget = categoryBudgets[selectedCat] || 0;
+      const categoryBudget = budgets[selectedCat] || 0;
       if (categoryBudget > 0) {
         const categoryTotal = monthExpenses
           .filter(e => e.category === selectedCat)
@@ -168,6 +236,18 @@ export default function AddExpenseScreen({ navigation }: Props) {
     }
   };
 
+  const removeReceipt = () => {
+    showAlert({
+      title: 'Remove Receipt',
+      message: 'Are you sure you want to remove the attached receipt?',
+      type: 'warning',
+      buttons: [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => setReceiptUri(null) }
+      ]
+    });
+  };
+
   const handleSave = async () => {
     console.log('========== HANDLE SAVE STARTED ==========');
     console.log('1. Amount value:', amount);
@@ -176,21 +256,29 @@ export default function AddExpenseScreen({ navigation }: Props) {
     console.log('4. Date:', selectedDate);
     console.log('5. Receipt URI:', receiptUri);
     
-    // Validation
     if (!amount || parseFloat(amount) <= 0) {
       console.log('Validation failed: Invalid amount');
-      Alert.alert('Invalid Amount', 'Please enter a valid expense amount.');
+      showAlert({
+        title: 'Invalid Amount',
+        message: 'Please enter a valid expense amount.',
+        type: 'error',
+      });
       return;
     }
 
-    // Check if user is logged in
     const user = auth().currentUser;
     console.log('6. Current user:', user?.email || 'No user');
     
     if (!user) {
       console.log('Validation failed: No user logged in');
-      Alert.alert('Error', 'You must be logged in to add expenses.');
-      navigation.navigate('Login');
+      showAlert({
+        title: 'Error',
+        message: 'You must be logged in to add expenses.',
+        type: 'error',
+        buttons: [
+          { text: 'OK', onPress: () => navigation.navigate('Login') }
+        ]
+      });
       return;
     }
 
@@ -203,7 +291,6 @@ export default function AddExpenseScreen({ navigation }: Props) {
     let receiptUrl = null;
 
     try {
-      // Upload receipt if exists
       if (receiptUri) {
         console.log('9. Starting receipt upload...');
         setUploading(true);
@@ -213,13 +300,16 @@ export default function AddExpenseScreen({ navigation }: Props) {
         
         if (!receiptUrl) {
           console.log('11. Upload failed, continuing without receipt');
-          Alert.alert('Upload Failed', 'Failed to upload receipt. Expense will be saved without receipt.');
+          showAlert({
+            title: 'Upload Failed',
+            message: 'Failed to upload receipt. Expense will be saved without receipt.',
+            type: 'warning',
+          });
         }
       } else {
         console.log('9. No receipt to upload');
       }
 
-      // Prepare expense data
       const expenseData = {
         amount: amountNum,
         category: selectedCategory,
@@ -230,7 +320,6 @@ export default function AddExpenseScreen({ navigation }: Props) {
 
       console.log('11. Expense data prepared:', JSON.stringify(expenseData, null, 2));
 
-      // Save expense to Firebase
       console.log('12. Calling addExpense function...');
       const result = await addExpense(expenseData);
       console.log('13. addExpense result:', JSON.stringify(result, null, 2));
@@ -238,10 +327,8 @@ export default function AddExpenseScreen({ navigation }: Props) {
       if (result && result.id) {
         console.log('14. SUCCESS! Expense saved with ID:', result.id);
         
-        // Check budgets and send notifications
         await checkBudgetAndSendNotifications(user.uid, selectedCategory);
         
-        // Reset form first
         console.log('15. Resetting form...');
         setAmount('');
         setNote('');
@@ -249,33 +336,36 @@ export default function AddExpenseScreen({ navigation }: Props) {
         setSelectedCategory('Food');
         setSelectedDate(new Date());
         
-        // Show success alert
         console.log('16. Showing success alert');
-        Alert.alert(
-          'Success! 🎉',
-          `₹${amountNum.toLocaleString('en-IN')} expense added successfully.`,
-          [
-            { 
-              text: 'OK', 
-              onPress: () => {
-                console.log('17. OK pressed, navigating to Home');
-                navigation.navigate('Home');
-                console.log('18. Navigation complete');
-              }
-            }
-          ]
-        );
+        showAlert({
+          title: 'Success! 🎉',
+          message: `₹${amountNum.toLocaleString('en-IN')} expense added successfully.`,
+          type: 'success',
+          onDismiss: () => {
+            console.log('17. OK pressed, navigating to Home');
+            navigation.navigate('Home');
+            console.log('18. Navigation complete');
+          }
+        });
         console.log('19. Alert displayed');
       } else {
         console.error('20. ERROR: Save failed, result.id is null or undefined');
         console.error('21. Error details:', result?.error);
-        Alert.alert('Error', result?.error || 'Failed to save expense. Please try again.');
+        showAlert({
+          title: 'Error',
+          message: result?.error || 'Failed to save expense. Please try again.',
+          type: 'error',
+        });
       }
     } catch (error: any) {
       console.error('22. CATCH BLOCK - Unexpected error:', error);
       console.error('23. Error message:', error.message);
       console.error('24. Error stack:', error.stack);
-      Alert.alert('Error', error.message || 'An unexpected error occurred');
+      showAlert({
+        title: 'Error',
+        message: error.message || 'An unexpected error occurred',
+        type: 'error',
+      });
     } finally {
       console.log('25. Finally block - Setting saving to false');
       setSaving(false);
@@ -285,19 +375,98 @@ export default function AddExpenseScreen({ navigation }: Props) {
     }
   };
 
-  const removeReceipt = () => {
-    Alert.alert(
-      'Remove Receipt',
-      'Are you sure you want to remove the attached receipt?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Remove', style: 'destructive', onPress: () => setReceiptUri(null) }
-      ]
+  // Calendar Component
+  const renderCalendar = () => {
+    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    return (
+      <Modal
+        visible={calendarVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setCalendarVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setCalendarVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
+              <View style={styles.calendarContainer}>
+                <View style={styles.calendarHeader}>
+                  <Text style={styles.calendarTitle}>Select Date</Text>
+                  <TouchableOpacity 
+                    onPress={() => setCalendarVisible(false)}
+                    style={styles.closeButton}
+                  >
+                    <Text style={styles.closeButtonText}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.monthNavigation}>
+                  <TouchableOpacity onPress={handlePreviousMonth} style={styles.navButton}>
+                    <Text style={styles.navButtonText}>←</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.monthTitle}>
+                    {format(currentMonth, 'MMMM yyyy')}
+                  </Text>
+                  <TouchableOpacity onPress={handleNextMonth} style={styles.navButton}>
+                    <Text style={styles.navButtonText}>→</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.weekDaysRow}>
+                  {weekDays.map((day, index) => (
+                    <View key={index} style={styles.weekDayCell}>
+                      <Text style={styles.weekDayText}>{day}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                <View style={styles.calendarDaysGrid}>
+                  {calendarDays.map((day, index) => {
+                    const isCurrentMonth = isSameMonth(day, currentMonth);
+                    const isSelected = isSameDay(day, selectedDate);
+                    const isTodayDate = isToday(day);
+                    
+                    return (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.calendarDayCell,
+                          !isCurrentMonth && styles.otherMonthDay,
+                          isSelected && styles.selectedDay,
+                          isTodayDate && styles.todayDay,
+                        ]}
+                        onPress={() => handleDateSelect(day)}
+                      >
+                        <Text
+                          style={[
+                            styles.calendarDayText,
+                            !isCurrentMonth && styles.otherMonthText,
+                            isSelected && styles.selectedDayText,
+                            isTodayDate && styles.todayDayText,
+                          ]}
+                        >
+                          {format(day, 'd')}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+
+                <TouchableOpacity style={styles.todayButton} onPress={handleTodayPress}>
+                  <Text style={styles.todayButtonText}>Today</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     );
   };
 
+  // ========== Render Component ==========
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+  <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+     <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
 
       <View style={styles.header}>
@@ -312,126 +481,131 @@ export default function AddExpenseScreen({ navigation }: Props) {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 80}
       >
-        <View style={styles.amountCard}>
-          <Text style={styles.amountLabel}>AMOUNT (₹)</Text>
-          <TextInput
-            style={styles.amountInput}
-            value={amount}
-            onChangeText={setAmount}
-            keyboardType="numeric"
-            placeholder="0"
-            placeholderTextColor="#C0D9CC"
-            autoFocus
-            cursorColor={COLORS.primary}
-            selectionColor={COLORS.primary}
-          />
-        </View>
+        <ScrollView
+          ref={scrollViewRef}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          automaticallyAdjustKeyboardInsets={true}
+          keyboardDismissMode="interactive"
+        >
+          <View style={styles.amountCard}>
+            <Text style={styles.amountLabel}>AMOUNT (₹)</Text>
+            <TextInput
+              style={styles.amountInput}
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="numeric"
+              placeholder="0"
+              placeholderTextColor="#C0D9CC"
+              autoFocus
+              cursorColor={COLORS.primary}
+              selectionColor={COLORS.primary}
+            />
+          </View>
 
-        <Text style={styles.sectionLabel}>CATEGORY</Text>
-        <View style={styles.categoryGrid}>
-          {CATEGORIES.map(cat => {
-            const selected = selectedCategory === cat.id;
-            return (
-              <TouchableOpacity
-                key={cat.id}
-                style={[styles.categoryItem, selected && styles.categoryItemSelected]}
-                onPress={() => setSelectedCategory(cat.id)}
+          <Text style={styles.sectionLabel}>CATEGORY</Text>
+          <View style={styles.categoryGrid}>
+            {allCategories.map(cat => {
+              const selected = selectedCategory === cat.id;
+              return (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[styles.categoryItem, selected && styles.categoryItemSelected]}
+                  onPress={() => setSelectedCategory(cat.id)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                  <Text style={[styles.categoryLabel, selected && styles.categoryLabelSelected]}>
+                    {cat.label.length > 10 ? cat.label.substring(0, 8) + '...' : cat.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <TouchableOpacity style={styles.dateRow} onPress={() => setCalendarVisible(true)} activeOpacity={0.8}>
+            <Text style={styles.dateIcon}>📅</Text>
+            <Text style={styles.dateText}>{formatDateDisplay(selectedDate)}</Text>
+            <Text style={styles.dateChevron}>›</Text>
+          </TouchableOpacity>
+
+          {/* <View style={styles.receiptSection}>
+            <Text style={styles.sectionLabel}>RECEIPT (OPTIONAL)</Text>
+            <View style={styles.receiptButtons}>
+              <TouchableOpacity 
+                style={styles.receiptBtn} 
+                onPress={() => handleImagePick('camera')}
                 activeOpacity={0.8}
               >
-                <Text style={styles.categoryIcon}>{cat.icon}</Text>
-                <Text style={[styles.categoryLabel, selected && styles.categoryLabelSelected]}>
-                  {cat.label}
-                </Text>
+                <Text style={styles.receiptBtnIcon}>📷</Text>
+                <Text style={styles.receiptBtnText}>Camera</Text>
               </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        <TouchableOpacity style={styles.dateRow} onPress={handleDateChange} activeOpacity={0.8}>
-          <Text style={styles.dateIcon}>📅</Text>
-          <Text style={styles.dateText}>{dateStr}</Text>
-          <Text style={styles.dateChevron}>›</Text>
-        </TouchableOpacity>
-
-        <View style={styles.noteWrapper}>
-          <TextInput
-            style={styles.noteInput}
-            value={note}
-            onChangeText={setNote}
-            placeholder="✏️  Add a note (optional)..."
-            placeholderTextColor={COLORS.textMuted}
-            multiline
-            maxLength={200}
-          />
-        </View>
-
-        {/* <Text style={styles.sectionLabel}>RECEIPT (OPTIONAL)</Text>
-        
-        {receiptUri ? (
-          <View style={styles.receiptPreview}>
-            <Text style={styles.receiptPreviewIcon}>📋</Text>
-            <View style={styles.receiptPreviewInfo}>
-              <Text style={styles.receiptPreviewTitle}>Receipt attached</Text>
-              <Text style={styles.receiptPreviewPath}>
-                {receiptUri.substring(receiptUri.lastIndexOf('/') + 1)}
-              </Text>
+              <TouchableOpacity 
+                style={styles.receiptBtn} 
+                onPress={() => handleImagePick('gallery')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.receiptBtnIcon}>🖼️</Text>
+                <Text style={styles.receiptBtnText}>Gallery</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={removeReceipt} style={styles.removeReceiptBtn}>
-              <Text style={styles.removeReceiptText}>🗑️</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.attachRow}>
-            <TouchableOpacity 
-              style={styles.attachBtn} 
-              onPress={() => handleImagePick('camera')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.attachIcon}>📷</Text>
-              <Text style={styles.attachLabel}>Camera</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.attachBtn} 
-              onPress={() => handleImagePick('gallery')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.attachIcon}>🖼️</Text>
-              <Text style={styles.attachLabel}>Gallery</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+            
+            {receiptUri && (
+              <View style={styles.receiptPreview}>
+                <Text style={styles.receiptPreviewText}>✓ Receipt attached</Text>
+                <TouchableOpacity onPress={removeReceipt} style={styles.removeReceiptBtn}>
+                  <Text style={styles.removeReceiptText}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View> */}
 
-        {uploading && (
-          <View style={styles.uploadingIndicator}>
-            <ActivityIndicator size="small" color={COLORS.primary} />
-            <Text style={styles.uploadingText}>Uploading receipt...</Text>
+          <View style={styles.noteWrapper}>
+            <TextInput
+              ref={noteInputRef}
+              style={styles.noteInput}
+              value={note}
+              onChangeText={setNote}
+              placeholder="✏️  Add a note (optional)..."
+              placeholderTextColor={COLORS.textMuted}
+              multiline
+              maxLength={200}
+              onFocus={handleNoteFocus}
+            />
           </View>
-        )} */}
 
-        <TouchableOpacity 
-          style={[styles.saveBtn, (saving || uploading) && styles.saveBtnDisabled]} 
-          onPress={handleSave} 
-          activeOpacity={0.85}
-          disabled={saving || uploading}
-        >
-          {saving ? (
-            <ActivityIndicator color={COLORS.white} />
-          ) : (
-            <Text style={styles.saveBtnText}>Save Expense</Text>
-          )}
-        </TouchableOpacity>
-      </ScrollView>
+          <TouchableOpacity 
+            style={[styles.saveBtn, (saving || uploading) && styles.saveBtnDisabled]} 
+            onPress={handleSave} 
+            activeOpacity={0.85}
+            disabled={saving || uploading}
+          >
+            {saving ? (
+              <ActivityIndicator color={COLORS.white} />
+            ) : (
+              <Text style={styles.saveBtnText}>Save Expense</Text>
+            )}
+          </TouchableOpacity>
+          
+          {/* Add extra padding at bottom for better keyboard experience */}
+          <View style={{ height: Platform.OS === 'ios' ? 20 : 40 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      {renderCalendar()}
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.primary },
+safe: { flex: 1, backgroundColor: COLORS.bg },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -503,6 +677,45 @@ const styles = StyleSheet.create({
   dateIcon: { fontSize: 20 },
   dateText: { flex: 1, fontSize: 15, color: COLORS.text, fontWeight: '500' },
   dateChevron: { fontSize: 22, color: COLORS.textMuted, fontWeight: '400' },
+  receiptSection: {
+    marginBottom: 12,
+  },
+  receiptButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 10,
+  },
+  receiptBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 14,
+    padding: 14,
+    gap: 8,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+  },
+  receiptBtnIcon: { fontSize: 20 },
+  receiptBtnText: { fontSize: 14, fontWeight: '600', color: COLORS.text },
+  receiptPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 8,
+  },
+  receiptPreviewText: { fontSize: 13, color: COLORS.primaryDark, fontWeight: '500' },
+  removeReceiptBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: COLORS.danger,
+    borderRadius: 8,
+  },
+  removeReceiptText: { color: COLORS.white, fontSize: 12, fontWeight: '600' },
   noteWrapper: { marginBottom: 12 },
   noteInput: {
     backgroundColor: COLORS.white,
@@ -515,37 +728,6 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: COLORS.border,
   },
-  attachRow: { flexDirection: 'row', gap: 12, marginBottom: 22 },
-  attachBtn: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-    borderRadius: 16,
-    paddingVertical: 20,
-    alignItems: 'center',
-    gap: 8,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-    borderStyle: 'dashed',
-  },
-  attachIcon: { fontSize: 26 },
-  attachLabel: { fontSize: 14, color: COLORS.text, fontWeight: '600' },
-  receiptPreview: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.primaryLight,
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 22,
-    gap: 12,
-  },
-  receiptPreviewIcon: { fontSize: 28 },
-  receiptPreviewInfo: { flex: 1 },
-  receiptPreviewTitle: { fontSize: 14, fontWeight: '600', color: COLORS.primaryDark },
-  receiptPreviewPath: { fontSize: 11, color: COLORS.textMuted, marginTop: 2 },
-  removeReceiptBtn: { padding: 8 },
-  removeReceiptText: { fontSize: 20 },
-  uploadingIndicator: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 16, padding: 10 },
-  uploadingText: { fontSize: 13, color: COLORS.primaryDark, fontWeight: '500' },
   saveBtn: {
     backgroundColor: COLORS.primary,
     borderRadius: 16,
@@ -556,7 +738,139 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 5,
+    marginTop: 8,
   },
   saveBtnDisabled: { opacity: 0.7 },
   saveBtnText: { color: COLORS.white, fontSize: 16, fontWeight: '700', letterSpacing: 0.3 },
+  // Calendar Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  calendarContainer: {
+    backgroundColor: COLORS.white,
+    borderRadius: 20,
+    padding: 20,
+    width: width - 40,
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  calendarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  calendarTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+  closeButton: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: COLORS.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: COLORS.textMuted,
+    fontWeight: '600',
+  },
+  monthNavigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  navButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  navButtonText: {
+    fontSize: 20,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  monthTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  weekDaysRow: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  weekDayCell: {
+    width: CALENDAR_DAY_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+  },
+  weekDayText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textMuted,
+  },
+  calendarDaysGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  calendarDayCell: {
+    width: CALENDAR_DAY_SIZE,
+    height: CALENDAR_DAY_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: CALENDAR_DAY_SIZE / 2,
+  },
+  otherMonthDay: {
+    opacity: 0.4,
+  },
+  selectedDay: {
+    backgroundColor: COLORS.primary,
+  },
+  todayDay: {
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  calendarDayText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLORS.text,
+  },
+  otherMonthText: {
+    color: COLORS.textMuted,
+  },
+  selectedDayText: {
+    color: COLORS.white,
+    fontWeight: '700',
+  },
+  todayDayText: {
+    color: COLORS.primary,
+    fontWeight: '700',
+  },
+  todayButton: {
+    marginTop: 20,
+    paddingVertical: 12,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  todayButtonText: {
+    color: COLORS.primary,
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });

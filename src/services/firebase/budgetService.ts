@@ -12,14 +12,20 @@ export const getMonthlyBudget = async () => {
     const userId = getUserId();
     const doc = await firestore().collection('users').doc(userId).get();
     const data = doc.data();
-    return { 
+    return {
       monthlyBudget: data?.monthlyBudget || 15000,
       categoryBudgets: data?.categoryBudgets || {},
-      error: null 
+      customCategories: data?.customCategories || [],
+      error: null,
     };
   } catch (error: any) {
     console.error('Error getting budget:', error);
-    return { monthlyBudget: 15000, categoryBudgets: {}, error: error.message };
+    return {
+      monthlyBudget: 15000,
+      categoryBudgets: {},
+      customCategories: [],
+      error: error.message,
+    };
   }
 };
 
@@ -40,9 +46,8 @@ export const updateCategoryBudget = async (category: string, amount: number) => 
     const userRef = firestore().collection('users').doc(userId);
     const doc = await userRef.get();
     const currentBudgets = doc.data()?.categoryBudgets || {};
-    
     await userRef.update({
-      categoryBudgets: { ...currentBudgets, [category]: amount }
+      categoryBudgets: { ...currentBudgets, [category]: amount },
     });
     return { error: null };
   } catch (error: any) {
@@ -51,38 +56,94 @@ export const updateCategoryBudget = async (category: string, amount: number) => 
   }
 };
 
-export const calculateBudgetStatus = async (expenses: any[]) => {
+export const addCustomCategory = async (name: string, icon: string, budget: number) => {
   try {
-    const { monthlyBudget, categoryBudgets } = await getMonthlyBudget();
-    const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-    
-    const categorySpending: Record<string, number> = {};
-    expenses.forEach(exp => {
-      categorySpending[exp.category] = (categorySpending[exp.category] || 0) + exp.amount;
+    const userId = getUserId();
+    const userRef = firestore().collection('users').doc(userId);
+    const doc = await userRef.get();
+    const data = doc.data();
+
+    const currentCustomCategories = data?.customCategories || [];
+    const currentCategoryBudgets = data?.categoryBudgets || {};
+
+    if (
+      currentCategoryBudgets[name] ||
+      currentCustomCategories.some((cat: any) => cat.name === name)
+    ) {
+      return { error: 'Category already exists' };
+    }
+
+    await userRef.update({
+      customCategories: [...currentCustomCategories, { name, icon }],
+      categoryBudgets: { ...currentCategoryBudgets, [name]: budget },
     });
-    
-    const categoryStatus = Object.keys(categoryBudgets).map(category => ({
-      category,
-      budget: categoryBudgets[category] || 0,
-      spent: categorySpending[category] || 0,
-      percentage: ((categorySpending[category] || 0) / (categoryBudgets[category] || 1)) * 100,
-    }));
-    
-    return {
-      totalBudget: monthlyBudget,
-      totalSpent,
-      remaining: monthlyBudget - totalSpent,
-      percentageSpent: (totalSpent / monthlyBudget) * 100,
-      categoryStatus,
-    };
+
+    return { error: null };
   } catch (error: any) {
-    console.error('Error calculating budget status:', error);
-    return {
-      totalBudget: 15000,
-      totalSpent: 0,
-      remaining: 15000,
-      percentageSpent: 0,
-      categoryStatus: [],
-    };
+    console.error('Error adding custom category:', error);
+    return { error: error.message };
   }
+};
+
+export const removeCustomCategory = async (name: string) => {
+  try {
+    const userId = getUserId();
+    const userRef = firestore().collection('users').doc(userId);
+    const doc = await userRef.get();
+    const data = doc.data();
+
+    const currentCustomCategories = data?.customCategories || [];
+    const currentCategoryBudgets = data?.categoryBudgets || {};
+
+    const updatedCustomCategories = currentCustomCategories.filter(
+      (cat: any) => cat.name !== name,
+    );
+
+    const { [name]: _removed, ...remainingBudgets } = currentCategoryBudgets;
+
+    await userRef.update({
+      customCategories: updatedCustomCategories,
+      categoryBudgets: remainingBudgets,
+    });
+
+    return { error: null };
+  } catch (error: any) {
+    console.error('Error removing custom category:', error);
+    return { error: error.message };
+  }
+};
+
+/**
+ * Pure synchronous calculation — no Firestore call.
+ * Pass in the values already loaded in userStore.
+ */
+export const calculateBudgetStatus = (
+  expenses: any[],
+  monthlyBudget: number,
+  categoryBudgets: Record<string, number>,
+) => {
+  const totalSpent = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+
+  const categorySpending: Record<string, number> = {};
+  expenses.forEach(exp => {
+    categorySpending[exp.category] =
+      (categorySpending[exp.category] || 0) + exp.amount;
+  });
+
+  const categoryStatus = Object.keys(categoryBudgets).map(category => ({
+    category,
+    budget: categoryBudgets[category] || 0,
+    spent: categorySpending[category] || 0,
+    percentage:
+      ((categorySpending[category] || 0) / (categoryBudgets[category] || 1)) *
+      100,
+  }));
+
+  return {
+    totalBudget: monthlyBudget,
+    totalSpent,
+    remaining: monthlyBudget - totalSpent,
+    percentageSpent: (totalSpent / monthlyBudget) * 100,
+    categoryStatus,
+  };
 };

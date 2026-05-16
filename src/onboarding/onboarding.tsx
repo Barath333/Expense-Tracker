@@ -6,7 +6,8 @@ import { saveItem } from '../utils/storage';
 export default function Onboarding({ navigation }: any) {
   const goToLogin = async () => {
     try {
-      await saveItem('hasLaunched', 'true');
+      // Mark that user has seen onboarding, but NOT that they're logged in
+      await saveItem('hasSeenOnboarding', 'true');
       navigation.replace('Login');
     } catch (error) {
       navigation.replace('Login');
