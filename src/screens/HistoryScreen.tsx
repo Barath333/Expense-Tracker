@@ -119,6 +119,7 @@ export default function HistoryScreen({ navigation }: any) {
   const [editAmount, setEditAmount] = useState('');
   const [editNote, setEditNote] = useState('');
   const [editCategory, setEditCategory] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   // Filter expenses based on search and category
   const filtered = expenses.filter(exp => {
@@ -186,49 +187,48 @@ export default function HistoryScreen({ navigation }: any) {
     setEditCategory(expense.category);
   };
 
-  // Save edited expense
-  const handleSaveEdit = async () => {
-    if (!editingExpense) return;
-    
-    const amountNum = parseFloat(editAmount);
-    if (isNaN(amountNum) || amountNum <= 0) {
-      showAlert({
-        title: 'Error',
-        message: 'Please enter a valid amount',
-        type: 'error',
-      });
-      return;
-    }
 
-    const updatedExpense = {
-      amount: amountNum,
-      category: editCategory,
-      note: editNote.trim() || `${editCategory} expense`,
-    };
 
-    const { error } = await updateExpense(editingExpense.id, updatedExpense);
-    
-    if (error) {
-      showAlert({
-        title: 'Error',
-        message: 'Failed to update expense',
-        type: 'error',
-      });
-    } else {
-      updateExpenseInStore(editingExpense.id, updatedExpense);
-      await fetchBudget();
-      showAlert({
-        title: 'Success! 🎉',
-        message: 'Expense updated successfully',
-        type: 'success',
-      });
-    }
-    
-    setEditingExpense(null);
-    setEditAmount('');
-    setEditNote('');
-    setEditCategory('');
+const handleSaveEdit = async () => {
+  if (!editingExpense || isSaving) return;
+
+  const amountNum = parseFloat(editAmount);
+  if (isNaN(amountNum) || amountNum <= 0) {
+    showAlert({ title: 'Error', message: 'Please enter a valid amount', type: 'error' });
+    return;
+  }
+
+  setIsSaving(true); // 🔒 lock the modal
+
+  const updatedExpense = {
+    amount: amountNum,
+    category: editCategory,
+    note: editNote.trim() || `${editCategory} expense`,
   };
+
+  const { error } = await updateExpense(editingExpense.id, updatedExpense);
+
+  if (error) {
+    setIsSaving(false);
+    showAlert({ title: 'Error', message: 'Failed to update expense', type: 'error' });
+    return;
+  }
+
+  updateExpenseInStore(editingExpense.id, updatedExpense);
+
+  // Close modal and reset
+  setEditingExpense(null);
+  setEditAmount('');
+  setEditNote('');
+  setEditCategory('');
+  setIsSaving(false);
+
+  fetchBudget();
+  setTimeout(() => {
+    showAlert({ title: 'Success! 🎉', message: 'Expense updated successfully', type: 'success' });
+  }, 100);
+};
+
 
   // Render right swipe actions (delete)
   const renderRightActions = (progress: any, dragX: any, expense: Expense) => {
@@ -306,7 +306,8 @@ export default function HistoryScreen({ navigation }: any) {
 
   // Edit Modal
   const renderEditModal = () => {
-    if (!editingExpense) return null;
+      console.log('🔵 renderEditModal called — editingExpense:', editingExpense?.id ?? 'NULL');
+    if (!editingExpense || isSaving) return null;
 
     const CATEGORIES = ['Food', 'Travel', 'Shopping', 'Health', 'Bills', 'Entertainment', 'Rent', 'Other'];
 

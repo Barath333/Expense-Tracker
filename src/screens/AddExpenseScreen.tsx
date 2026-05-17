@@ -150,11 +150,19 @@ export default function AddExpenseScreen({ navigation }: Props) {
   };
 
   const handleNoteFocus = () => {
-    // Scroll to note input when it gains focus
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-  };
+  setTimeout(() => {
+    noteInputRef.current?.measureLayout(
+      scrollViewRef.current?.getInnerViewNode?.() as any,
+      (x, y) => {
+        scrollViewRef.current?.scrollTo({ y: y - 20, animated: true });
+      },
+      () => {
+        // fallback
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }
+    );
+  }, 300); // ← increased from 100ms to 300ms so keyboard is fully open first
+};
 
   const handleImagePick = (type: 'camera' | 'gallery') => {
     const options: ImageLibraryOptions = {
@@ -483,7 +491,7 @@ export default function AddExpenseScreen({ navigation }: Props) {
 
       <KeyboardAvoidingView 
         style={{ flex: 1 }} 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 80}
       >
         <ScrollView
@@ -493,6 +501,7 @@ export default function AddExpenseScreen({ navigation }: Props) {
           keyboardShouldPersistTaps="handled"
           automaticallyAdjustKeyboardInsets={true}
           keyboardDismissMode="interactive"
+           maintainVisibleContentPosition={{ minIndexForVisible: 0 }}
         >
           <View style={styles.amountCard}>
             <Text style={styles.amountLabel}>AMOUNT (₹)</Text>
@@ -844,6 +853,7 @@ safe: { flex: 1, backgroundColor: COLORS.bg },
   todayDay: {
     borderWidth: 2,
     borderColor: COLORS.primary,
+     backgroundColor: COLORS.primaryLight,
   },
   calendarDayText: {
     fontSize: 14,
