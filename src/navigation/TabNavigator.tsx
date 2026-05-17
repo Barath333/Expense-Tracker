@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
 import HomeScreen from '../screens/HomeScreen';
 import AddExpenseScreen from '../screens/AddExpenseScreen';
 import AnalyticsScreen from '../screens/AnalyticsScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AIInsightsScreen from '../screens/Aiinsightsscreen';
+import CustomAlert from '../components/CustomAlert'; // Import CustomAlert
 
 export type TabParamList = {
   Home: undefined;
@@ -106,7 +106,6 @@ export default function TabNavigator() {
           component={HistoryScreen} 
           options={{ tabBarLabel: 'History', freezeOnBlur: true }}
         />
-        {/* <Tab.Screen name="Profile" component={ProfileScreen} /> */}
         <Tab.Screen 
           name="AIInsights" 
           component={AIInsightsScreen} 
@@ -117,7 +116,10 @@ export default function TabNavigator() {
             )
           }} 
         />
+        {/* <Tab.Screen name="Profile" component={ProfileScreen} /> */}
       </Tab.Navigator>
+      {/* Add CustomAlert here so it appears above everything */}
+      <CustomAlert />
     </>
   );
 }

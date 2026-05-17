@@ -34,6 +34,7 @@ export const useAlertStore = create<AlertState>((set) => ({
   onDismiss: undefined,
   
   showAlert: (options) => {
+    console.log('🔔 showAlert called:', options.title);
     set({
       visible: true,
       title: options.title,
@@ -45,8 +46,10 @@ export const useAlertStore = create<AlertState>((set) => ({
   },
   
   hideAlert: () => {
+    console.log('🔔 hideAlert called');
     set((state) => {
       if (state.onDismiss) {
+        console.log('🔔 Calling onDismiss');
         state.onDismiss();
       }
       return { visible: false };

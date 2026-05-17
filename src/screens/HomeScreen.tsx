@@ -18,6 +18,8 @@ import { useUserStore } from '../services/stores/userStore';
 import { calculateBudgetStatus } from '../services/firebase/budgetService';
 import { useExpenseStore } from '../services/stores/expenseStore';
 import { initializeNotifications, setupNotificationListener } from '../services/notificationService';
+import { NotificationPreferencePopup } from '../components/NotificationPreferencePopup';
+import { storage } from '../utils/storage';
 
 export type TabParamList = {
   Home: undefined;
@@ -81,6 +83,23 @@ export default function HomeScreen({ navigation }: Props) {
   const [userName, setUserName] = useState('User');
   const [refreshing, setRefreshing] = useState(false);
   const [initialized, setInitialized] = useState(false);
+   const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+
+  useEffect(() => {
+    // Check if this is first time after setup
+    const hasSeenNotificationPopup = storage.getBoolean('hasSeenNotificationPopup');
+    if (!hasSeenNotificationPopup) {
+      // Show popup after a short delay
+      setTimeout(() => {
+        setShowNotificationPopup(true);
+      }, 1000);
+    }
+  }, []);
+
+  const handleNotificationComplete = () => {
+    setShowNotificationPopup(false);
+    storage.set('hasSeenNotificationPopup', true);
+  };
 
   // ─── Load user data ───────────────────────────────────────────────────────
   const loadUserData = useCallback(async () => {
@@ -403,6 +422,12 @@ export default function HomeScreen({ navigation }: Props) {
           )}
         </ScrollView>
       </View>
+
+        <NotificationPreferencePopup
+        visible={showNotificationPopup}
+        onClose={handleNotificationComplete}
+        onComplete={handleNotificationComplete}
+      />
 
       {/* Floating Add Button */}
       <TouchableOpacity

@@ -256,132 +256,147 @@ export default function AddExpenseScreen({ navigation }: Props) {
     });
   };
 
-  const handleSave = async () => {
-    console.log('========== HANDLE SAVE STARTED ==========');
-    console.log('1. Amount value:', amount);
-    console.log('2. Selected category:', selectedCategory);
-    console.log('3. Note:', note);
-    console.log('4. Date:', selectedDate);
-    console.log('5. Receipt URI:', receiptUri);
-    
-    if (!amount || parseFloat(amount) <= 0) {
-      console.log('Validation failed: Invalid amount');
-      showAlert({
-        title: 'Invalid Amount',
-        message: 'Please enter a valid expense amount.',
-        type: 'error',
-      });
-      return;
+const handleSave = async () => {
+  console.log('========== HANDLE SAVE STARTED ==========');
+  console.log('1. Amount value:', amount);
+  console.log('2. Selected category:', selectedCategory);
+  console.log('3. Note:', note);
+  console.log('4. Date:', selectedDate);
+  console.log('5. Receipt URI:', receiptUri);
+  
+  if (!amount || parseFloat(amount) <= 0) {
+    console.log('Validation failed: Invalid amount');
+    showAlert({
+      title: 'Invalid Amount',
+      message: 'Please enter a valid expense amount.',
+      type: 'error',
+    });
+    return;
+  }
+
+  const user = auth().currentUser;
+  console.log('6. Current user:', user?.email || 'No user');
+  
+  if (!user) {
+    console.log('Validation failed: No user logged in');
+    showAlert({
+      title: 'Error',
+      message: 'You must be logged in to add expenses.',
+      type: 'error',
+      buttons: [
+        { text: 'OK', onPress: () => navigation.navigate('Login') }
+      ]
+    });
+    return;
+  }
+
+  const amountNum = parseFloat(amount);
+  console.log('7. Parsed amount:', amountNum);
+  
+  setSaving(true);
+  console.log('8. Saving state set to true');
+  
+  let receiptUrl = null;
+
+  try {
+    if (receiptUri) {
+      console.log('9. Starting receipt upload...');
+      setUploading(true);
+      receiptUrl = await uploadReceipt(receiptUri);
+      setUploading(false);
+      console.log('10. Receipt upload result:', receiptUrl);
+      
+      if (!receiptUrl) {
+        console.log('11. Upload failed, continuing without receipt');
+        showAlert({
+          title: 'Upload Failed',
+          message: 'Failed to upload receipt. Expense will be saved without receipt.',
+          type: 'warning',
+        });
+      }
+    } else {
+      console.log('9. No receipt to upload');
     }
 
-    const user = auth().currentUser;
-    console.log('6. Current user:', user?.email || 'No user');
-    
-    if (!user) {
-      console.log('Validation failed: No user logged in');
+    const expenseData = {
+      amount: amountNum,
+      category: selectedCategory,
+      note: note.trim() || `${selectedCategory} expense`,
+      date: selectedDate,
+      receiptUrl: receiptUrl || undefined,
+    };
+
+    console.log('11. Expense data prepared:', JSON.stringify(expenseData, null, 2));
+
+    console.log('12. Calling addExpense function...');
+    const result = await addExpense(expenseData);
+    console.log('13. addExpense result:', JSON.stringify(result, null, 2));
+
+    if (result && result.id) {
+      console.log('14. SUCCESS! Expense saved with ID:', result.id);
+      
+      await checkBudgetAndSendNotifications(user.uid, selectedCategory);
+      
+      console.log('15. Resetting form...');
+      setAmount('');
+      setNote('');
+      setReceiptUri(null);
+      setSelectedCategory('Food');
+      setSelectedDate(new Date());
+      
+      console.log('16. Showing success alert');
+      
+      // Show success alert with navigation
       showAlert({
-        title: 'Error',
-        message: 'You must be logged in to add expenses.',
-        type: 'error',
+        title: 'Success! 🎉',
+        message: `₹${amountNum.toLocaleString('en-IN')} expense added successfully.`,
+        type: 'success',
         buttons: [
-          { text: 'OK', onPress: () => navigation.navigate('Login') }
+          {
+            text: 'OK',
+            style: 'default',
+            onPress: () => {
+              console.log('17. OK pressed - navigating to Home');
+              // Use goBack() to return to previous screen (which would be Home)
+              // or navigate to Home tab using parent navigation
+              navigation.goBack();
+              console.log('18. Navigation complete');
+            }
+          }
         ]
       });
-      return;
-    }
-
-    const amountNum = parseFloat(amount);
-    console.log('7. Parsed amount:', amountNum);
-    
-    setSaving(true);
-    console.log('8. Saving state set to true');
-    
-    let receiptUrl = null;
-
-    try {
-      if (receiptUri) {
-        console.log('9. Starting receipt upload...');
-        setUploading(true);
-        receiptUrl = await uploadReceipt(receiptUri);
-        setUploading(false);
-        console.log('10. Receipt upload result:', receiptUrl);
-        
-        if (!receiptUrl) {
-          console.log('11. Upload failed, continuing without receipt');
-          showAlert({
-            title: 'Upload Failed',
-            message: 'Failed to upload receipt. Expense will be saved without receipt.',
-            type: 'warning',
-          });
-        }
-      } else {
-        console.log('9. No receipt to upload');
-      }
-
-      const expenseData = {
-        amount: amountNum,
-        category: selectedCategory,
-        note: note.trim() || `${selectedCategory} expense`,
-        date: selectedDate,
-        receiptUrl: receiptUrl || undefined,
-      };
-
-      console.log('11. Expense data prepared:', JSON.stringify(expenseData, null, 2));
-
-      console.log('12. Calling addExpense function...');
-      const result = await addExpense(expenseData);
-      console.log('13. addExpense result:', JSON.stringify(result, null, 2));
-
-      if (result && result.id) {
-        console.log('14. SUCCESS! Expense saved with ID:', result.id);
-        
-        await checkBudgetAndSendNotifications(user.uid, selectedCategory);
-        
-        console.log('15. Resetting form...');
-        setAmount('');
-        setNote('');
-        setReceiptUri(null);
-        setSelectedCategory('Food');
-        setSelectedDate(new Date());
-        
-        console.log('16. Showing success alert');
-        showAlert({
-          title: 'Success! 🎉',
-          message: `₹${amountNum.toLocaleString('en-IN')} expense added successfully.`,
-          type: 'success',
-          onDismiss: () => {
-            console.log('17. OK pressed, navigating to Home');
-            navigation.navigate('Home');
-            console.log('18. Navigation complete');
-          }
-        });
-        console.log('19. Alert displayed');
-      } else {
-        console.error('20. ERROR: Save failed, result.id is null or undefined');
-        console.error('21. Error details:', result?.error);
-        showAlert({
-          title: 'Error',
-          message: result?.error || 'Failed to save expense. Please try again.',
-          type: 'error',
-        });
-      }
-    } catch (error: any) {
-      console.error('22. CATCH BLOCK - Unexpected error:', error);
-      console.error('23. Error message:', error.message);
-      console.error('24. Error stack:', error.stack);
-      showAlert({
-        title: 'Error',
-        message: error.message || 'An unexpected error occurred',
-        type: 'error',
-      });
-    } finally {
-      console.log('25. Finally block - Setting saving to false');
+      console.log('19. Alert displayed');
+      
+      // Set saving to false after showing alert
       setSaving(false);
       setUploading(false);
-      console.log('26. Saving state set to false');
-      console.log('========== HANDLE SAVE FINISHED ==========');
+      return; // Exit early to avoid setting saving to false again
+    } else {
+      console.error('20. ERROR: Save failed, result.id is null or undefined');
+      console.error('21. Error details:', result?.error);
+      showAlert({
+        title: 'Error',
+        message: result?.error || 'Failed to save expense. Please try again.',
+        type: 'error',
+      });
     }
-  };
+  } catch (error: any) {
+    console.error('22. CATCH BLOCK - Unexpected error:', error);
+    console.error('23. Error message:', error.message);
+    console.error('24. Error stack:', error.stack);
+    showAlert({
+      title: 'Error',
+      message: error.message || 'An unexpected error occurred',
+      type: 'error',
+    });
+  } finally {
+    console.log('25. Finally block - Setting saving to false');
+    setSaving(false);
+    setUploading(false);
+    console.log('26. Saving state set to false');
+    console.log('========== HANDLE SAVE FINISHED ==========');
+  }
+};
 
   // Calendar Component
   const renderCalendar = () => {

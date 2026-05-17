@@ -17,6 +17,7 @@ import auth from '@react-native-firebase/auth';
 import { useUserStore } from '../services/stores/userStore';
 import { signOut } from '../services/firebase/authService';
 import { useAlertStore } from '../services/stores/alertStore';
+import { useNotificationSettings } from '../hooks/useNotificationSettings';
 
 const COLORS = {
   primary: '#1A9B5E',
@@ -56,10 +57,18 @@ export default function ProfileScreen({ navigation }: any) {
   
   const { showAlert } = useAlertStore();
   
+  // Notification settings hook
+  const { 
+    budgetAlerts, 
+    dailyReminders, 
+    loading: notificationLoading,
+    toggleBudgetAlerts, 
+    toggleDailyReminders 
+  } = useNotificationSettings();
+  
   // All useState hooks must be declared in the same order every render
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [budgetAlerts, setBudgetAlerts] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   
@@ -112,6 +121,69 @@ export default function ProfileScreen({ navigation }: any) {
       ]
     });
   };
+
+  // Notification toggle handlers
+// Notification toggle handlers - Updated version
+const handleBudgetAlertsToggle = async (value: boolean) => {
+  console.log('Budget alerts toggle pressed, new value:', value);
+  try {
+    const success = await toggleBudgetAlerts(value);
+    console.log('Toggle budget alerts result:', success);
+    
+    if (success) {
+      showAlert({
+        title: 'Success',
+        message: value ? 'Budget alerts enabled' : 'Budget alerts disabled',
+        type: 'success',
+      });
+    } else {
+      showAlert({
+        title: 'Error',
+        message: 'Failed to update notification settings',
+        type: 'error',
+      });
+    }
+  } catch (error) {
+    console.error('Error in handleBudgetAlertsToggle:', error);
+    showAlert({
+      title: 'Error',
+      message: 'An unexpected error occurred',
+      type: 'error',
+    });
+  }
+};
+
+const handleDailyRemindersToggle = async (value: boolean) => {
+  console.log('Daily reminders toggle pressed, new value:', value);
+  try {
+    const success = await toggleDailyReminders(value);
+    console.log('Toggle daily reminders result:', success);
+    
+    if (success) {
+      showAlert({
+        title: 'Success',
+        message: value 
+          ? 'Daily reminders enabled. You will receive notifications at 9:30 PM.' 
+          : 'Daily reminders disabled',
+        type: 'success',
+      });
+    } else {
+      showAlert({
+        title: 'Error',
+        message: 'Failed to update notification settings',
+        type: 'error',
+      });
+    }
+  } catch (error) {
+    console.error('Error in handleDailyRemindersToggle:', error);
+    showAlert({
+      title: 'Error',
+      message: 'An unexpected error occurred',
+      type: 'error',
+    });
+  }
+};
+ 
 
   // Monthly Budget Modal Handlers
   const openMonthlyBudgetModal = () => {
@@ -444,34 +516,63 @@ export default function ProfileScreen({ navigation }: any) {
           )}
         </View>
 
-        {/* PREFERENCES Section */}
-        <Text style={styles.sectionLabel}>PREFERENCES</Text>
+        {/* NOTIFICATIONS Section */}
+        <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
 
         {/* Budget Alerts Card */}
         <View style={styles.settingsCard}>
           <View style={[styles.settingsIconWrap, { backgroundColor: '#EEF2FF' }]}>
-            <Text style={styles.settingsIcon}>🔔</Text>
+            <Text style={styles.settingsIcon}>💰</Text>
           </View>
-          <Text style={styles.settingsLabel}>Budget Alerts</Text>
+          <View style={styles.settingTextContainer}>
+            <Text style={styles.settingsLabel}>Budget Alerts</Text>
+            <Text style={styles.settingDescription}>Get alerts when you reach 80% of budget</Text>
+          </View>
           <Switch
             value={budgetAlerts}
-            onValueChange={setBudgetAlerts}
+            onValueChange={handleBudgetAlertsToggle}
             trackColor={{ false: '#D1D5DB', true: COLORS.primary }}
             thumbColor={COLORS.white}
+            disabled={notificationLoading}
           />
         </View>
+
+        {/* Daily Reminders Card */}
+        <View style={styles.settingsCard}>
+          <View style={[styles.settingsIconWrap, { backgroundColor: '#FFF3E0' }]}>
+            <Text style={styles.settingsIcon}>⏰</Text>
+          </View>
+          <View style={styles.settingTextContainer}>
+            <Text style={styles.settingsLabel}>Daily Reminders</Text>
+            <Text style={styles.settingDescription}>Remind me at 9:30 PM to update expenses</Text>
+          </View>
+          <Switch
+            value={dailyReminders}
+            onValueChange={handleDailyRemindersToggle}
+            trackColor={{ false: '#D1D5DB', true: COLORS.primary }}
+            thumbColor={COLORS.white}
+            disabled={notificationLoading}
+          />
+        </View>
+
+        {/* Appearance Section */}
+        <Text style={styles.sectionLabel}>APPEARANCE</Text>
 
         {/* Dark Mode Card */}
         <View style={styles.settingsCard}>
           <View style={[styles.settingsIconWrap, { backgroundColor: '#F3EEFF' }]}>
             <Text style={styles.settingsIcon}>🌙</Text>
           </View>
-          <Text style={styles.settingsLabel}>Dark Mode</Text>
+          <View style={styles.settingTextContainer}>
+            <Text style={styles.settingsLabel}>Dark Mode</Text>
+            <Text style={styles.settingDescription}>Coming soon</Text>
+          </View>
           <Switch
             value={darkMode}
             onValueChange={setDarkMode}
             trackColor={{ false: '#D1D5DB', true: COLORS.primary }}
             thumbColor={COLORS.white}
+            disabled={true}
           />
         </View>
 
@@ -730,6 +831,7 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     letterSpacing: 1,
     marginBottom: 10,
+    marginTop: 8,
   },
   categoryHeader: {
     flexDirection: 'row',
@@ -771,7 +873,6 @@ const styles = StyleSheet.create({
   },
   settingsIcon: { fontSize: 20 },
   settingsLabel: {
-    flex: 1,
     fontSize: 15,
     fontWeight: '600',
     color: COLORS.primaryDark,
@@ -780,6 +881,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.primary,
     fontWeight: '600',
+  },
+  settingTextContainer: {
+    flex: 1,
+  },
+  settingDescription: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    marginTop: 2,
   },
   categoryList: {
     backgroundColor: COLORS.white,
