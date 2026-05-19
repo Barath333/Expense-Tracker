@@ -82,6 +82,78 @@ export default function BudgetSetupScreen({ navigation, route }: any) {
     setCategoryBudgets(initialBudgets);
   }, [route.params]);
 
+  // Calculate total category budget
+  const calculateTotalCategoryBudget = () => {
+    let total = 0;
+    
+    // Add default categories
+    Object.values(categoryBudgets).forEach(value => {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue) && numValue > 0) {
+        total += numValue;
+      }
+    });
+    
+    // Add custom categories
+    customCategories.forEach(cat => {
+      const numValue = parseFloat(cat.budget);
+      if (!isNaN(numValue) && numValue > 0) {
+        total += numValue;
+      }
+    });
+    
+    return total;
+  };
+
+  // Validate if category budgets exceed monthly budget
+  const validateCategoryBudgets = (): boolean => {
+    const monthlyNum = parseFloat(monthlyBudget) || 0;
+    const totalCategoryBudget = calculateTotalCategoryBudget();
+    
+    if (totalCategoryBudget > monthlyNum) {
+      const excess = totalCategoryBudget - monthlyNum;
+      showAlert({
+        title: 'Budget Limit Exceeded! ⚠️',
+        message: `Your category budgets total ₹${totalCategoryBudget.toLocaleString('en-IN')} which exceeds your monthly budget of ₹${monthlyNum.toLocaleString('en-IN')} by ₹${excess.toLocaleString('en-IN')}.\n\nPlease reduce some category budgets or increase your monthly budget.`,
+        type: 'warning',
+        buttons: [
+          { text: 'Adjust Budgets', style: 'default' }
+        ]
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
+  // Check if a specific category update would exceed budget
+  const wouldExceedBudget = (newValue: string): boolean => {
+    const monthlyNum = parseFloat(monthlyBudget) || 0;
+    let currentTotal = 0;
+    
+    // Calculate current total excluding the category being updated
+    Object.entries(categoryBudgets).forEach(([category, value]) => {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue) && numValue > 0) {
+        currentTotal += numValue;
+      }
+    });
+    
+    customCategories.forEach(cat => {
+      const numValue = parseFloat(cat.budget);
+      if (!isNaN(numValue) && numValue > 0) {
+        currentTotal += numValue;
+      }
+    });
+    
+    const newNumValue = parseFloat(newValue);
+    if (!isNaN(newNumValue) && newNumValue > 0) {
+      currentTotal += newNumValue;
+    }
+    
+    return currentTotal > monthlyNum;
+  };
+
   const updateCategoryBudget = (category: string, value: string) => {
     setCategoryBudgets(prev => ({ ...prev, [category]: value }));
   };
@@ -118,6 +190,23 @@ export default function BudgetSetupScreen({ navigation, route }: any) {
         title: 'Error',
         message: 'Please enter a valid budget amount',
         type: 'error',
+      });
+      return;
+    }
+
+    // Check if adding this category would exceed monthly budget
+    const monthlyNum = parseFloat(monthlyBudget) || 0;
+    let currentTotal = calculateTotalCategoryBudget();
+    
+    if (currentTotal + budgetNum > monthlyNum) {
+      const remaining = monthlyNum - currentTotal;
+      showAlert({
+        title: 'Budget Limit Exceeded',
+        message: `Adding "${categoryName}" would exceed your monthly budget.\n\nRemaining budget: ₹${remaining.toLocaleString('en-IN')}\nRequested budget: ₹${budgetNum.toLocaleString('en-IN')}\n\nPlease reduce the budget amount or increase your monthly budget.`,
+        type: 'warning',
+        buttons: [
+          { text: 'OK', style: 'default' }
+        ]
       });
       return;
     }
@@ -198,6 +287,40 @@ export default function BudgetSetupScreen({ navigation, route }: any) {
       return;
     }
 
+    // Check for invalid category budgets
+    let hasInvalidBudget = false;
+    const invalidCategories: string[] = [];
+    
+    Object.entries(categoryBudgets).forEach(([category, value]) => {
+      const numValue = parseFloat(value);
+      if (isNaN(numValue) || numValue < 0) {
+        invalidCategories.push(category);
+        hasInvalidBudget = true;
+      }
+    });
+    
+    customCategories.forEach(cat => {
+      const numValue = parseFloat(cat.budget);
+      if (isNaN(numValue) || numValue < 0) {
+        invalidCategories.push(cat.name);
+        hasInvalidBudget = true;
+      }
+    });
+    
+    if (hasInvalidBudget) {
+      showAlert({
+        title: 'Invalid Budget Amounts',
+        message: `Please enter valid budget amounts for: ${invalidCategories.join(', ')}`,
+        type: 'error',
+      });
+      return;
+    }
+
+    // Validate category budgets don't exceed monthly budget
+    if (!validateCategoryBudgets()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -247,12 +370,10 @@ export default function BudgetSetupScreen({ navigation, route }: any) {
     }
   };
 
-  const totalCategoryBudget = Object.values(categoryBudgets).reduce(
-    (sum, val) => sum + (parseFloat(val) || 0), 0
-  ) + customCategories.reduce((sum, cat) => sum + (parseFloat(cat.budget) || 0), 0);
-  
+  const totalCategoryBudget = calculateTotalCategoryBudget();
   const monthlyBudgetNum = parseFloat(monthlyBudget) || 0;
   const remaining = monthlyBudgetNum - totalCategoryBudget;
+  const isBudgetExceeded = remaining < 0;
 
   // Replace FlatList with ScrollView and map for icon picker
   const renderIconPickerModal = () => (
@@ -387,7 +508,11 @@ export default function BudgetSetupScreen({ navigation, route }: any) {
             <TextInput
               style={styles.input}
               value={monthlyBudget}
-              onChangeText={setMonthlyBudget}
+              onChangeText={(value) => {
+                setMonthlyBudget(value);
+                // Re-validate after monthly budget change
+                setTimeout(() => validateCategoryBudgets(), 100);
+              }}
               keyboardType="numeric"
               placeholder="Enter monthly budget"
               placeholderTextColor="#999"
@@ -407,9 +532,16 @@ export default function BudgetSetupScreen({ navigation, route }: any) {
               <View style={styles.categoryInputWrapper}>
                 <Text style={styles.rupeeSymbol}>₹</Text>
                 <TextInput
-                  style={styles.categoryInput}
+                  style={[
+                    styles.categoryInput,
+                    isBudgetExceeded && styles.exceedInput
+                  ]}
                   value={categoryBudgets[category.name]}
-                  onChangeText={(val) => updateCategoryBudget(category.name, val)}
+                  onChangeText={(val) => {
+                    updateCategoryBudget(category.name, val);
+                    // Re-validate after change
+                    setTimeout(() => validateCategoryBudgets(), 100);
+                  }}
                   keyboardType="numeric"
                   placeholder="0"
                   placeholderTextColor="#999"
@@ -431,9 +563,16 @@ export default function BudgetSetupScreen({ navigation, route }: any) {
                   <View style={styles.categoryInputWrapper}>
                     <Text style={styles.rupeeSymbol}>₹</Text>
                     <TextInput
-                      style={styles.categoryInput}
+                      style={[
+                        styles.categoryInput,
+                        isBudgetExceeded && styles.exceedInput
+                      ]}
                       value={category.budget}
-                      onChangeText={(val) => updateCustomCategoryBudget(index, val)}
+                      onChangeText={(val) => {
+                        updateCustomCategoryBudget(index, val);
+                        // Re-validate after change
+                        setTimeout(() => validateCategoryBudgets(), 100);
+                      }}
                       keyboardType="numeric"
                       placeholder="0"
                       placeholderTextColor="#999"
@@ -460,7 +599,7 @@ export default function BudgetSetupScreen({ navigation, route }: any) {
           </TouchableOpacity>
 
           {/* Budget Summary */}
-          <View style={styles.summaryCard}>
+          <View style={[styles.summaryCard, isBudgetExceeded && styles.warningCard]}>
             <Text style={styles.summaryTitle}>Budget Summary</Text>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Total Monthly Budget:</Text>
@@ -470,30 +609,32 @@ export default function BudgetSetupScreen({ navigation, route }: any) {
               <Text style={styles.summaryLabel}>Total Category Budgets:</Text>
               <Text style={styles.summaryValue}>₹{totalCategoryBudget.toLocaleString('en-IN')}</Text>
             </View>
-            <View style={[styles.summaryRow, remaining < 0 && styles.warningRow]}>
+            <View style={[styles.summaryRow, isBudgetExceeded && styles.warningRow]}>
               <Text style={styles.summaryLabel}>Remaining for Other:</Text>
-              <Text style={[styles.summaryValue, remaining < 0 && styles.warningText]}>
+              <Text style={[styles.summaryValue, isBudgetExceeded && styles.warningText]}>
                 ₹{remaining.toLocaleString('en-IN')}
               </Text>
             </View>
-            {remaining < 0 && (
+            {isBudgetExceeded && (
               <Text style={styles.warningMessage}>
-                ⚠️ Category budgets exceed monthly budget!
+                ⚠️ Category budgets exceed monthly budget by ₹{Math.abs(remaining).toLocaleString('en-IN')}!
               </Text>
             )}
           </View>
 
           {/* Save Button */}
           <TouchableOpacity
-            style={[styles.saveBtn, loading && styles.disabledBtn]}
+            style={[styles.saveBtn, (loading || isBudgetExceeded) && styles.disabledBtn]}
             onPress={handleSave}
-            disabled={loading}
+            disabled={loading || isBudgetExceeded}
             activeOpacity={0.85}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.saveBtnText}>Create Account & Start Tracking</Text>
+              <Text style={styles.saveBtnText}>
+                {isBudgetExceeded ? 'Please Fix Budget Exceeded' : 'Create Account & Start Tracking'}
+              </Text>
             )}
           </TouchableOpacity>
         </View>
@@ -550,6 +691,12 @@ const styles = StyleSheet.create({
   categoryInputWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f5f5f5', borderRadius: 8, paddingHorizontal: 10 },
   rupeeSymbol: { fontSize: 14, color: '#666', marginRight: 4 },
   categoryInput: { width: 80, paddingVertical: 10, fontSize: 14, textAlign: 'right' },
+  exceedInput: { 
+    borderColor: '#E53E3E', 
+    borderWidth: 1, 
+    backgroundColor: '#FFF0F0',
+    borderRadius: 8,
+  },
   removeBtn: { padding: 8, marginLeft: 8 },
   removeBtnText: { fontSize: 16 },
   addCategoryBtn: {
@@ -570,6 +717,11 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 20,
     marginBottom: 24,
+  },
+  warningCard: {
+    backgroundColor: '#FFF0F0',
+    borderWidth: 1,
+    borderColor: '#E53E3E',
   },
   summaryTitle: { fontSize: 16, fontWeight: 'bold', color: '#1A9B5E', marginBottom: 12 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },

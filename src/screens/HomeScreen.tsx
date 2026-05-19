@@ -20,6 +20,7 @@ import { useExpenseStore } from '../services/stores/expenseStore';
 import { initializeNotifications, setupNotificationListener } from '../services/notificationService';
 import { NotificationPreferencePopup } from '../components/NotificationPreferencePopup';
 import { storage } from '../utils/storage';
+import { shouldShowPermissionRequest } from '../services/permissionService';
 
 export type TabParamList = {
   Home: undefined;
@@ -85,16 +86,19 @@ export default function HomeScreen({ navigation }: Props) {
   const [initialized, setInitialized] = useState(false);
    const [showNotificationPopup, setShowNotificationPopup] = useState(false);
 
-  useEffect(() => {
-    // Check if this is first time after setup
-    const hasSeenNotificationPopup = storage.getBoolean('hasSeenNotificationPopup');
-    if (!hasSeenNotificationPopup) {
+ useEffect(() => {
+  const checkAndShowPopup = async () => {
+    const shouldShow = await shouldShowPermissionRequest();
+    if (shouldShow) {
       // Show popup after a short delay
       setTimeout(() => {
         setShowNotificationPopup(true);
       }, 1000);
     }
-  }, []);
+  };
+  
+  checkAndShowPopup();
+}, []);
 
   const handleNotificationComplete = () => {
     setShowNotificationPopup(false);

@@ -13,6 +13,18 @@ interface CustomCategory {
   icon: string;
 }
 
+// Default category budgets that sum to 15000 (NOT exceeding monthly budget)
+const DEFAULT_CATEGORY_BUDGETS = {
+  Food: 4000,
+  Travel: 2000,
+  Shopping: 2000,
+  Health: 1500,
+  Bills: 3000,
+  Entertainment: 1500,
+  Rent: 0,
+  Other: 1000,
+};
+
 interface UserState {
   user: any | null;
   monthlyBudget: number;
@@ -40,8 +52,8 @@ interface UserState {
 
 export const useUserStore = create<UserState>((set, get) => ({
   user: null,
-  monthlyBudget: 50000,
-  categoryBudgets: {},
+  monthlyBudget: 15000,
+  categoryBudgets: DEFAULT_CATEGORY_BUDGETS,
   customCategories: [],
   loading: false,
   error: null,
@@ -51,7 +63,6 @@ export const useUserStore = create<UserState>((set, get) => ({
 
   fetchBudget: async () => {
     // If we already have budget data, just make sure loading is false and bail.
-    // This prevents the card from getting stuck every time HomeScreen re-mounts.
     if (get().budgetLoaded) {
       set({ loading: false });
       return;
@@ -72,8 +83,8 @@ export const useUserStore = create<UserState>((set, get) => ({
 
       if (result && !result.error) {
         set({
-          monthlyBudget: result.monthlyBudget || 50000,
-          categoryBudgets: result.categoryBudgets || {},
+          monthlyBudget: result.monthlyBudget || 15000,
+          categoryBudgets: result.categoryBudgets || DEFAULT_CATEGORY_BUDGETS,
           customCategories: result.customCategories || [],
           loading: false,
           error: null,
@@ -85,8 +96,8 @@ export const useUserStore = create<UserState>((set, get) => ({
         set({
           loading: false,
           error: result?.error || 'Failed to load budget',
-          monthlyBudget: 50000,
-          categoryBudgets: {},
+          monthlyBudget: 15000,
+          categoryBudgets: DEFAULT_CATEGORY_BUDGETS,
           customCategories: [],
           budgetLoaded: true,
         });
@@ -96,8 +107,8 @@ export const useUserStore = create<UserState>((set, get) => ({
       set({
         loading: false,
         error: error.message || 'Failed to fetch budget',
-        monthlyBudget: 50000,
-        categoryBudgets: {},
+        monthlyBudget: 15000,
+        categoryBudgets: DEFAULT_CATEGORY_BUDGETS,
         customCategories: [],
         budgetLoaded: true,
       });
@@ -108,9 +119,9 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({
       loading: false,
       error: null,
-      budgetLoaded: false, // false so the next fetchBudget actually runs
-      monthlyBudget: 50000,
-      categoryBudgets: {},
+      budgetLoaded: false,
+      monthlyBudget: 15000,
+      categoryBudgets: DEFAULT_CATEGORY_BUDGETS,
       customCategories: [],
     });
   },
@@ -158,7 +169,6 @@ export const useUserStore = create<UserState>((set, get) => ({
     try {
       const { error } = await addCustomCategory(name, icon, budget);
       if (!error) {
-        // Re-fetch to sync custom categories; reset budgetLoaded so fetch runs
         set({ budgetLoaded: false });
         await get().fetchBudget();
         set({ loading: false });
@@ -179,7 +189,6 @@ export const useUserStore = create<UserState>((set, get) => ({
     try {
       const { error } = await removeCustomCategory(name);
       if (!error) {
-        // Re-fetch to sync custom categories; reset budgetLoaded so fetch runs
         set({ budgetLoaded: false });
         await get().fetchBudget();
         set({ loading: false });
@@ -200,8 +209,8 @@ export const useUserStore = create<UserState>((set, get) => ({
       await auth().signOut();
       set({
         user: null,
-        monthlyBudget: 50000,
-        categoryBudgets: {},
+        monthlyBudget: 15000,
+        categoryBudgets: DEFAULT_CATEGORY_BUDGETS,
         customCategories: [],
         loading: false,
         error: null,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,11 @@ import {
   Dimensions,
   Animated,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { setBudgetAlertsEnabled, setDailyRemindersEnabled, scheduleDailyReminder } from '../services/notificationService';
+import { checkNotificationPermissions, requestNotificationPermissions, showPermissionDeniedDialog } from '../services/permissionService';
 
 const { width, height } = Dimensions.get('window');
 const COLORS = {
@@ -34,44 +36,86 @@ export const NotificationPreferencePopup = ({ visible, onClose, onComplete }: Pr
   const [budgetAlerts, setBudgetAlerts] = useState(true);
   const [dailyReminders, setDailyReminders] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [hasPermissions, setHasPermissions] = useState(false);
+  const [checkingPermissions, setCheckingPermissions] = useState(true);
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const scaleAnim = React.useRef(new Animated.Value(0.8)).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (visible) {
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          friction: 8,
-          tension: 40,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      checkPermissions();
+      animateIn();
     } else {
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 0.8,
-          friction: 8,
-          tension: 40,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      animateOut();
     }
-  }, [visible, fadeAnim, scaleAnim]);
+  }, [visible]);
+
+  const animateIn = () => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const animateOut = () => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 0.8,
+        friction: 8,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const checkPermissions = async () => {
+    setCheckingPermissions(true);
+    const granted = await checkNotificationPermissions();
+    setHasPermissions(granted);
+    setCheckingPermissions(false);
+  };
+
+  const requestPermissions = async () => {
+    const granted = await requestNotificationPermissions();
+    setHasPermissions(granted);
+    
+    if (!granted) {
+      showPermissionDeniedDialog(() => {
+        onClose();
+      });
+      return false;
+    }
+    return true;
+  };
 
   const handleSave = async () => {
     setSaving(true);
     try {
+      // First, check/request permissions
+      let granted = hasPermissions;
+      if (!granted) {
+        granted = await requestPermissions();
+        if (!granted) {
+          setSaving(false);
+          return;
+        }
+      }
+      
+      // Save preferences
       await setBudgetAlertsEnabled(budgetAlerts);
       await setDailyRemindersEnabled(dailyReminders);
       
@@ -82,7 +126,7 @@ export const NotificationPreferencePopup = ({ visible, onClose, onComplete }: Pr
       onComplete();
     } catch (error) {
       console.error('Error saving notification preferences:', error);
-      onComplete(); // Still continue even if there's an error
+      onComplete();
     } finally {
       setSaving(false);
     }
@@ -91,6 +135,21 @@ export const NotificationPreferencePopup = ({ visible, onClose, onComplete }: Pr
   const handleSkip = () => {
     onComplete();
   };
+
+  if (checkingPermissions) {
+    return (
+      <Modal transparent visible={visible} animationType="none">
+        <View style={styles.overlay}>
+          <View style={styles.popupContainer}>
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={COLORS.primary} />
+              <Text style={styles.loadingText}>Checking permissions...</Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
 
   return (
     <Modal
@@ -128,6 +187,16 @@ export const NotificationPreferencePopup = ({ visible, onClose, onComplete }: Pr
           </LinearGradient>
 
           <View style={styles.content}>
+            {/* Permission Status */}
+            {!hasPermissions && (
+              <View style={styles.permissionWarning}>
+                <Text style={styles.permissionWarningIcon}>⚠️</Text>
+                <Text style={styles.permissionWarningText}>
+                  Allow notifications to receive alerts
+                </Text>
+              </View>
+            )}
+
             {/* Budget Alerts Option */}
             <View style={styles.optionItem}>
               <View style={styles.optionLeft}>
@@ -146,6 +215,7 @@ export const NotificationPreferencePopup = ({ visible, onClose, onComplete }: Pr
                 onValueChange={setBudgetAlerts}
                 trackColor={{ false: '#D1D5DB', true: COLORS.primary }}
                 thumbColor={COLORS.white}
+                disabled={!hasPermissions}
               />
             </View>
 
@@ -167,13 +237,14 @@ export const NotificationPreferencePopup = ({ visible, onClose, onComplete }: Pr
                 onValueChange={setDailyReminders}
                 trackColor={{ false: '#D1D5DB', true: COLORS.primary }}
                 thumbColor={COLORS.white}
+                disabled={!hasPermissions}
               />
             </View>
 
             <View style={styles.infoBox}>
               <Text style={styles.infoIcon}>💡</Text>
               <Text style={styles.infoText}>
-                You can change these anytime in Profile → Settings
+                You can change these anytime in Profile → Notifications
               </Text>
             </View>
 
@@ -356,5 +427,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.white,
     fontWeight: '600',
+  },
+  loadingContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: COLORS.textMuted,
+  },
+  permissionWarning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FFB74D',
+  },
+  permissionWarningIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  permissionWarningText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#E65100',
+    fontWeight: '500',
   },
 });

@@ -9,6 +9,18 @@ export interface UserData {
   createdAt: any;
 }
 
+// Default category budgets that sum to 15000
+const DEFAULT_CATEGORY_BUDGETS = {
+  Food: 4000,
+  Travel: 2000,
+  Shopping: 2000,
+  Health: 1500,
+  Bills: 3000,
+  Entertainment: 1500,
+  Rent: 0,
+  Other: 1000,
+};
+
 export const signUp = async (email: string, password: string, displayName: string) => {
   try {
     const userCredential = await auth().createUserWithEmailAndPassword(email, password);
@@ -18,16 +30,7 @@ export const signUp = async (email: string, password: string, displayName: strin
       displayName,
       email,
       monthlyBudget: 15000,
-      categoryBudgets: {
-        Food: 5000,
-        Travel: 3000,
-        Shopping: 2000,
-        Health: 2000,
-        Bills: 4000,
-        Entertainment: 2000,
-        Rent: 10000,
-        Other: 2000,
-      },
+      categoryBudgets: DEFAULT_CATEGORY_BUDGETS,
       createdAt: firestore.FieldValue.serverTimestamp(),
     };
     

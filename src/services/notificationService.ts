@@ -175,6 +175,8 @@ export const showBudgetAlert = async (
       body,
       android: {
         channelId: 'budget_alerts',
+        smallIcon: 'ic_notification',
+         color: '#0a4835', 
         importance: AndroidImportance.HIGH,
         pressAction: { id: 'default' },
         style: { type: AndroidStyle.BIGTEXT, text: body },
@@ -221,6 +223,8 @@ export const showCategoryBudgetAlert = async (
       body,
       android: {
         channelId: 'budget_alerts',
+         smallIcon: 'ic_notification',
+         color: '#0a4835', 
         importance: AndroidImportance.HIGH,
         pressAction: { id: 'default' },
         style: { type: AndroidStyle.BIGTEXT, text: body },

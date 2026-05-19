@@ -7,6 +7,18 @@ const getUserId = () => {
   return user.uid;
 };
 
+// Default category budgets that sum to 15000 (NOT exceeding)
+const DEFAULT_CATEGORY_BUDGETS = {
+  Food: 4000,
+  Travel: 2000,
+  Shopping: 2000,
+  Health: 1500,
+  Bills: 3000,
+  Entertainment: 1500,
+  Rent: 0,
+  Other: 1000,
+};
+
 export const getMonthlyBudget = async () => {
   try {
     const userId = getUserId();
@@ -14,7 +26,7 @@ export const getMonthlyBudget = async () => {
     const data = doc.data();
     return {
       monthlyBudget: data?.monthlyBudget || 15000,
-      categoryBudgets: data?.categoryBudgets || {},
+      categoryBudgets: data?.categoryBudgets || DEFAULT_CATEGORY_BUDGETS,
       customCategories: data?.customCategories || [],
       error: null,
     };
@@ -22,7 +34,7 @@ export const getMonthlyBudget = async () => {
     console.error('Error getting budget:', error);
     return {
       monthlyBudget: 15000,
-      categoryBudgets: {},
+      categoryBudgets: DEFAULT_CATEGORY_BUDGETS,
       customCategories: [],
       error: error.message,
     };
@@ -45,7 +57,7 @@ export const updateCategoryBudget = async (category: string, amount: number) => 
     const userId = getUserId();
     const userRef = firestore().collection('users').doc(userId);
     const doc = await userRef.get();
-    const currentBudgets = doc.data()?.categoryBudgets || {};
+    const currentBudgets = doc.data()?.categoryBudgets || DEFAULT_CATEGORY_BUDGETS;
     await userRef.update({
       categoryBudgets: { ...currentBudgets, [category]: amount },
     });
@@ -64,7 +76,7 @@ export const addCustomCategory = async (name: string, icon: string, budget: numb
     const data = doc.data();
 
     const currentCustomCategories = data?.customCategories || [];
-    const currentCategoryBudgets = data?.categoryBudgets || {};
+    const currentCategoryBudgets = data?.categoryBudgets || DEFAULT_CATEGORY_BUDGETS;
 
     if (
       currentCategoryBudgets[name] ||
@@ -93,7 +105,7 @@ export const removeCustomCategory = async (name: string) => {
     const data = doc.data();
 
     const currentCustomCategories = data?.customCategories || [];
-    const currentCategoryBudgets = data?.categoryBudgets || {};
+    const currentCategoryBudgets = data?.categoryBudgets || DEFAULT_CATEGORY_BUDGETS;
 
     const updatedCustomCategories = currentCustomCategories.filter(
       (cat: any) => cat.name !== name,

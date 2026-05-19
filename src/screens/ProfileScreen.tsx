@@ -18,6 +18,7 @@ import { useUserStore } from '../services/stores/userStore';
 import { signOut } from '../services/firebase/authService';
 import { useAlertStore } from '../services/stores/alertStore';
 import { useNotificationSettings } from '../hooks/useNotificationSettings';
+import { checkNotificationPermissions, requestNotificationPermissions, showPermissionDeniedDialog } from '../services/permissionService';
 
 const COLORS = {
   primary: '#1A9B5E',
@@ -71,6 +72,11 @@ export default function ProfileScreen({ navigation }: any) {
   const [userEmail, setUserEmail] = useState('');
   const [darkMode, setDarkMode] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [hasNotificationPermissions, setHasNotificationPermissions] = useState(true);
+  
+  // Track the actual display state for toggles (respecting permissions)
+  const [displayBudgetAlerts, setDisplayBudgetAlerts] = useState(false);
+  const [displayDailyReminders, setDisplayDailyReminders] = useState(false);
   
   // Modal states
   const [monthlyModalVisible, setMonthlyModalVisible] = useState(false);
@@ -87,6 +93,31 @@ export default function ProfileScreen({ navigation }: any) {
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [addingCategory, setAddingCategory] = useState(false);
 
+  // Check notification permissions on mount and when screen focuses
+  useEffect(() => {
+    checkPermissions();
+  }, []);
+
+  // Update display toggles when permissions or actual settings change
+  useEffect(() => {
+    // Only show toggles as enabled if:
+    // 1. User has granted permissions, AND
+    // 2. The setting is actually enabled
+    if (hasNotificationPermissions) {
+      setDisplayBudgetAlerts(budgetAlerts);
+      setDisplayDailyReminders(dailyReminders);
+    } else {
+      // When permissions are denied, always show toggles as OFF
+      setDisplayBudgetAlerts(false);
+      setDisplayDailyReminders(false);
+    }
+  }, [hasNotificationPermissions, budgetAlerts, dailyReminders]);
+
+  const checkPermissions = async () => {
+    const hasPermissions = await checkNotificationPermissions();
+    setHasNotificationPermissions(hasPermissions);
+  };
+
   // All useEffect hooks must be in the same order
   useEffect(() => {
     loadUserData();
@@ -99,6 +130,34 @@ export default function ProfileScreen({ navigation }: any) {
       setUserEmail(user.email || '');
     }
     await fetchBudget();
+  };
+
+  // Helper function to calculate total category budgets
+  const calculateTotalCategoryBudget = (excludeCategory?: string): number => {
+    let total = 0;
+    
+    Object.entries(categoryBudgets).forEach(([category, amount]) => {
+      if (excludeCategory && category === excludeCategory) return;
+      const numAmount = typeof amount === 'number' ? amount : parseFloat(amount as any);
+      if (!isNaN(numAmount) && numAmount > 0) {
+        total += numAmount;
+      }
+    });
+    
+    return total;
+  };
+
+  // Validate if new category budget would exceed monthly budget
+  const wouldExceedBudget = (newAmount: number, categoryToExclude?: string): boolean => {
+    const currentTotal = calculateTotalCategoryBudget(categoryToExclude);
+    const newTotal = currentTotal + newAmount;
+    return newTotal > monthlyBudget;
+  };
+
+  // Get remaining budget for a category
+  const getRemainingBudget = (categoryToExclude?: string): number => {
+    const currentTotal = calculateTotalCategoryBudget(categoryToExclude);
+    return monthlyBudget - currentTotal;
   };
 
   const handleLogout = async () => {
@@ -122,68 +181,116 @@ export default function ProfileScreen({ navigation }: any) {
     });
   };
 
-  // Notification toggle handlers
-// Notification toggle handlers - Updated version
-const handleBudgetAlertsToggle = async (value: boolean) => {
-  console.log('Budget alerts toggle pressed, new value:', value);
-  try {
-    const success = await toggleBudgetAlerts(value);
-    console.log('Toggle budget alerts result:', success);
+  // Notification toggle handlers with permission checks
+  const handleBudgetAlertsToggle = async (value: boolean) => {
+    console.log('Budget alerts toggle pressed, new value:', value);
     
-    if (success) {
-      showAlert({
-        title: 'Success',
-        message: value ? 'Budget alerts enabled' : 'Budget alerts disabled',
-        type: 'success',
+    // If permissions are not granted, show dialog and return
+    if (!hasNotificationPermissions) {
+      showPermissionDeniedDialog(async () => {
+        // After returning from settings, recheck permissions
+        const hasPermissions = await checkNotificationPermissions();
+        setHasNotificationPermissions(hasPermissions);
+        if (hasPermissions && value) {
+          // If permissions now granted and user wants to enable, do it
+          const success = await toggleBudgetAlerts(value);
+          if (success) {
+            setDisplayBudgetAlerts(value);
+            showAlert({
+              title: 'Success',
+              message: value ? 'Budget alerts enabled' : 'Budget alerts disabled',
+              type: 'success',
+            });
+          }
+        }
       });
-    } else {
+      return;
+    }
+    
+    try {
+      const success = await toggleBudgetAlerts(value);
+      console.log('Toggle budget alerts result:', success);
+      
+      if (success) {
+        setDisplayBudgetAlerts(value);
+        showAlert({
+          title: 'Success',
+          message: value ? 'Budget alerts enabled' : 'Budget alerts disabled',
+          type: 'success',
+        });
+      } else {
+        showAlert({
+          title: 'Error',
+          message: 'Failed to update notification settings',
+          type: 'error',
+        });
+      }
+    } catch (error) {
+      console.error('Error in handleBudgetAlertsToggle:', error);
       showAlert({
         title: 'Error',
-        message: 'Failed to update notification settings',
+        message: 'An unexpected error occurred',
         type: 'error',
       });
     }
-  } catch (error) {
-    console.error('Error in handleBudgetAlertsToggle:', error);
-    showAlert({
-      title: 'Error',
-      message: 'An unexpected error occurred',
-      type: 'error',
-    });
-  }
-};
+  };
 
-const handleDailyRemindersToggle = async (value: boolean) => {
-  console.log('Daily reminders toggle pressed, new value:', value);
-  try {
-    const success = await toggleDailyReminders(value);
-    console.log('Toggle daily reminders result:', success);
+  const handleDailyRemindersToggle = async (value: boolean) => {
+    console.log('Daily reminders toggle pressed, new value:', value);
     
-    if (success) {
-      showAlert({
-        title: 'Success',
-        message: value 
-          ? 'Daily reminders enabled. You will receive notifications at 9:30 PM.' 
-          : 'Daily reminders disabled',
-        type: 'success',
+    // If permissions are not granted, show dialog and return
+    if (!hasNotificationPermissions) {
+      showPermissionDeniedDialog(async () => {
+        // After returning from settings, recheck permissions
+        const hasPermissions = await checkNotificationPermissions();
+        setHasNotificationPermissions(hasPermissions);
+        if (hasPermissions && value) {
+          // If permissions now granted and user wants to enable, do it
+          const success = await toggleDailyReminders(value);
+          if (success) {
+            setDisplayDailyReminders(value);
+            showAlert({
+              title: 'Success',
+              message: value 
+                ? 'Daily reminders enabled. You will receive notifications at 9:30 PM.' 
+                : 'Daily reminders disabled',
+              type: 'success',
+            });
+          }
+        }
       });
-    } else {
+      return;
+    }
+    
+    try {
+      const success = await toggleDailyReminders(value);
+      console.log('Toggle daily reminders result:', success);
+      
+      if (success) {
+        setDisplayDailyReminders(value);
+        showAlert({
+          title: 'Success',
+          message: value 
+            ? 'Daily reminders enabled. You will receive notifications at 9:30 PM.' 
+            : 'Daily reminders disabled',
+          type: 'success',
+        });
+      } else {
+        showAlert({
+          title: 'Error',
+          message: 'Failed to update notification settings',
+          type: 'error',
+        });
+      }
+    } catch (error) {
+      console.error('Error in handleDailyRemindersToggle:', error);
       showAlert({
         title: 'Error',
-        message: 'Failed to update notification settings',
+        message: 'An unexpected error occurred',
         type: 'error',
       });
     }
-  } catch (error) {
-    console.error('Error in handleDailyRemindersToggle:', error);
-    showAlert({
-      title: 'Error',
-      message: 'An unexpected error occurred',
-      type: 'error',
-    });
-  }
-};
- 
+  };
 
   // Monthly Budget Modal Handlers
   const openMonthlyBudgetModal = () => {
@@ -194,6 +301,20 @@ const handleDailyRemindersToggle = async (value: boolean) => {
   const saveMonthlyBudget = async () => {
     const numAmount = parseFloat(tempMonthlyBudget);
     if (!isNaN(numAmount) && numAmount > 0) {
+      // Check if current category budgets exceed the new monthly budget
+      const currentTotal = calculateTotalCategoryBudget();
+      if (currentTotal > numAmount) {
+        showAlert({
+          title: 'Cannot Reduce Budget',
+          message: `Your category budgets total ₹${currentTotal.toLocaleString('en-IN')} which exceeds the new monthly budget of ₹${numAmount.toLocaleString('en-IN')} by ₹${(currentTotal - numAmount).toLocaleString('en-IN')}.\n\nPlease reduce your category budgets first.`,
+          type: 'warning',
+          buttons: [
+            { text: 'OK', style: 'default' }
+          ]
+        });
+        return;
+      }
+      
       const result = await setMonthlyBudget(numAmount);
       if (result.success) {
         setMonthlyModalVisible(false);
@@ -228,6 +349,20 @@ const handleDailyRemindersToggle = async (value: boolean) => {
   const saveCategoryBudget = async () => {
     const numAmount = parseFloat(tempCategoryBudget);
     if (!isNaN(numAmount) && numAmount >= 0) {
+      // Check if this would exceed the monthly budget
+      if (wouldExceedBudget(numAmount, selectedCategory)) {
+        const remaining = getRemainingBudget(selectedCategory);
+        showAlert({
+          title: 'Budget Limit Exceeded',
+          message: `Setting ${selectedCategory} budget to ₹${numAmount.toLocaleString('en-IN')} would exceed your monthly budget.\n\nRemaining budget available: ₹${remaining.toLocaleString('en-IN')}\n\nPlease reduce the amount or increase your monthly budget.`,
+          type: 'warning',
+          buttons: [
+            { text: 'OK', style: 'default' }
+          ]
+        });
+        return;
+      }
+      
       const result = await setCategoryBudget(selectedCategory, numAmount);
       if (result.success) {
         setCategoryModalVisible(false);
@@ -302,6 +437,20 @@ const handleDailyRemindersToggle = async (value: boolean) => {
       return;
     }
 
+    // Check if adding this category would exceed monthly budget
+    if (wouldExceedBudget(budgetNum)) {
+      const remaining = getRemainingBudget();
+      showAlert({
+        title: 'Budget Limit Exceeded',
+        message: `Adding "${categoryName}" with budget ₹${budgetNum.toLocaleString('en-IN')} would exceed your monthly budget.\n\nRemaining budget available: ₹${remaining.toLocaleString('en-IN')}\n\nPlease reduce the budget amount or increase your monthly budget.`,
+        type: 'warning',
+        buttons: [
+          { text: 'OK', style: 'default' }
+        ]
+      });
+      return;
+    }
+
     setAddingCategory(true);
     try {
       const result = await addCustomCategory(categoryName, newCategoryIcon, budgetNum);
@@ -315,7 +464,6 @@ const handleDailyRemindersToggle = async (value: boolean) => {
           message: `${categoryName} category added successfully!`,
           type: 'success',
         });
-        // Refresh the budget data to ensure UI updates
         await fetchBudget();
       } else {
         showAlert({
@@ -449,7 +597,7 @@ const handleDailyRemindersToggle = async (value: boolean) => {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* Profile Card - No edit button */}
+        {/* Profile Card */}
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{userName.charAt(0).toUpperCase()}</Text>
@@ -480,13 +628,15 @@ const handleDailyRemindersToggle = async (value: boolean) => {
           </TouchableOpacity>
         </View>
 
-        {/* Display all categories (default + custom) */}
+        {/* Display all categories */}
         <View style={styles.categoryList}>
           {Object.entries(categoryBudgets).map(([category, amount]) => {
             const isCustomCategory = customCategories && customCategories.some((c: any) => c.name === category);
             const categoryIcon = isCustomCategory 
               ? (customCategories.find((c: any) => c.name === category)?.icon || '📌')
               : getDefaultIcon(category);
+            
+            const isOverBudget = calculateTotalCategoryBudget() > monthlyBudget;
             
             return (
               <View key={category} style={styles.categoryItem}>
@@ -497,7 +647,9 @@ const handleDailyRemindersToggle = async (value: boolean) => {
                 >
                   <Text style={styles.categoryIcon}>{categoryIcon}</Text>
                   <Text style={styles.categoryName}>{category}</Text>
-                  <Text style={styles.categoryAmount}>₹{(amount as number).toLocaleString('en-IN')}</Text>
+                  <Text style={[styles.categoryAmount, isOverBudget && styles.warningText]}>
+                    ₹{(amount as number).toLocaleString('en-IN')}
+                  </Text>
                 </TouchableOpacity>
                 {isCustomCategory && (
                   <TouchableOpacity
@@ -516,8 +668,44 @@ const handleDailyRemindersToggle = async (value: boolean) => {
           )}
         </View>
 
+        {/* Budget Summary */}
+        <View style={[styles.summaryCard, calculateTotalCategoryBudget() > monthlyBudget && styles.warningCard]}>
+          <Text style={styles.summaryTitle}>Budget Summary</Text>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Monthly Budget:</Text>
+            <Text style={styles.summaryValue}>₹{monthlyBudget.toLocaleString('en-IN')}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Total Category Budgets:</Text>
+            <Text style={[styles.summaryValue, calculateTotalCategoryBudget() > monthlyBudget && styles.warningText]}>
+              ₹{calculateTotalCategoryBudget().toLocaleString('en-IN')}
+            </Text>
+          </View>
+          <View style={[styles.summaryRow, calculateTotalCategoryBudget() > monthlyBudget && styles.warningRow]}>
+            <Text style={styles.summaryLabel}>Remaining:</Text>
+            <Text style={[styles.summaryValue, calculateTotalCategoryBudget() > monthlyBudget && styles.warningText]}>
+              ₹{getRemainingBudget().toLocaleString('en-IN')}
+            </Text>
+          </View>
+          {calculateTotalCategoryBudget() > monthlyBudget && (
+            <Text style={styles.warningMessage}>
+              ⚠️ Category budgets exceed monthly budget by ₹{(calculateTotalCategoryBudget() - monthlyBudget).toLocaleString('en-IN')}!
+            </Text>
+          )}
+        </View>
+
         {/* NOTIFICATIONS Section */}
         <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
+
+        {/* Permission Warning */}
+        {!hasNotificationPermissions && (
+          <View style={styles.permissionWarning}>
+            <Text style={styles.permissionWarningIcon}>🔔</Text>
+            <Text style={styles.permissionWarningText}>
+              Notifications are disabled. Enable them in Settings to receive alerts.
+            </Text>
+          </View>
+        )}
 
         {/* Budget Alerts Card */}
         <View style={styles.settingsCard}>
@@ -526,10 +714,14 @@ const handleDailyRemindersToggle = async (value: boolean) => {
           </View>
           <View style={styles.settingTextContainer}>
             <Text style={styles.settingsLabel}>Budget Alerts</Text>
-            <Text style={styles.settingDescription}>Get alerts when you reach 80% of budget</Text>
+            <Text style={styles.settingDescription}>
+              {hasNotificationPermissions 
+                ? 'Get alerts when you reach 80% of budget'
+                : 'Enable notifications in Settings to receive alerts'}
+            </Text>
           </View>
           <Switch
-            value={budgetAlerts}
+            value={displayBudgetAlerts}
             onValueChange={handleBudgetAlertsToggle}
             trackColor={{ false: '#D1D5DB', true: COLORS.primary }}
             thumbColor={COLORS.white}
@@ -544,10 +736,14 @@ const handleDailyRemindersToggle = async (value: boolean) => {
           </View>
           <View style={styles.settingTextContainer}>
             <Text style={styles.settingsLabel}>Daily Reminders</Text>
-            <Text style={styles.settingDescription}>Remind me at 9:30 PM to update expenses</Text>
+            <Text style={styles.settingDescription}>
+              {hasNotificationPermissions 
+                ? 'Remind me at 9:30 PM to update expenses'
+                : 'Enable notifications in Settings to receive reminders'}
+            </Text>
           </View>
           <Switch
-            value={dailyReminders}
+            value={displayDailyReminders}
             onValueChange={handleDailyRemindersToggle}
             trackColor={{ false: '#D1D5DB', true: COLORS.primary }}
             thumbColor={COLORS.white}
@@ -637,6 +833,9 @@ const handleDailyRemindersToggle = async (value: boolean) => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Set {selectedCategory} Budget</Text>
             <Text style={styles.modalSubtitle}>Enter monthly budget for {selectedCategory} (₹)</Text>
+            <Text style={styles.modalRemaining}>
+              Remaining budget available: ₹{getRemainingBudget(selectedCategory).toLocaleString('en-IN')}
+            </Text>
             <TextInput
               style={styles.modalInput}
               value={tempCategoryBudget}
@@ -693,6 +892,9 @@ const handleDailyRemindersToggle = async (value: boolean) => {
             </TouchableOpacity>
             
             <Text style={styles.modalLabel}>Monthly Budget (₹)</Text>
+            <Text style={styles.modalRemaining}>
+              Remaining budget available: ₹{getRemainingBudget().toLocaleString('en-IN')}
+            </Text>
             <TextInput
               style={styles.modalInput}
               value={newCategoryBudget}
@@ -991,6 +1193,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
+  modalRemaining: {
+    fontSize: 13,
+    color: COLORS.primary,
+    textAlign: 'center',
+    marginBottom: 12,
+    fontWeight: '500',
+  },
   modalLabel: {
     fontSize: 14,
     fontWeight: '600',
@@ -1066,4 +1275,71 @@ const styles = StyleSheet.create({
     borderColor: '#fff' 
   },
   iconOptionText: { fontSize: 28 },
+  summaryCard: {
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  warningCard: {
+    backgroundColor: COLORS.dangerLight,
+    borderWidth: 1,
+    borderColor: COLORS.danger,
+  },
+  summaryTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginBottom: 12,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  summaryLabel: {
+    fontSize: 14,
+    color: COLORS.textMuted,
+  },
+  summaryValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  warningRow: {
+    borderTopWidth: 1,
+    borderTopColor: COLORS.danger,
+    marginTop: 8,
+    paddingTop: 8,
+  },
+  warningText: {
+    color: COLORS.danger,
+  },
+  warningMessage: {
+    fontSize: 12,
+    color: COLORS.danger,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  permissionWarning: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#FFB74D',
+  },
+  permissionWarningIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  permissionWarningText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#E65100',
+    fontWeight: '500',
+  },
 });
