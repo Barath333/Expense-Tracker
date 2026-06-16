@@ -1,0 +1,534 @@
+{
+  "common": {
+    "save": "சேமி",
+    "cancel": "ரத்து செய்",
+    "delete": "நீக்கு",
+    "edit": "திருத்து",
+    "remove": "அகற்று",
+    "loading": "ஏற்றுகிறது...",
+    "success": "வெற்றி",
+    "error": "பிழை",
+    "ok": "சரி",
+    "retry": "மீண்டும் முயல்க",
+    "back": "பின் செல்",
+    "yes": "ஆம்",
+    "no": "இல்லை",
+    "today": "இன்று",
+    "yesterday": "நேற்று",
+    "rupeeSymbol": "₹"
+  },
+
+  "language": {
+    "selectLanguage": "மொழியைத் தேர்ந்தெடுக்கவும்",
+   "english": "English",
+  "tamil": "தமிழ்",
+  "hindi": "हिन्दी",
+  "marathi": "मराठी",
+  "telugu": "తెలుగు",
+    "continue": "தொடரவும்",
+    "changeLanguage": "மொழியை மாற்று"
+  },
+
+  "onboarding": {
+    "appName": "ஸ்பெண்ட் வைஸ்",
+    "tagline": "AI-இயங்கும் செலவு கண்காணி",
+    "aiInsightsTitle": "AI-இயங்கும் நுண்ணறிவுகள்",
+    "aiInsightsBody": "ஜெமினி AI உங்கள் செலவுகளை பகுப்பாய்வு செய்து ஒவ்வொரு மாதமும் 3 செயல்படுத்தக்கூடிய நுண்ணறிவுகளை வழங்குகிறது",
+    "getStarted": "தொடங்குக",
+    "skip": "தவிர்க்கவும் →"
+  },
+
+  "auth": {
+    "welcomeBack": "மீண்டும் வரவேற்கிறோம் 👋",
+    "joinApp": "ஸ்பெண்ட் வைஸில் இணையுங்கள் 🎉",
+    "signInTitle": "ஸ்பெண்ட் வைஸில் உள்நுழைக",
+    "signUpTitle": "கணக்கு உருவாக்குக",
+    "login": "உள்நுழைவு",
+    "signUp": "பதிவு செய்க",
+    "emailLabel": "மின்னஞ்சல்",
+    "emailPlaceholder": "உங்கள்@மின்னஞ்சல்.com",
+    "passwordLabel": "கடவுச்சொல்",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "கடவுச்சொல் மறந்துவிட்டதா?",
+    "passwordHint": "🔒 கடவுச்சொல் குறைந்தது 6 எழுத்துகள் இருக்க வேண்டும்",
+    "usingSavedEmail": "✅ சேமித்த மின்னஞ்சலைப் பயன்படுத்துகிறது: {{email}}",
+    "signIn": "உள்நுழைக",
+    "createAccount": "கணக்கு உருவாக்குக",
+    "secureSignIn": "Firebase மூலம் பாதுகாப்பான உள்நுழைவு",
+    "noAccount": "கணக்கு இல்லையா? பதிவு தாவலுக்கு மாறுக",
+    "haveAccount": "ஏற்கனவே கணக்கு உள்ளதா? உள்நுழைவு தாவலுக்கு மாறுக",
+
+    "clearSavedEmailTitle": "சேமித்த மின்னஞ்சலை அழிக்க",
+    "clearSavedEmailMessage": "சேமித்த மின்னஞ்சலை அழிக்க வேண்டுமா?",
+    "clear": "அழி",
+    "savedEmailCleared": "சேமித்த மின்னஞ்சல் அழிக்கப்பட்டது!",
+
+    "errorEnterEmail": "உங்கள் மின்னஞ்சலை உள்ளிடவும்",
+    "errorEnterPassword": "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
+    "errorPasswordLength": "கடவுச்சொல் குறைந்தது 6 எழுத்துகள் இருக்க வேண்டும்",
+
+    "loginFailed": "உள்நுழைவு தோல்வி",
+    "signUpFailed": "பதிவு தோல்வி",
+    "loginSuccess": "வெற்றிகரமாக உள்நுழைந்துள்ளீர்கள்!",
+    "errorUserNotFound": "கணக்கு இல்லை. தயவுசெய்து முதலில் பதிவு செய்யுங்கள்.",
+    "errorWrongPassword": "தவறான கடவுச்சொல். மீண்டும் முயல்க.",
+    "errorInvalidEmail": "தவறான மின்னஞ்சல் வடிவம்.",
+    "errorTooManyRequests": "அதிகமான தோல்வியுற்ற முயற்சிகள். பிறகு முயல்க.",
+    "errorNetwork": "பிணைய பிழை. உங்கள் இணைப்பை சரிபார்க்கவும்.",
+    "errorEmailInUse": "மின்னஞ்சல் ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது. தயவுசெய்து உள்நுழையுங்கள்.",
+    "errorWeakPassword": "கடவுச்சொல் மிகவும் பலவீனமாக உள்ளது. குறைந்தது 6 எழுத்துகளைப் பயன்படுத்தவும்.",
+    "errorUnexpected": "எதிர்பாராத பிழை ஏற்பட்டது",
+    "errorGeneric": "எதிர்பாராத பிழை ஏற்பட்டது"
+  },
+
+  "forgotPassword": {
+    "troubleSigningIn": "உள்நுழைவதில் சிக்கலா?",
+    "resetPassword": "கடவுச்சொல்லை மீட்டமை",
+    "instructions": "உங்கள் மின்னஞ்சலை உள்ளிடவும், உங்கள் கடவுச்சொல்லை மீட்டமைப்பதற்கான இணைப்பை நாங்கள் அனுப்புவோம்",
+    "emailLabel": "மின்னஞ்சல் முகவரி",
+    "emailPlaceholder": "உங்கள்@மின்னஞ்சல்.com",
+    "sendResetLink": "மீட்டமை இணைப்பை அனுப்புக",
+    "backToLogin": "← உள்நுழைவுக்குத் திரும்பு",
+    "rememberPassword": "உங்கள் கடவுச்சொல் நினைவில் இருக்கிறதா?",
+    "goToSignIn": "உள்நுழைவுக்குச் செல்க",
+
+    "checkEmailTitle": "உங்கள் மின்னஞ்சலைச் சரிபார்க்கவும் 📧",
+    "linkSentTitle": "கடவுச்சொல் மீட்டமை இணைப்பு அனுப்பப்பட்டது",
+    "resetLinkSentTo": "மீட்டமை இணைப்பு இதற்கு அனுப்பப்பட்டது:",
+    "resetLinkInstructions": "உங்கள் கடவுச்சொல்லை மீட்டமைக்க மின்னஞ்சலில் உள்ள இணைப்பைக் கிளிக் செய்யவும். இணைப்பு 1 மணி நேரத்தில் காலாவதியாகும்.",
+    "backToLoginButton": "உள்நுழைவுக்குத் திரும்பு",
+    "resendEmail": "மின்னஞ்சலை மீண்டும் அனுப்பு",
+
+    "errorEnterEmail": "உங்கள் மின்னஞ்சல் முகவரியை உள்ளிடவும்",
+    "errorInvalidEmail": "சரியான மின்னஞ்சல் முகவரியை உள்ளிடவும்",
+    "successTitle": "கடவுச்சொல் மீட்டமை மின்னஞ்சல் அனுப்பப்பட்டது",
+    "successMessage": "{{email}} க்கு கடவுச்சொல் மீட்டமை இணைப்பை அனுப்பியுள்ளோம்.\n\nஉங்கள் இன்பாக்ஸைச் சரிபார்த்து, உங்கள் கடவுச்சொல்லை மீட்டமைப்பதற்கான வழிமுறைகளைப் பின்பற்றவும்.",
+    "errorGeneric": "கடவுச்சொல் மீட்டமை மின்னஞ்சலை அனுப்பத் தவறியது",
+    "errorUserNotFound": "இந்த மின்னஞ்சல் முகவரியுடன் கணக்கு எதுவும் இல்லை.",
+    "errorInvalidEmailFormat": "தவறான மின்னஞ்சல் முகவரி வடிவம்.",
+    "errorTooManyRequests": "அதிகமான கோரிக்கைகள். பிறகு முயல்க."
+  },
+
+  "categories": {
+    "Food": "உணவு",
+    "Travel": "பயணம்",
+    "Shopping": "ஷாப்பிங்",
+    "Health": "உடல்நலம்",
+    "Bills": "பில்கள்",
+    "Entertainment": "பொழுதுபோக்கு",
+    "Rent": "வாடகை",
+    "Other": "மற்றவை",
+    "all": "அனைத்தும்",
+    "allWithIcon": "📋 அனைத்தும்"
+  },
+
+  "home": {
+    "goodMorning": "காலை வணக்கம்",
+    "goodAfternoon": "மதிய வணக்கம்",
+    "goodEvening": "மாலை வணக்கம்",
+    "loadingExpenses": "உங்கள் செலவுகளை ஏற்றுகிறது...",
+    "loadingExpensesShort": "செலவுகளை ஏற்றுகிறது...",
+    "initializing": "தொடக்கநிலைப்படுத்துகிறது...",
+
+    "loadingBudget": "பட்ஜெட்டை ஏற்றுகிறது...",
+    "fetchingBudget": "உங்கள் பட்ஜெட் தகவலைப் பெறுகிறது",
+    "budgetUnavailable": "பட்ஜெட் கிடைக்கவில்லை",
+    "spentThisMonth": "இந்த மாதம் செலவு செய்தது",
+    "defaultBudget": "இயல்புநிலை பட்ஜெட்: ₹50,000",
+    "retryLoadingBudget": "↻ பட்ஜெட்டை மீண்டும் ஏற்ற முயல்க",
+
+    "totalSpentThisMonth": "இந்த மாதம் மொத்த செலவு",
+    "budgetRemaining": "பட்ஜெட்: {{budget}} · மீதம்: {{remaining}}",
+    "spentPercent": "செலவு {{percent}}%",
+
+    "geminiInsight": "🤖 ஜெமினி AI நுண்ணறிவு",
+    "insightOverBudget": "⚠️ நீங்கள் உங்கள் பட்ஜெட்டில் {{percent}}% செலவு செய்துவிட்டீர்கள். விரிவான நுண்ணறிவுகளுக்குத் தட்டவும்.",
+    "insightOnTrack": "🎯 நீங்கள் சரியான பாதையில் உள்ளீர்கள்! பட்ஜெட்டில் {{percent}}% மீதமுள்ளது. AI பகுப்பாய்விற்குத் தட்டவும்.",
+
+    "add": "சேர்",
+    "charts": "விளக்கப்படங்கள்",
+    "history": "வரலாறு",
+
+    "recentExpenses": "சமீபத்திய செலவுகள்",
+    "seeAll": "அனைத்தையும் காண்க →",
+    "noExpenses": "இன்னும் செலவுகள் இல்லை. உங்கள் முதல் செலவைச் சேர்க்க + ஐ அழுத்தவும்!",
+
+    "errorLoadFailed": "⚠️ {{error}}"
+  },
+
+  "addExpense": {
+    "title": "செலவைச் சேர்",
+    "amountLabel": "தொகை (₹)",
+    "category": "வகை",
+    "receiptOptional": "ரசீது (விரும்பினால்)",
+    "camera": "கேமரா",
+    "gallery": "கேலரி",
+    "receiptAttached": "✓ ரசீது இணைக்கப்பட்டது",
+    "remove": "அகற்று",
+    "notePlaceholder": "✏️ குறிப்பைச் சேர்க்கவும் (விரும்பினால்)...",
+    "saveExpense": "செலவைச் சேமி",
+    "defaultNote": "{{category}} செலவு",
+
+    "invalidAmountTitle": "தவறான தொகை",
+    "invalidAmountMessage": "சரியான செலவுத் தொகையை உள்ளிடவும்.",
+
+    "loginRequiredTitle": "பிழை",
+    "loginRequiredMessage": "செலவுகளைச் சேர்க்க நீங்கள் உள்நுழைந்திருக்க வேண்டும்.",
+
+    "uploadFailedTitle": "பதிவேற்றம் தோல்வி",
+    "uploadFailedMessage": "ரசீதைப் பதிவேற்ற முடியவில்லை. செலவு ரசீது இல்லாமல் சேமிக்கப்படும்.",
+
+    "successTitle": "வெற்றி! 🎉",
+    "successMessage": "₹{{amount}} செலவு வெற்றிகரமாகச் சேர்க்கப்பட்டது.",
+
+    "errorTitle": "பிழை",
+    "errorSaveFailed": "செலவைச் சேமிக்க முடியவில்லை. மீண்டும் முயல்க.",
+    "errorUnexpected": "எதிர்பாராத பிழை ஏற்பட்டது",
+
+    "imagePickError": "படத்தைத் தேர்ந்தெடுக்க முடியவில்லை: {{error}}",
+    "imagePickSuccessTitle": "வெற்றி",
+    "imagePickSuccessMessage": "ரசீது வெற்றிகரமாக இணைக்கப்பட்டது!",
+
+    "removeReceiptTitle": "ரசீதை அகற்று",
+    "removeReceiptMessage": "இணைக்கப்பட்ட ரசீதை அகற்ற வேண்டுமா?",
+
+    "calendar": {
+      "selectDate": "தேதியைத் தேர்ந்தெடுக்கவும்",
+      "today": "இன்று",
+      "weekDays": {
+        "sun": "ஞாயி",
+        "mon": "திங்",
+        "tue": "செவ்",
+        "wed": "புத",
+        "thu": "வியா",
+        "fri": "வெள்",
+        "sat": "சனி"
+      }
+    }
+  },
+
+  "aiInsights": {
+    "title": "AI நுண்ணறிவுகள்",
+    "poweredByGemini": "ஜெமினி மூலம் இயக்கப்படுகிறது",
+    "geminiAI": "🤖 ஜெமினி AI மூலம் இயக்கப்படுகிறது",
+    "smartAnalytics": "📊 ஸ்மார்ட் பகுப்பாய்வு",
+    "analyzing": "உங்கள் செலவுகளை பகுப்பாய்வு செய்கிறது...",
+    "justNow": "இப்போதுதான்",
+    "minAgo": "{{count}} நிமிடம் முன்பு",
+    "hoursAgo": "{{count}} மணி நேரம் முன்பு",
+
+    "scoreExcellent": "சிறந்த செலவுப் பழக்கங்கள்! 🎉",
+    "scoreGood": "நல்ல செலவுப் பழக்கங்கள்",
+    "scoreAverage": "சராசரி - முன்னேற்றத்திற்கு இடம் உள்ளது",
+    "scoreNeedsAttention": "கவனம் தேவை - உங்கள் செலவுகளை மதிப்பாய்வு செய்யுங்கள்",
+    "scoreSummary": "{{count}} செலவுகள் மொத்தம் {{amount}} அடிப்படையில்",
+    "aiGenerated": "✨ AI உருவாக்கியது",
+
+    "viewExpenses": "செலவுகளைக் காண்க →",
+    "viewFoodExpenses": "உணவுச் செலவுகளைக் காண்க →",
+
+    "highSpendingTitle": "அதிக {{category}} செலவு",
+    "highSpendingBody": "{{category}} உங்கள் செலவில் {{percent}}% ({{amount}}) ஆகும். இந்த வகையைக் குறைப்பதைக் கவனியுங்கள்.",
+
+    "budgetAlertTitle": "பட்ஜெட் எச்சரிக்கை! ⚠️",
+    "budgetAlertBody": "உங்கள் {{budget}} பட்ஜெட்டில் {{percent}}% செலவு செய்துவிட்டீர்கள். மீதம் {{remaining}} மட்டுமே!",
+
+    "budgetWarningTitle": "பட்ஜெட் எச்சரிக்கை",
+    "budgetWarningBody": "உங்கள் பட்ஜெட்டில் {{percent}}% செலவு செய்துவிட்டீர்கள். மாதத்திற்கு {{remaining}}% மீதமுள்ளது.",
+
+    "onTrackTitle": "சரியான பாதையில்! 🎯",
+    "onTrackBody": "அருமையான வேலை! உங்கள் {{budget}} பட்ஜெட்டில் {{percent}}% மட்டுமே செலவு செய்துள்ளீர்கள். தொடருங்கள்!",
+
+    "saveFoodTitle": "உணவில் சேமியுங்கள்",
+    "saveFoodBody": "நீங்கள் உணவிற்கு {{amount}} செலவு செய்துள்ளீர்கள். வாரத்தில் 3 முறை வீட்டில் சமைப்பது மாதத்திற்கு ₹800-1200 சேமிக்க உதவும்.",
+
+    "trackEverythingTitle": "அனைத்தையும் கண்காணியுங்கள்",
+    "trackEverythingBody": "உங்களிடம் {{count}} செயலில் செலவு வகைகள் உள்ளன. மேலும் செலவுகளைச் சேர்ப்பது AI சிறந்த நுண்ணறிவுகளை வழங்க உதவுகிறது!",
+
+    "footerAI": "✨ உங்கள் செலவுப் பழக்கங்களின் அடிப்படையில் Google ஜெமினி AI மூலம் உருவாக்கப்பட்ட நுண்ணறிவுகள்",
+    "footerFallback": "📊 ஸ்மார்ட் பகுப்பாய்வைப் பயன்படுத்துகிறது (ஜெமினி API கிடைக்கவில்லை)",
+
+    "refresh": "🔄 பகுப்பாய்வைப் புதுப்பிக்கவும்"
+  },
+
+  "analytics": {
+    "title": "பகுப்பாய்வு",
+    "spendingByCategory": "வகை வாரியாக செலவு",
+    "total": "மொத்தம்",
+    "noExpensesThisMonth": "இந்த மாதம் செலவுகள் இல்லை",
+    "sixMonthTrend": "6 மாதப் போக்கு",
+    "exportPdf": "PDF அறிக்கையை ஏற்றுமதி செய்க",
+    "exportTitle": "ஏற்றுமதி",
+    "exportMessage": "PDF அறிக்கை விரைவில் பதிவிறங்கும்."
+  },
+
+  "history": {
+    "title": "செலவு வரலாறு",
+    "totalExpenses": "{{count}} மொத்த செலவுகள்",
+    "searchPlaceholder": "செலவுகளைத் தேடுங்கள்...",
+
+    "filteredTotal": "{{filter}} (வடிகட்டப்பட்டது)",
+    "totalLabel": "மொத்தம்",
+
+    "emptyFiltered": "உங்கள் வடிப்பான்களுடன் பொருந்தக்கூடிய செலவுகள் எதுவும் இல்லை",
+    "emptyAll": "இன்னும் செலவுகள் இல்லை. உங்கள் முதல் செலவைச் சேர்க்க + ஐ அழுத்தவும்!",
+
+    "deleteTitle": "செலவை நீக்கு",
+    "deleteMessage": "\"{{note}}\" என்பதை நீக்க வேண்டுமா?",
+    "deleteErrorMessage": "செலவை நீக்க முடியவில்லை. மீண்டும் முயல்க.",
+    "deleteSuccessMessage": "செலவு வெற்றிகரமாக நீக்கப்பட்டது!",
+
+    "editExpense": "செலவைத் திருத்து",
+    "amountLabel": "தொகை (₹)",
+    "categoryLabel": "வகை",
+    "noteLabel": "குறிப்பு",
+    "notePlaceholder": "குறிப்பு (விரும்பினால்)",
+    "amountPlaceholder": "தொகை",
+
+    "editErrorInvalidAmount": "சரியான தொகையை உள்ளிடவும்",
+    "editErrorFailed": "செலவைப் புதுப்பிக்க முடியவில்லை",
+    "editSuccessMessage": "செலவு வெற்றிகரமாகப் புதுப்பிக்கப்பட்டது",
+
+    "receiptBadge": "📋 ரசீது",
+    "swipeDelete": "🗑️ நீக்கு",
+
+    "dateToday": "இன்று — {{date}}",
+    "dateYesterday": "நேற்று — {{date}}"
+  },
+
+  "budget": {
+    "editTitle": "பட்ஜெட்களைத் திருத்து",
+    "monthlyBudgetCard": "💰 மாத பட்ஜெட்",
+    "monthlyBudgetPlaceholder": "மாத பட்ஜெட்டை உள்ளிடவும்",
+    "categoryBudgetsCard": "📋 வகை பட்ஜெட்கள்",
+
+    "summaryTitle": "பட்ஜெட் சுருக்கம்",
+    "monthlyBudgetLabel": "மாத பட்ஜெட்:",
+    "categoryTotalLabel": "வகை மொத்தம்:",
+    "remainingLabel": "மீதம்:",
+    "exceedWarning": "⚠️ வகை பட்ஜெட்கள் மாத பட்ஜெட்டை விட அதிகமாக உள்ளன!",
+
+    "saveAllChanges": "அனைத்து மாற்றங்களையும் சேமி",
+
+    "invalidBudgetTitle": "தவறான பட்ஜெட்",
+    "invalidBudgetMessage": "சரியான மாத பட்ஜெட் தொகையை உள்ளிடவும்.",
+    "saveSuccessMessage": "அனைத்து பட்ஜெட்களும் வெற்றிகரமாகப் புதுப்பிக்கப்பட்டன!",
+    "saveErrorMessage": "பட்ஜெட்களைப் புதுப்பிக்க முடியவில்லை. மீண்டும் முயல்க."
+  },
+
+  "budgetSetup": {
+    "title": "உங்கள் பட்ஜெட்டை அமைக்கவும்",
+    "subtitle": "உங்கள் செலவு வரம்புகளைத் தனிப்பயனாக்குங்கள்",
+    "monthlyBudgetLabel": "💰 மாத பட்ஜெட் (₹)",
+    "monthlyBudgetPlaceholder": "மாத பட்ஜெட்டை உள்ளிடவும்",
+
+    "categoryBudgetsTitle": "📋 வகை பட்ஜெட்கள்",
+    "categoryBudgetsNote": "ஒவ்வொரு வகைக்கும் மாத வரம்புகளை அமைக்கவும்",
+    "customCategoriesTitle": "✨ தனிப்பயன் வகைகள்",
+
+    "addCustomCategory": "+ தனிப்பயன் வகையைச் சேர்",
+    "addCustomCategoryModalTitle": "தனிப்பயன் வகையைச் சேர்",
+    "categoryNameLabel": "வகையின் பெயர்",
+    "categoryNamePlaceholder": "எ.கா: காபி, ஜிம், சந்தா",
+    "categoryIconLabel": "வகை ஐகான்",
+    "change": "மாற்று",
+    "monthlyBudgetFieldLabel": "மாத பட்ஜெட் (₹)",
+    "enterBudgetPlaceholder": "பட்ஜெட்டை உள்ளிடவும்",
+    "addCategory": "வகையைச் சேர்",
+
+    "chooseIcon": "ஒரு ஐகானைத் தேர்ந்தெடுக்கவும்",
+
+    "summaryTitle": "பட்ஜெட் சுருக்கம்",
+    "totalMonthlyBudget": "மொத்த மாத பட்ஜெட்:",
+    "totalCategoryBudgets": "மொத்த வகை பட்ஜெட்கள்:",
+    "remainingForOther": "மற்றவற்றுக்கு மீதம்:",
+    "exceedMessage": "⚠️ வகை பட்ஜெட்கள் மாத பட்ஜெட்டை ₹{{amount}} அதிகமாகக் கொண்டுள்ளன!",
+
+    "createAccountAndStart": "கணக்கை உருவாக்கி கண்காணிப்பைத் தொடங்குங்கள்",
+    "fixBudgetExceeded": "தயவுசெய்து பட்ஜெட் மீறலைச் சரிசெய்யவும்",
+
+    "errorSignUpFirstTitle": "பிழை",
+    "errorSignUpFirstMessage": "தயவுசெய்து முதலில் பதிவு செய்யுங்கள்",
+
+    "errorEnterCategoryName": "வகையின் பெயரை உள்ளிடவும்",
+    "errorCategoryExists": "வகை ஏற்கனவே உள்ளது",
+    "errorInvalidBudgetAmount": "சரியான பட்ஜெட் தொகையை உள்ளிடவும்",
+
+    "categoryAddedMessage": "\"{{name}}\" வகை வெற்றிகரமாகச் சேர்க்கப்பட்டது!",
+
+    "removeCategoryTitle": "வகையை அகற்று",
+    "removeCategoryMessage": "\"{{name}}\" என்பதை அகற்ற வேண்டுமா?",
+    "categoryRemovedMessage": "\"{{name}}\" வகை வெற்றிகரமாக அகற்றப்பட்டது!",
+
+    "budgetLimitExceededTitle": "பட்ஜெட் வரம்பு மீறப்பட்டது! ⚠️",
+    "budgetLimitExceededMessage": "உங்கள் வகை பட்ஜெட்களின் மொத்தம் ₹{{total}} ஆகும், இது உங்கள் மாத பட்ஜெட்டான ₹{{budget}} ஐ விட ₹{{excess}} அதிகமாகும்.\n\nதயவுசெய்து சில வகை பட்ஜெட்களைக் குறைக்கவும் அல்லது உங்கள் மாத பட்ஜெட்டை அதிகரிக்கவும்.",
+    "adjustBudgets": "பட்ஜெட்களைச் சரிசெய்",
+
+    "budgetLimitExceededAddMessage": "\"{{name}}\" ஐ {{requested}} பட்ஜெட்டுடன் சேர்ப்பது உங்கள் மாத பட்ஜெட்டை மீறும்.\n\nமீதமுள்ள பட்ஜெட்: ₹{{remaining}}\nகோரப்பட்ட பட்ஜெட்: ₹{{requested}}\n\nதயவுசெய்து பட்ஜெட் தொகையைக் குறைக்கவும் அல்லது உங்கள் மாத பட்ஜெட்டை அதிகரிக்கவும்.",
+
+    "userNotFoundTitle": "பிழை",
+    "userNotFoundMessage": "பயனர் காணப்படவில்லை. தயவுசெய்து மீண்டும் பதிவு செய்யுங்கள்.",
+    "invalidMonthlyBudgetMessage": "சரியான மாத பட்ஜெட்டை உள்ளிடவும்",
+
+    "invalidBudgetAmountsTitle": "தவறான பட்ஜெட் தொகைகள்",
+    "invalidBudgetAmountsMessage": "இவற்றிற்கான சரியான பட்ஜெட் தொகைகளை உள்ளிடவும்: {{categories}}",
+
+    "welcomeTitle": "ஸ்பெண்ட் வைஸ்க்கு வரவேற்கிறோம்! 🎉",
+    "welcomeMessage": "உங்கள் பட்ஜெட் வெற்றிகரமாக அமைக்கப்பட்டது!",
+    "startTracking": "கண்காணிப்பைத் தொடங்குங்கள்",
+
+    "saveErrorMessage": "பட்ஜெட்டைச் சேமிக்க முடியவில்லை. மீண்டும் முயல்க.",
+    "loading": "ஏற்றுகிறது..."
+  },
+
+  "profile": {
+    "title": "சுயவிவரம் & அமைப்புகள்",
+
+    "budgetSection": "பட்ஜெட்",
+    "monthlyBudget": "மாத பட்ஜெட்",
+
+    "categoryBudgetsSection": "வகை பட்ஜெட்கள்",
+    "addNew": "+ புதிதாகச் சேர்",
+    "noCategories": "இதுவரை வகைகள் சேர்க்கப்படவில்லை. ஒன்றை உருவாக்க \"+ புதிதாகச் சேர்\" என்பதைத் தட்டவும்.",
+
+    "summaryTitle": "பட்ஜெட் சுருக்கம்",
+    "totalCategoryBudgets": "மொத்த வகை பட்ஜெட்கள்:",
+    "remaining": "மீதம்:",
+    "exceedMessage": "⚠️ வகை பட்ஜெட்கள் மாத பட்ஜெட்டை ₹{{amount}} அதிகமாகக் கொண்டுள்ளன!",
+
+    "notificationsSection": "அறிவிப்புகள்",
+    "permissionWarning": "அறிவிப்புகள் முடக்கப்பட்டுள்ளன. எச்சரிக்கைகளைப் பெற அமைப்புகளில் அவற்றை இயக்கவும்.",
+
+    "budgetAlertsTitle": "பட்ஜெட் எச்சரிக்கைகள்",
+    "budgetAlertsDescriptionEnabled": "பட்ஜெட்டில் 80% அடையும் போது எச்சரிக்கைகளைப் பெறுங்கள்",
+    "budgetAlertsDescriptionDisabled": "எச்சரிக்கைகளைப் பெற அமைப்புகளில் அறிவிப்புகளை இயக்கவும்",
+
+    "dailyRemindersTitle": "தினசரி நினைவூட்டல்கள்",
+    "dailyRemindersDescriptionEnabled": "செலவுகளைப் புதுப்பிக்க இரவு 9:30 மணிக்கு எனக்கு நினைவூட்டு",
+    "dailyRemindersDescriptionDisabled": "நினைவூட்டல்களைப் பெற அமைப்புகளில் அறிவிப்புகளை இயக்கவும்",
+
+    "appearanceSection": "தோற்றம்",
+    "darkMode": "இருண்ட முறை",
+    "comingSoon": "விரைவில் வரும்",
+
+    "languageSection": "மொழி",
+    "changeLanguage": "மொழியை மாற்று",
+
+    "version": "v1.0.0 · ஸ்பெண்ட் வைஸ்",
+    "logout": "🚪 வெளியேறு",
+
+    "logoutTitle": "வெளியேறு",
+    "logoutMessage": "நீங்கள் வெளியேற விரும்புகிறீர்களா?",
+
+    "loadingBudgetData": "பட்ஜெட் தரவை ஏற்றுகிறது...",
+
+    "setMonthlyBudgetTitle": "மாத பட்ஜெட்டை அமைக்கவும்",
+    "setMonthlyBudgetSubtitle": "உங்கள் மொத்த மாத பட்ஜெட்டை உள்ளிடவும் (₹)",
+    "enterAmountPlaceholder": "தொகையை உள்ளிடவும்",
+
+    "setCategoryBudgetTitle": "{{category}} பட்ஜெட்டை அமைக்கவும்",
+    "setCategoryBudgetSubtitle": "{{category}} க்கான மாத பட்ஜெட்டை உள்ளிடவும் (₹)",
+    "remainingBudgetAvailable": "மீதமுள்ள பட்ஜெட் கிடைக்கிறது: ₹{{amount}}",
+
+    "addCustomCategoryTitle": "தனிப்பயன் வகையைச் சேர்",
+    "categoryNameLabel": "வகையின் பெயர்",
+    "categoryNamePlaceholder": "எ.கா: காபி, ஜிம், சந்தா",
+    "categoryIconLabel": "வகை ஐகான்",
+    "change": "மாற்று",
+    "monthlyBudgetFieldLabel": "மாத பட்ஜெட் (₹)",
+    "enterBudgetPlaceholder": "பட்ஜெட்டை உள்ளிடவும்",
+    "addCategory": "வகையைச் சேர்",
+    "chooseIcon": "ஒரு ஐகானைத் தேர்ந்தெடுக்கவும்",
+
+    "errorEnterValidAmount": "சரியான தொகையை உள்ளிடவும்",
+
+    "cannotReduceBudgetTitle": "பட்ஜெட்டைக் குறைக்க முடியாது",
+    "cannotReduceBudgetMessage": "உங்கள் வகை பட்ஜெட்களின் மொத்தம் ₹{{total}} ஆகும், இது புதிய மாத பட்ஜெட்டான ₹{{budget}} ஐ விட ₹{{excess}} அதிகமாகும்.\n\nதயவுசெய்து முதலில் உங்கள் வகை பட்ஜெட்களைக் குறைக்கவும்.",
+
+    "monthlyBudgetUpdated": "மாத பட்ஜெட் ₹{{amount}} ஆகப் புதுப்பிக்கப்பட்டது",
+    "monthlyBudgetUpdateFailed": "மாத பட்ஜெட்டைப் புதுப்பிக்க முடியவில்லை",
+
+    "categoryBudgetUpdated": "{{category}} பட்ஜெட் ₹{{amount}} ஆகப் புதுப்பிக்கப்பட்டது",
+    "categoryBudgetUpdateFailed": "வகை பட்ஜெட்டைப் புதுப்பிக்க முடியவில்லை",
+
+    "budgetLimitExceededTitle": "பட்ஜெட் வரம்பு மீறப்பட்டது",
+    "categoryBudgetExceededMessage": "{{category}} பட்ஜெட்டை ₹{{amount}} ஆக அமைப்பது உங்கள் மாத பட்ஜெட்டை மீறும்.\n\nமீதமுள்ள பட்ஜெட் கிடைக்கிறது: ₹{{remaining}}\n\nதயவுசெய்து தொகையைக் குறைக்கவும் அல்லது உங்கள் மாத பட்ஜெட்டை அதிகரிக்கவும்.",
+
+    "errorDefaultCategory": "இது ஒரு இயல்புநிலை வகை. தயவுசெய்து வேறு பெயரைத் தேர்ந்தெடுக்கவும்.",
+    "errorCategoryExists": "வகை ஏற்கனவே உள்ளது",
+    "errorEnterCategoryName": "வகையின் பெயரை உள்ளிடவும்",
+    "errorInvalidBudgetAmount": "சரியான பட்ஜெட் தொகையை உள்ளிடவும்",
+
+    "addCategoryExceededMessage": "\"{{name}}\" ஐ ₹{{amount}} பட்ஜெட்டுடன் சேர்ப்பது உங்கள் மாத பட்ஜெட்டை மீறும்.\n\nமீதமுள்ள பட்ஜெட் கிடைக்கிறது: ₹{{remaining}}\n\nதயவுசெய்து பட்ஜெட் தொகையைக் குறைக்கவும் அல்லது உங்கள் மாத பட்ஜெட்டை அதிகரிக்கவும்.",
+
+    "categoryAddedSuccess": "{{name}} வகை வெற்றிகரமாகச் சேர்க்கப்பட்டது!",
+    "categoryAddFailed": "வகையைச் சேர்க்க முடியவில்லை",
+    "categoryAddError": "வகையைச் சேர்க்க முடியவில்லை. மீண்டும் முயல்க.",
+
+    "removeCategoryTitle": "வகையை அகற்று",
+    "removeCategoryMessage": "\"{{name}}\" என்பதை அகற்ற வேண்டுமா?",
+    "categoryRemovedSuccess": "{{name}} வகை அகற்றப்பட்டது",
+    "categoryRemoveFailed": "வகையை அகற்ற முடியவில்லை",
+    "categoryRemoveError": "வகையை அகற்ற முடியவில்லை",
+
+    "notificationToggleFailed": "அறிவிப்பு அமைப்புகளைப் புதுப்பிக்க முடியவில்லை",
+    "notificationToggleError": "எதிர்பாராத பிழை ஏற்பட்டது",
+    "budgetAlertsEnabled": "பட்ஜெட் எச்சரிக்கைகள் இயக்கப்பட்டன",
+    "budgetAlertsDisabled": "பட்ஜெட் எச்சரிக்கைகள் முடக்கப்பட்டன",
+    "dailyRemindersEnabled": "தினசரி நினைவூட்டல்கள் இயக்கப்பட்டன. இரவு 9:30 மணிக்கு நீங்கள் அறிவிப்புகளைப் பெறுவீர்கள்.",
+    "dailyRemindersDisabled": "தினசரி நினைவூட்டல்கள் முடக்கப்பட்டன"
+  },
+
+  "receipt": {
+    "title": "ரசீது",
+    "share": "📤 பகிர்",
+    "delete": "🗑️ நீக்கு",
+    "paid": "✓ செலுத்தப்பட்டது · {{date}}",
+    "subtotal": "துணை மொத்தம்",
+    "gst": "GST {{percent}}%",
+    "total": "மொத்தம்"
+  },
+
+  "alerts": {
+    "loginToContinue": "தொடர தயவுசெய்து உள்நுழையுங்கள்",
+    "networkError": "பிணைய பிழை. உங்கள் இணைப்பைச் சரிபார்த்து மீண்டும் முயல்க.",
+    "somethingWentWrong": "ஏதோ தவறு நேர்ந்துவிட்டது. மீண்டும் முயல்க."
+  },
+
+  "notifications": {
+    "permissionModal": {
+      "title": "அறிவிப்புகளை இயக்கவும்",
+      "message": "உங்கள் நிதிகளைக் கட்டுக்குள் வைத்திருங்கள்! பட்ஜெட் எச்சரிக்கைகள் மற்றும் தினசரி நினைவூட்டல்களைப் பெறுங்கள்.",
+      "feature1": "80% அடையும் போது பட்ஜெட் எச்சரிக்கைகள்",
+      "feature2": "இரவு 9:30 மணிக்கு தினசரி நினைவூட்டல்கள்",
+      "feature3": "நிகழ்நேர செலவுப் புதுப்பிப்புகள்",
+      "enable": "அறிவிப்புகளை இயக்கு",
+      "maybeLater": "பிறகு முடிவு செய்கிறேன்"
+    },
+    "preferencePopup": {
+      "checkingPermissions": "அனுமதிகளைச் சரிபார்க்கிறது...",
+      "title": "புதுப்பித்த நிலையில் இருங்கள்!",
+      "subtitle": "அறிவிப்புகளை எவ்வாறு பெற விரும்புகிறீர்கள் என்பதைத் தேர்ந்தெடுக்கவும்",
+      "permissionWarning": "எச்சரிக்கைகளைப் பெற அறிவிப்புகளை அனுமதிக்கவும்",
+
+      "budgetAlertsTitle": "பட்ஜெட் எச்சரிக்கைகள்",
+      "budgetAlertsDescription": "பட்ஜெட்டில் 80% மற்றும் 100% இல் எச்சரிக்கைகளைப் பெறுங்கள்",
+
+      "dailyRemindersTitle": "தினசரி நினைவூட்டல்கள்",
+      "dailyRemindersDescription": "செலவுகளைப் பதிவு செய்ய இரவு 9:30 மணிக்கு எனக்கு நினைவூட்டு",
+
+      "infoText": "நீங்கள் இவற்றை எப்போது வேண்டுமானாலும் சுயவிவரம் → அறிவிப்புகளில் மாற்றலாம்",
+
+      "skip": "தவிர்க்கவும்",
+      "continue": "தொடரவும்",
+      "saving": "சேமிக்கிறது..."
+    },
+
+    "budgetAlertTitle": "பட்ஜெட் எச்சரிக்கை",
+    "budgetAlertBody": "உங்கள் மாத பட்ஜெட்டில் {{percent}}% செலவு செய்துவிட்டீர்கள் (₹{{budget}} இல் ₹{{spent}})",
+    "categoryBudgetAlertTitle": "{{category}} பட்ஜெட் எச்சரிக்கை",
+    "categoryBudgetAlertBody": "உங்கள் {{category}} பட்ஜெட்டில் {{percent}}% செலவு செய்துவிட்டீர்கள் (₹{{budget}} இல் ₹{{spent}})",
+    "dailyReminderTitle": "📝 உங்கள் செலவுகளைப் பதிவு செய்யும் நேரம்!",
+    "dailyReminderBody": "இன்றைய செலவுகளை ஸ்பெண்ட் வைஸில் பதிவு செய்ய மறந்துவிடாதீர்கள்."
+  }
+}

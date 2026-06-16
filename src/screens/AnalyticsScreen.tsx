@@ -6,15 +6,14 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import Svg, { Circle, G } from 'react-native-svg';
 import { useExpenseStore } from '../services/stores/expenseStore';
 import { useUserStore } from '../services/stores/userStore';
-// import { useExpenseStore } from '../services/stores/expenseStore';
-// import { useUserStore } from '../services/stores/userStore';
+import { useAlertStore } from '../services/stores/alertStore';
 
 const COLORS = {
   primary: '#1A9B5E',
@@ -61,8 +60,10 @@ interface CategoryData {
 }
 
 export default function AnalyticsScreen() {
+  const { t } = useTranslation();
   const { expenses, loading: expensesLoading } = useExpenseStore();
   const { monthlyBudget } = useUserStore();
+  const { showAlert } = useAlertStore();
   const [activeFilter, setActiveFilter] = useState('All');
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
@@ -105,7 +106,7 @@ export default function AnalyticsScreen() {
     setTotalSpent(total);
 
     const categories = Object.entries(categoryMap).map(([label, amount]) => ({
-      label,
+      label: t(`categories.${label}`, label),
       amount,
       percent: total > 0 ? Math.round((amount / total) * 100) : 0,
       color: getCategoryColor(label),
@@ -191,7 +192,7 @@ export default function AnalyticsScreen() {
       <SafeAreaView style={styles.safe} edges={['top']}>
         <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Analytics</Text>
+          <Text style={styles.headerTitle}>{t('analytics.title')}</Text>
         </View>
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color={COLORS.primary} />
@@ -205,7 +206,7 @@ export default function AnalyticsScreen() {
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
 
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Analytics</Text>
+        <Text style={styles.headerTitle}>{t('analytics.title')}</Text>
 
         <View style={styles.monthNav}>
           <TouchableOpacity onPress={() => changeMonth('prev')} style={styles.monthBtn} activeOpacity={0.7}>
@@ -231,7 +232,7 @@ export default function AnalyticsScreen() {
               activeOpacity={0.8}
             >
               <Text style={[styles.filterText, activeFilter === f && styles.filterTextActive]}>
-                {f === 'All' ? '📋 All' : f}
+                {f === 'All' ? t('categories.allWithIcon') : t(`categories.${f}`, f)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -239,20 +240,20 @@ export default function AnalyticsScreen() {
 
         {/* Spending by Category */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Spending by Category</Text>
+          <Text style={styles.cardTitle}>{t('analytics.spendingByCategory')}</Text>
 
           <View style={styles.donutRow}>
             <View style={styles.donutWrap}>
               <DonutChart />
               <View style={styles.donutCenter}>
                 <Text style={styles.donutAmount}>₹{(totalSpent / 1000).toFixed(1)}K</Text>
-                <Text style={styles.donutSub}>total</Text>
+                <Text style={styles.donutSub}>{t('analytics.total')}</Text>
               </View>
             </View>
 
             <View style={styles.legendWrap}>
               {categoryData.length === 0 ? (
-                <Text style={styles.emptyText}>No expenses this month</Text>
+                <Text style={styles.emptyText}>{t('analytics.noExpensesThisMonth')}</Text>
               ) : (
                 categoryData.map(cat => (
                   <View key={cat.label} style={styles.legendItem}>
@@ -268,7 +269,7 @@ export default function AnalyticsScreen() {
 
         {/* 6-Month Trend */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>6-Month Trend</Text>
+          <Text style={styles.cardTitle}>{t('analytics.sixMonthTrend')}</Text>
           {monthlyTrend.map(item => {
             const fillPct = Math.min((item.amount / item.max) * 100, 100);
             const barColor = item.highlight ? COLORS.accent : COLORS.primaryDark;
@@ -285,19 +286,27 @@ export default function AnalyticsScreen() {
         </View>
 
         {/* Export Button */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.exportBtn}
-          onPress={() => Alert.alert('Export', 'PDF report will be downloaded soon.')}
+          onPress={() => {
+            showAlert({
+              title: t('analytics.exportTitle'),
+              message: t('analytics.exportMessage'),
+              type: 'info',
+              buttons: [{ text: t('common.ok'), style: 'default' }],
+            });
+          }}
           activeOpacity={0.85}
         >
           <Text style={styles.exportIcon}>📄</Text>
-          <Text style={styles.exportText}>Export PDF Report</Text>
-        </TouchableOpacity>
+          <Text style={styles.exportText}>{t('analytics.exportPdf')}</Text>
+        </TouchableOpacity> */}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+// Styles remain exactly the same as original
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.bg },
   header: {

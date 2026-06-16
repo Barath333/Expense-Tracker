@@ -8,12 +8,13 @@ import {
   ScrollView,
   Animated,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useExpenseStore } from '../services/stores/expenseStore';
 import { useUserStore } from '../services/stores/userStore';
+import { useAlertStore } from '../services/stores/alertStore';
 import { getGeminiInsights } from '../services/geminiService';
 
 const COLORS = {
@@ -115,7 +116,9 @@ const scoreRingStyles = StyleSheet.create({
 });
 
 export default function AIInsightsScreen() {
+  const { t } = useTranslation();
   const navigation = useNavigation();
+  const { showAlert } = useAlertStore();
   const { expenses, loading: expensesLoading } = useExpenseStore();
   const { monthlyBudget } = useUserStore();
   const [insights, setInsights] = useState<Insight[]>([]);
@@ -145,7 +148,7 @@ export default function AIInsightsScreen() {
           id: index + 1,
           title: insight.title,
           body: insight.body,
-          link: insight.action ? `${insight.action} →` : null,
+          link: insight.action ? `${t('aiInsights.viewExpenses')}` : null,
           action: insight.action,
           color: index === 0 ? COLORS.primary : index === 1 ? COLORS.warning : '#8B5CF6',
           bgColor: index === 0 ? COLORS.primaryLight : index === 1 ? '#FEF3C7' : '#EDE9FE',
@@ -191,9 +194,13 @@ export default function AIInsightsScreen() {
       const percentageOfTotal = (topCategory[1] / totalSpent) * 100;
       newInsights.push({
         id: 1,
-        title: `High ${topCategory[0]} Spending`,
-        body: `${topCategory[0]} is ${percentageOfTotal.toFixed(0)}% of your spending (₹${topCategory[1].toLocaleString('en-IN')}). Consider reducing this category.`,
-        link: 'View expenses →',
+        title: t('aiInsights.highSpendingTitle', { category: t(`categories.${topCategory[0]}`, topCategory[0]) }),
+        body: t('aiInsights.highSpendingBody', {
+          category: t(`categories.${topCategory[0]}`, topCategory[0]),
+          percent: percentageOfTotal.toFixed(0),
+          amount: `₹${topCategory[1].toLocaleString('en-IN')}`,
+        }),
+        link: t('aiInsights.viewExpenses'),
         color: COLORS.primary,
         bgColor: COLORS.primaryLight,
       });
@@ -202,8 +209,12 @@ export default function AIInsightsScreen() {
     if (percentage > 0.9) {
       newInsights.push({
         id: 2,
-        title: 'Budget Alert! ⚠️',
-        body: `You've spent ${Math.round(percentage * 100)}% of your ₹${monthlyBudget.toLocaleString('en-IN')} budget. Only ₹${(monthlyBudget - totalSpent).toLocaleString('en-IN')} remaining!`,
+        title: t('aiInsights.budgetAlertTitle'),
+        body: t('aiInsights.budgetAlertBody', {
+          percent: Math.round(percentage * 100),
+          budget: monthlyBudget.toLocaleString('en-IN'),
+          remaining: (monthlyBudget - totalSpent).toLocaleString('en-IN'),
+        }),
         link: null,
         color: COLORS.danger,
         bgColor: '#FFF0F0',
@@ -211,8 +222,11 @@ export default function AIInsightsScreen() {
     } else if (percentage > 0.7) {
       newInsights.push({
         id: 2,
-        title: 'Budget Warning',
-        body: `You've spent ${Math.round(percentage * 100)}% of your budget. ${Math.round(100 - (percentage * 100))}% remaining for the month.`,
+        title: t('aiInsights.budgetWarningTitle'),
+        body: t('aiInsights.budgetWarningBody', {
+          percent: Math.round(percentage * 100),
+          remaining: Math.round(100 - (percentage * 100)),
+        }),
         link: null,
         color: COLORS.warning,
         bgColor: '#FEF3C7',
@@ -220,8 +234,11 @@ export default function AIInsightsScreen() {
     } else {
       newInsights.push({
         id: 2,
-        title: 'On Track! 🎯',
-        body: `Great job! You've spent only ${Math.round(percentage * 100)}% of your ₹${monthlyBudget.toLocaleString('en-IN')} budget. Keep it up!`,
+        title: t('aiInsights.onTrackTitle'),
+        body: t('aiInsights.onTrackBody', {
+          percent: Math.round(percentage * 100),
+          budget: monthlyBudget.toLocaleString('en-IN'),
+        }),
         link: null,
         color: COLORS.success,
         bgColor: '#DCFCE7',
@@ -231,17 +248,17 @@ export default function AIInsightsScreen() {
     if (topCategory && topCategory[0] === 'Food' && topCategory[1] > 5000) {
       newInsights.push({
         id: 3,
-        title: 'Save on Food',
-        body: `You spent ₹${topCategory[1].toLocaleString('en-IN')} on food. Cooking at home 3x/week could save ₹800-1200/month.`,
-        link: 'View Food expenses →',
+        title: t('aiInsights.saveFoodTitle'),
+        body: t('aiInsights.saveFoodBody', { amount: `₹${topCategory[1].toLocaleString('en-IN')}` }),
+        link: t('aiInsights.viewFoodExpenses'),
         color: '#8B5CF6',
         bgColor: '#EDE9FE',
       });
     } else {
       newInsights.push({
         id: 3,
-        title: 'Track Everything',
-        body: `You have ${totalCategories} active spending categories. Adding more expenses helps AI give better insights!`,
+        title: t('aiInsights.trackEverythingTitle'),
+        body: t('aiInsights.trackEverythingBody', { count: totalCategories }),
         link: null,
         color: '#8B5CF6',
         bgColor: '#EDE9FE',
@@ -258,9 +275,9 @@ export default function AIInsightsScreen() {
   const formatLastRefreshed = () => {
     const now = new Date();
     const diffMinutes = Math.floor((now.getTime() - lastRefreshed.getTime()) / 60000);
-    if (diffMinutes < 1) return 'Just now';
-    if (diffMinutes < 60) return `${diffMinutes} min ago`;
-    return `${Math.floor(diffMinutes / 60)} hours ago`;
+    if (diffMinutes < 1) return t('aiInsights.justNow');
+    if (diffMinutes < 60) return t('aiInsights.minAgo', { count: diffMinutes });
+    return t('aiInsights.hoursAgo', { count: Math.floor(diffMinutes / 60) });
   };
 
   if (expensesLoading || loading) {
@@ -272,24 +289,26 @@ export default function AIInsightsScreen() {
             <Text style={styles.backIcon}>←</Text>
           </TouchableOpacity>
           <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>AI Insights</Text>
-            <Text style={styles.headerSub}>Powered by Gemini</Text>
+            <Text style={styles.headerTitle}>{t('aiInsights.title')}</Text>
+            <Text style={styles.headerSub}>{t('aiInsights.poweredByGemini')}</Text>
           </View>
         </View>
         <View style={[styles.scrollContent, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={{ marginTop: 10, color: COLORS.textMuted }}>Analyzing your spending...</Text>
+          <Text style={{ marginTop: 10, color: COLORS.textMuted }}>{t('aiInsights.analyzing')}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   const getScoreMessage = () => {
-    if (score >= 80) return 'Excellent Spending Habits! 🎉';
-    if (score >= 60) return 'Good Spending Habits';
-    if (score >= 40) return 'Average - Room for Improvement';
-    return 'Needs Attention - Review Your Spending';
+    if (score >= 80) return t('aiInsights.scoreExcellent');
+    if (score >= 60) return t('aiInsights.scoreGood');
+    if (score >= 40) return t('aiInsights.scoreAverage');
+    return t('aiInsights.scoreNeedsAttention');
   };
+
+  const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -300,9 +319,9 @@ export default function AIInsightsScreen() {
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
         <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>AI Insights</Text>
+          <Text style={styles.headerTitle}>{t('aiInsights.title')}</Text>
           <Text style={styles.headerSub}>
-            {usingAI ? '🤖 Powered by Gemini AI' : '📊 Smart Analytics'} · {formatLastRefreshed()}
+            {usingAI ? t('aiInsights.geminiAI') : t('aiInsights.smartAnalytics')} · {formatLastRefreshed()}
           </Text>
         </View>
       </View>
@@ -318,11 +337,14 @@ export default function AIInsightsScreen() {
           <View style={styles.scoreInfo}>
             <Text style={styles.scoreTitle}>{getScoreMessage()}</Text>
             <Text style={styles.scoreBody}>
-              Based on {expenses.length} expenses totaling ₹{expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN')}
+              {t('aiInsights.scoreSummary', {
+                count: expenses.length,
+                amount: `₹${totalSpent.toLocaleString('en-IN')}`,
+              })}
             </Text>
             {usingAI && (
               <View style={styles.aiBadge}>
-                <Text style={styles.aiBadgeText}>✨ AI Generated</Text>
+                <Text style={styles.aiBadgeText}>{t('aiInsights.aiGenerated')}</Text>
               </View>
             )}
           </View>
@@ -348,14 +370,12 @@ export default function AIInsightsScreen() {
 
         {/* Footer */}
         <Text style={styles.footerNote}>
-          {usingAI 
-            ? '✨ Insights generated by Google Gemini AI based on your spending patterns' 
-            : '📊 Using smart analytics (Gemini API unavailable)'}
+          {usingAI ? t('aiInsights.footerAI') : t('aiInsights.footerFallback')}
         </Text>
 
         {/* Refresh Button */}
         <TouchableOpacity style={styles.refreshBtn} onPress={handleRefresh} activeOpacity={0.85}>
-          <Text style={styles.refreshBtnText}>🔄  Refresh Analysis</Text>
+          <Text style={styles.refreshBtnText}>{t('aiInsights.refresh')}</Text>
         </TouchableOpacity>
 
         <View style={{ height: 32 }} />
@@ -364,6 +384,7 @@ export default function AIInsightsScreen() {
   );
 }
 
+// Styles remain exactly the same as original
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.primaryDark },
   header: {

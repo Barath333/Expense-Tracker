@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 const COLORS = {
   primary: '#1A9B5E',
@@ -44,12 +45,13 @@ const RECEIPT = {
 
 export default function ReceiptScreen() {
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   const handleShare = async () => {
     const itemLines = RECEIPT.items
-      .map(i => `${i.name.padEnd(20)} ₹${i.amount}`)
+      .map(i => `${i.name.padEnd(20)} ${t('common.rupeeSymbol')}${i.amount}`)
       .join('\n');
-    const text = `🧾 Receipt — ${RECEIPT.shopName}\n\n${itemLines}\n\nSubtotal: ₹${RECEIPT.subtotal}\nGST ${RECEIPT.gstPercent}%: ₹${RECEIPT.gstAmount}\nTotal: ₹${RECEIPT.total}\n\nPaid · ${RECEIPT.paidDate}`;
+    const text = `🧾 ${t('receipt.title')} — ${RECEIPT.shopName}\n\n${itemLines}\n\n${t('receipt.subtotal')}: ${t('common.rupeeSymbol')}${RECEIPT.subtotal}\n${t('receipt.gst', { percent: RECEIPT.gstPercent })}: ${t('common.rupeeSymbol')}${RECEIPT.gstAmount}\n${t('receipt.total')}: ${t('common.rupeeSymbol')}${RECEIPT.total}\n\n${t('receipt.paid', { date: RECEIPT.paidDate })}`;
     await Share.share({ message: text });
   };
 
@@ -67,7 +69,7 @@ export default function ReceiptScreen() {
         <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.goBack()}>
           <Text style={styles.headerBtnIcon}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Receipt</Text>
+        <Text style={styles.headerTitle}>{t('receipt.title')}</Text>
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.headerBtn} onPress={handleShare}>
             <Text style={styles.headerBtnIcon}>📤</Text>
@@ -98,7 +100,7 @@ export default function ReceiptScreen() {
             {RECEIPT.items.map((item, idx) => (
               <View key={idx} style={styles.lineRow}>
                 <Text style={styles.lineLabel}>{item.name}</Text>
-                <Text style={styles.lineAmount}>₹{item.amount}</Text>
+                <Text style={styles.lineAmount}>{t('common.rupeeSymbol')}{item.amount}</Text>
               </View>
             ))}
 
@@ -106,25 +108,25 @@ export default function ReceiptScreen() {
 
             {/* Subtotal + GST */}
             <View style={styles.lineRow}>
-              <Text style={styles.lineLabel}>Subtotal</Text>
-              <Text style={styles.lineAmount}>₹{RECEIPT.subtotal}</Text>
+              <Text style={styles.lineLabel}>{t('receipt.subtotal')}</Text>
+              <Text style={styles.lineAmount}>{t('common.rupeeSymbol')}{RECEIPT.subtotal}</Text>
             </View>
             <View style={styles.lineRow}>
-              <Text style={styles.lineLabel}>GST {RECEIPT.gstPercent}%</Text>
-              <Text style={styles.lineAmount}>₹{RECEIPT.gstAmount}</Text>
+              <Text style={styles.lineLabel}>{t('receipt.gst', { percent: RECEIPT.gstPercent })}</Text>
+              <Text style={styles.lineAmount}>{t('common.rupeeSymbol')}{RECEIPT.gstAmount}</Text>
             </View>
 
             <View style={styles.divider} />
 
             {/* Total */}
             <View style={styles.lineRow}>
-              <Text style={styles.totalLabel}>Total</Text>
-              <Text style={styles.totalAmount}>₹{RECEIPT.total}</Text>
+              <Text style={styles.totalLabel}>{t('receipt.total')}</Text>
+              <Text style={styles.totalAmount}>{t('common.rupeeSymbol')}{RECEIPT.total}</Text>
             </View>
 
             {/* Paid badge */}
             <View style={styles.paidBadge}>
-              <Text style={styles.paidText}>✓ Paid · {RECEIPT.paidDate}</Text>
+              <Text style={styles.paidText}>{t('receipt.paid', { date: RECEIPT.paidDate })}</Text>
             </View>
           </View>
 
@@ -136,10 +138,10 @@ export default function ReceiptScreen() {
       {/* Bottom Actions */}
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.shareBtn} onPress={handleShare} activeOpacity={0.85}>
-          <Text style={styles.shareBtnText}>📤  Share</Text>
+          <Text style={styles.shareBtnText}>{t('receipt.share')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete} activeOpacity={0.85}>
-          <Text style={styles.deleteBtnText}>🗑️  Delete</Text>
+          <Text style={styles.deleteBtnText}>{t('receipt.delete')}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useTranslation } from 'react-i18next';
 
 import auth from '@react-native-firebase/auth';
 
@@ -60,6 +61,8 @@ const getCategoryIcon = (category: string): string => {
 };
 
 export default function HomeScreen({ navigation }: Props) {
+  const { t } = useTranslation();
+
   const {
     expenses,
     subscribeToExpenses,
@@ -84,28 +87,25 @@ export default function HomeScreen({ navigation }: Props) {
   const [userName, setUserName] = useState('User');
   const [refreshing, setRefreshing] = useState(false);
   const [initialized, setInitialized] = useState(false);
-   const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+  const [showNotificationPopup, setShowNotificationPopup] = useState(false);
 
- useEffect(() => {
-  const checkAndShowPopup = async () => {
-    const shouldShow = await shouldShowPermissionRequest();
-    if (shouldShow) {
-      // Show popup after a short delay
-      setTimeout(() => {
-        setShowNotificationPopup(true);
-      }, 1000);
-    }
-  };
-  
-  checkAndShowPopup();
-}, []);
+  useEffect(() => {
+    const checkAndShowPopup = async () => {
+      const shouldShow = await shouldShowPermissionRequest();
+      if (shouldShow) {
+        setTimeout(() => {
+          setShowNotificationPopup(true);
+        }, 1000);
+      }
+    };
+    checkAndShowPopup();
+  }, []);
 
   const handleNotificationComplete = () => {
     setShowNotificationPopup(false);
     storage.set('hasSeenNotificationPopup', true);
   };
 
-  // ─── Load user data ───────────────────────────────────────────────────────
   const loadUserData = useCallback(async () => {
     try {
       const user = auth().currentUser;
@@ -121,7 +121,6 @@ export default function HomeScreen({ navigation }: Props) {
     }
   }, []);
 
-  // ─── Initialize on mount ──────────────────────────────────────────────────
   useEffect(() => {
     let unsubscribeExpenses: (() => void) | undefined;
     let unsubscribeNotification: (() => void) | undefined;
@@ -140,9 +139,6 @@ export default function HomeScreen({ navigation }: Props) {
         }
 
         unsubscribeExpenses = subscribeToExpenses();
-
-        // Non-blocking — budgetLoaded guard in the store means this is a no-op
-        // on every re-mount after the first successful fetch.
         fetchBudget().catch(err => console.error('Budget fetch error:', err));
 
         if (isMounted) setInitialized(true);
@@ -161,8 +157,6 @@ export default function HomeScreen({ navigation }: Props) {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Sync budget status whenever expenses or budget values change ──────────
-  // calculateBudgetStatus is now pure / synchronous — no extra Firestore call.
   useEffect(() => {
     const budget = monthlyBudget || 50000;
     const budgets = categoryBudgets || {};
@@ -183,7 +177,6 @@ export default function HomeScreen({ navigation }: Props) {
     }
   }, [expenses, monthlyBudget, categoryBudgets]);
 
-  // ─── Pull-to-refresh ──────────────────────────────────────────────────────
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -197,40 +190,38 @@ export default function HomeScreen({ navigation }: Props) {
     }
   }, [loadUserData, fetchBudget, refreshExpenses]);
 
-  // ─── Derived data ─────────────────────────────────────────────────────────
   const recentExpenses =
     expenses && expenses.length > 0
       ? expenses.slice(0, 5).map(exp => ({
           id: exp.id,
           icon: getCategoryIcon(exp.category),
           title: exp.note || exp.category,
-          category: exp.category,
+          category: t(`categories.${exp.category}`, exp.category), // translate category name
           time: exp.date
             ? new Date(
                 (exp.date as any).toDate?.() || exp.date,
               ).toLocaleDateString()
-            : 'Today',
+            : t('common.today'),
           amount: exp.amount,
         }))
       : [];
 
-  const getGreeting = () => {
+  const getGreetingKey = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return 'home.goodMorning';
+    if (hour < 17) return 'home.goodAfternoon';
+    return 'home.goodEvening';
   };
 
-  // ─── Loading / error gates ────────────────────────────────────────────────
   const showLoading = !initialized || (expensesLoading && expenses.length === 0);
 
   if (showLoading) {
     return (
       <SafeAreaView style={[styles.safe, styles.centered]}>
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Loading your expenses...</Text>
+        <Text style={styles.loadingText}>{t('home.loadingExpenses')}</Text>
         <Text style={styles.loadingSubText}>
-          {expensesLoading ? 'Loading expenses...' : 'Initializing...'}
+          {expensesLoading ? t('home.loadingExpensesShort') : t('home.initializing')}
         </Text>
       </SafeAreaView>
     );
@@ -239,15 +230,14 @@ export default function HomeScreen({ navigation }: Props) {
   if (expensesError) {
     return (
       <SafeAreaView style={[styles.safe, styles.centered]}>
-        <Text style={styles.errorText}>⚠️ {expensesError}</Text>
+        <Text style={styles.errorText}>{t('home.errorLoadFailed', { error: expensesError })}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={onRefresh}>
-          <Text style={styles.retryButtonText}>Retry</Text>
+          <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
   }
 
-  // ─── Main render ──────────────────────────────────────────────────────────
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
@@ -255,7 +245,7 @@ export default function HomeScreen({ navigation }: Props) {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>{getGreeting()} 🌿</Text>
+          <Text style={styles.greeting}>{t(getGreetingKey())} 🌿</Text>
           <Text style={styles.userName}>{userName}</Text>
         </View>
         <TouchableOpacity
@@ -284,44 +274,46 @@ export default function HomeScreen({ navigation }: Props) {
           <View style={styles.budgetCard}>
             {budgetLoading ? (
               <>
-                <Text style={styles.budgetLabel}>LOADING BUDGET...</Text>
+                <Text style={styles.budgetLabel}>{t('home.loadingBudget')}</Text>
                 <ActivityIndicator
                   size="small"
                   color={COLORS.primary}
                   style={{ marginVertical: 20 }}
                 />
-                <Text style={styles.budgetSub}>Fetching your budget information</Text>
+                <Text style={styles.budgetSub}>{t('home.fetchingBudget')}</Text>
               </>
             ) : budgetError ? (
               <>
-                <Text style={styles.budgetLabel}>BUDGET UNAVAILABLE</Text>
+                <Text style={styles.budgetLabel}>{t('home.budgetUnavailable')}</Text>
                 <Text style={styles.budgetAmount}>
                   ₹{budgetStatus.totalSpent.toLocaleString('en-IN')}
                 </Text>
-                <Text style={styles.budgetSub}>Spent this month</Text>
+                <Text style={styles.budgetSub}>{t('home.spentThisMonth')}</Text>
                 <Text style={[styles.budgetSub, { color: COLORS.textMuted, marginTop: 8 }]}>
-                  Default budget: ₹50,000
+                  {t('home.defaultBudget')}
                 </Text>
                 <TouchableOpacity
                   onPress={() => fetchBudget()}
                   style={styles.budgetRetry}
                 >
-                  <Text style={styles.budgetRetryText}>↻ Retry loading budget</Text>
+                  <Text style={styles.budgetRetryText}>{t('home.retryLoadingBudget')}</Text>
                 </TouchableOpacity>
               </>
             ) : (
               <>
-                <Text style={styles.budgetLabel}>TOTAL SPENT THIS MONTH</Text>
+                <Text style={styles.budgetLabel}>{t('home.totalSpentThisMonth')}</Text>
                 <Text style={styles.budgetAmount}>
                   ₹{budgetStatus.totalSpent.toLocaleString('en-IN')}
                 </Text>
                 <Text style={styles.budgetSub}>
-                  Budget: ₹{(monthlyBudget || 50000).toLocaleString('en-IN')} · Remaining: ₹
-                  {budgetStatus.remaining.toLocaleString('en-IN')}
+                  {t('home.budgetRemaining', {
+                    budget: (monthlyBudget || 50000).toLocaleString('en-IN'),
+                    remaining: budgetStatus.remaining.toLocaleString('en-IN'),
+                  })}
                 </Text>
                 <View style={styles.progressRow}>
                   <Text style={styles.progressLabel}>
-                    Spent {Math.round(budgetStatus.percentageSpent)}%
+                    {t('home.spentPercent', { percent: Math.round(budgetStatus.percentageSpent) })}
                   </Text>
                   <Text style={styles.progressLabel}>
                     ₹{(monthlyBudget || 50000).toLocaleString('en-IN')}
@@ -346,13 +338,13 @@ export default function HomeScreen({ navigation }: Props) {
             activeOpacity={0.8}
           >
             <View style={styles.insightBadge}>
-              <Text style={styles.insightBadgeText}>🤖 Gemini AI Insight</Text>
+              <Text style={styles.insightBadgeText}>{t('home.geminiInsight')}</Text>
               <Text style={styles.insightArrow}>→</Text>
             </View>
             <Text style={styles.insightText}>
               {budgetStatus.percentageSpent > 80
-                ? `⚠️ You've spent ${Math.round(budgetStatus.percentageSpent)}% of your budget. Tap for detailed insights.`
-                : `🎯 You're on track! ${Math.round(100 - budgetStatus.percentageSpent)}% of budget remaining. Tap for AI analysis.`}
+                ? t('home.insightOverBudget', { percent: Math.round(budgetStatus.percentageSpent) })
+                : t('home.insightOnTrack', { percent: Math.round(100 - budgetStatus.percentageSpent) })}
             </Text>
           </TouchableOpacity>
 
@@ -366,7 +358,7 @@ export default function HomeScreen({ navigation }: Props) {
               <View style={styles.actionIconWrap}>
                 <Text style={styles.actionIconPlus}>+</Text>
               </View>
-              <Text style={styles.actionLabel}>Add</Text>
+              <Text style={styles.actionLabel}>{t('home.add')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -377,7 +369,7 @@ export default function HomeScreen({ navigation }: Props) {
               <View style={styles.actionIconWrap}>
                 <Text style={styles.actionIcon}>📊</Text>
               </View>
-              <Text style={styles.actionLabel}>Charts</Text>
+              <Text style={styles.actionLabel}>{t('home.charts')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -388,23 +380,21 @@ export default function HomeScreen({ navigation }: Props) {
               <View style={styles.actionIconWrap}>
                 <Text style={styles.actionIcon}>📋</Text>
               </View>
-              <Text style={styles.actionLabel}>History</Text>
+              <Text style={styles.actionLabel}>{t('home.history')}</Text>
             </TouchableOpacity>
           </View>
 
           {/* Recent Expenses */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Expenses</Text>
+            <Text style={styles.sectionTitle}>{t('home.recentExpenses')}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('History')}>
-              <Text style={styles.seeAll}>See all →</Text>
+              <Text style={styles.seeAll}>{t('home.seeAll')}</Text>
             </TouchableOpacity>
           </View>
 
           {recentExpenses.length === 0 ? (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>
-                No expenses yet. Tap + to add your first expense!
-              </Text>
+              <Text style={styles.emptyStateText}>{t('home.noExpenses')}</Text>
             </View>
           ) : (
             recentExpenses.map(exp => (
@@ -427,7 +417,7 @@ export default function HomeScreen({ navigation }: Props) {
         </ScrollView>
       </View>
 
-        <NotificationPreferencePopup
+      <NotificationPreferencePopup
         visible={showNotificationPopup}
         onClose={handleNotificationComplete}
         onComplete={handleNotificationComplete}
@@ -445,6 +435,7 @@ export default function HomeScreen({ navigation }: Props) {
   );
 }
 
+// Styles remain exactly the same as in original code
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.primary },
   centered: {

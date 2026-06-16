@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { Swipeable } from 'react-native-gesture-handler';
+import { useTranslation } from 'react-i18next';
 import { useExpenseStore } from '../services/stores/expenseStore';
 import { deleteExpense, updateExpense } from '../services/firebase/expenseService';
 import { useUserStore } from '../services/stores/userStore';
@@ -35,6 +36,7 @@ const COLORS = {
   warning: '#F59E0B',
 };
 
+// Base filter categories (keep English for logic, display will be translated)
 const FILTERS = ['All', 'Food', 'Travel', 'Shopping', 'Health', 'Bills', 'Entertainment', 'Rent'];
 
 // Category icons mapping
@@ -53,33 +55,7 @@ const getCategoryIcon = (category: string): string => {
   return icons[category] || '💰';
 };
 
-// Format date for display
-const formatDate = (date: any): string => {
-  if (!date) return 'Unknown';
-  
-  let dateObj: Date;
-  if (date.toDate) {
-    dateObj = date.toDate();
-  } else if (date instanceof Date) {
-    dateObj = date;
-  } else {
-    dateObj = new Date(date);
-  }
-  
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  
-  if (dateObj.toDateString() === today.toDateString()) {
-    return `TODAY — ${dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }).toUpperCase()}`;
-  } else if (dateObj.toDateString() === yesterday.toDateString()) {
-    return `YESTERDAY — ${dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }).toUpperCase()}`;
-  } else {
-    return dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase();
-  }
-};
-
-// Format time
+// Format time (remains unchanged)
 const formatTime = (date: any): string => {
   if (!date) return '';
   
@@ -110,6 +86,7 @@ interface Section {
 }
 
 export default function HistoryScreen({ navigation }: any) {
+  const { t } = useTranslation();
   const { expenses, loading, deleteExpense: deleteFromStore, updateExpense: updateExpenseInStore } = useExpenseStore();
   const { fetchBudget } = useUserStore();
   const { showAlert } = useAlertStore();
@@ -120,6 +97,34 @@ export default function HistoryScreen({ navigation }: any) {
   const [editNote, setEditNote] = useState('');
   const [editCategory, setEditCategory] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  // Helper to format date with translation
+  const formatDate = (date: any): string => {
+    if (!date) return 'Unknown';
+    
+    let dateObj: Date;
+    if (date.toDate) {
+      dateObj = date.toDate();
+    } else if (date instanceof Date) {
+      dateObj = date;
+    } else {
+      dateObj = new Date(date);
+    }
+    
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const formattedDate = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }).toUpperCase();
+    
+    if (dateObj.toDateString() === today.toDateString()) {
+      return t('history.dateToday', { date: formattedDate });
+    } else if (dateObj.toDateString() === yesterday.toDateString()) {
+      return t('history.dateYesterday', { date: formattedDate });
+    } else {
+      return dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase();
+    }
+  };
 
   // Filter expenses based on search and category
   const filtered = expenses.filter(exp => {
@@ -147,29 +152,28 @@ export default function HistoryScreen({ navigation }: any) {
   // Handle delete with confirmation
   const handleDelete = (expenseId: string, expenseNote: string) => {
     showAlert({
-      title: 'Delete Expense',
-      message: `Are you sure you want to delete "${expenseNote}"?`,
+      title: t('history.deleteTitle'),
+      message: t('history.deleteMessage', { note: expenseNote }),
       type: 'warning',
       buttons: [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         { 
-          text: 'Delete', 
+          text: t('common.delete'), 
           style: 'destructive',
           onPress: async () => {
             const { error } = await deleteExpense(expenseId);
             if (error) {
               showAlert({
-                title: 'Error',
-                message: 'Failed to delete expense. Please try again.',
+                title: t('common.error'),
+                message: t('history.deleteErrorMessage'),
                 type: 'error',
               });
             } else {
               deleteFromStore(expenseId);
-              // Refresh budget data
               await fetchBudget();
               showAlert({
-                title: 'Success',
-                message: 'Expense deleted successfully!',
+                title: t('common.success'),
+                message: t('history.deleteSuccessMessage'),
                 type: 'success',
               });
             }
@@ -187,48 +191,56 @@ export default function HistoryScreen({ navigation }: any) {
     setEditCategory(expense.category);
   };
 
+  const handleSaveEdit = async () => {
+    if (!editingExpense || isSaving) return;
 
+    const amountNum = parseFloat(editAmount);
+    if (isNaN(amountNum) || amountNum <= 0) {
+      showAlert({ 
+        title: t('common.error'), 
+        message: t('history.editErrorInvalidAmount'), 
+        type: 'error' 
+      });
+      return;
+    }
 
-const handleSaveEdit = async () => {
-  if (!editingExpense || isSaving) return;
+    setIsSaving(true);
 
-  const amountNum = parseFloat(editAmount);
-  if (isNaN(amountNum) || amountNum <= 0) {
-    showAlert({ title: 'Error', message: 'Please enter a valid amount', type: 'error' });
-    return;
-  }
+    const updatedExpense = {
+      amount: amountNum,
+      category: editCategory,
+      note: editNote.trim() || t('addExpense.defaultNote', { category: editCategory }),
+    };
 
-  setIsSaving(true); // 🔒 lock the modal
+    const { error } = await updateExpense(editingExpense.id, updatedExpense);
 
-  const updatedExpense = {
-    amount: amountNum,
-    category: editCategory,
-    note: editNote.trim() || `${editCategory} expense`,
-  };
+    if (error) {
+      setIsSaving(false);
+      showAlert({ 
+        title: t('common.error'), 
+        message: t('history.editErrorFailed'), 
+        type: 'error' 
+      });
+      return;
+    }
 
-  const { error } = await updateExpense(editingExpense.id, updatedExpense);
+    updateExpenseInStore(editingExpense.id, updatedExpense);
 
-  if (error) {
+    setEditingExpense(null);
+    setEditAmount('');
+    setEditNote('');
+    setEditCategory('');
     setIsSaving(false);
-    showAlert({ title: 'Error', message: 'Failed to update expense', type: 'error' });
-    return;
-  }
 
-  updateExpenseInStore(editingExpense.id, updatedExpense);
-
-  // Close modal and reset
-  setEditingExpense(null);
-  setEditAmount('');
-  setEditNote('');
-  setEditCategory('');
-  setIsSaving(false);
-
-  fetchBudget();
-  setTimeout(() => {
-    showAlert({ title: 'Success! 🎉', message: 'Expense updated successfully', type: 'success' });
-  }, 100);
-};
-
+    fetchBudget();
+    setTimeout(() => {
+      showAlert({ 
+        title: t('common.success'), 
+        message: t('history.editSuccessMessage'), 
+        type: 'success' 
+      });
+    }, 100);
+  };
 
   // Render right swipe actions (delete)
   const renderRightActions = (progress: any, dragX: any, expense: Expense) => {
@@ -245,7 +257,7 @@ const handleSaveEdit = async () => {
           onPress={() => handleDelete(expense.id, expense.note)}
           activeOpacity={0.8}
         >
-          <Text style={styles.swipeButtonText}>🗑️ Delete</Text>
+          <Text style={styles.swipeButtonText}>{t('history.swipeDelete')}</Text>
         </TouchableOpacity>
       </Animated.View>
     );
@@ -259,15 +271,15 @@ const handleSaveEdit = async () => {
         </View>
         <View style={styles.expenseInfo}>
           <View style={styles.expenseTitleRow}>
-            <Text style={styles.expenseTitle}>{item.note || item.category}</Text>
+            <Text style={styles.expenseTitle}>{item.note || t(`categories.${item.category}`, item.category)}</Text>
             {item.receiptUrl && (
               <View style={styles.receiptBadge}>
-                <Text style={styles.receiptText}>📋 Receipt</Text>
+                <Text style={styles.receiptText}>{t('history.receiptBadge')}</Text>
               </View>
             )}
           </View>
           <Text style={styles.expenseMeta}>
-            {item.category} · {formatTime(item.date)}
+            {t(`categories.${item.category}`, item.category)} · {formatTime(item.date)}
           </Text>
         </View>
         <View style={styles.expenseActions}>
@@ -306,7 +318,6 @@ const handleSaveEdit = async () => {
 
   // Edit Modal
   const renderEditModal = () => {
-      console.log('🔵 renderEditModal called — editingExpense:', editingExpense?.id ?? 'NULL');
     if (!editingExpense || isSaving) return null;
 
     const CATEGORIES = ['Food', 'Travel', 'Shopping', 'Health', 'Bills', 'Entertainment', 'Rent', 'Other'];
@@ -314,18 +325,18 @@ const handleSaveEdit = async () => {
     return (
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Edit Expense</Text>
+          <Text style={styles.modalTitle}>{t('history.editExpense')}</Text>
           
-          <Text style={styles.modalLabel}>Amount (₹)</Text>
+          <Text style={styles.modalLabel}>{t('history.amountLabel')}</Text>
           <TextInput
             style={styles.modalInput}
             value={editAmount}
             onChangeText={setEditAmount}
             keyboardType="numeric"
-            placeholder="Amount"
+            placeholder={t('history.amountPlaceholder')}
           />
           
-          <Text style={styles.modalLabel}>Category</Text>
+          <Text style={styles.modalLabel}>{t('history.categoryLabel')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
             {CATEGORIES.map(cat => (
               <TouchableOpacity
@@ -334,18 +345,18 @@ const handleSaveEdit = async () => {
                 onPress={() => setEditCategory(cat)}
               >
                 <Text style={[styles.categoryChipText, editCategory === cat && styles.categoryChipTextActive]}>
-                  {cat}
+                  {t(`categories.${cat}`, cat)}
                 </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
           
-          <Text style={styles.modalLabel}>Note</Text>
+          <Text style={styles.modalLabel}>{t('history.noteLabel')}</Text>
           <TextInput
             style={[styles.modalInput, styles.modalTextArea]}
             value={editNote}
             onChangeText={setEditNote}
-            placeholder="Note (optional)"
+            placeholder={t('history.notePlaceholder')}
             multiline
           />
           
@@ -354,13 +365,13 @@ const handleSaveEdit = async () => {
               style={[styles.modalButton, styles.cancelButton]} 
               onPress={() => setEditingExpense(null)}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.modalButton, styles.saveButton]} 
               onPress={handleSaveEdit}
             >
-              <Text style={styles.saveButtonText}>Save</Text>
+              <Text style={styles.saveButtonText}>{t('common.save')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -373,7 +384,7 @@ const handleSaveEdit = async () => {
       <SafeAreaView style={styles.safe} edges={['top']}>
         <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Expense History</Text>
+          <Text style={styles.headerTitle}>{t('history.title')}</Text>
         </View>
         <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color={COLORS.primary} />
@@ -386,8 +397,10 @@ const handleSaveEdit = async () => {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Expense History</Text>
-        <Text style={styles.headerSubtitle}>{expenses.length} total expenses</Text>
+        <Text style={styles.headerTitle}>{t('history.title')}</Text>
+        <Text style={styles.headerSubtitle}>
+          {t('history.totalExpenses', { count: expenses.length })}
+        </Text>
       </View>
       <View style={styles.container}>
         <View style={styles.searchWrap}>
@@ -396,7 +409,7 @@ const handleSaveEdit = async () => {
             style={styles.searchInput}
             value={search}
             onChangeText={setSearch}
-            placeholder="Search expenses..."
+            placeholder={t('history.searchPlaceholder')}
             placeholderTextColor={COLORS.textMuted}
           />
           {search !== '' && (
@@ -419,7 +432,7 @@ const handleSaveEdit = async () => {
               onPress={() => setActiveFilter(f)}
             >
               <Text style={[styles.filterText, activeFilter === f && styles.filterTextActive]}>
-                {f === 'All' ? '📋 All' : f}
+                {f === 'All' ? t('categories.allWithIcon') : t(`categories.${f}`, f)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -436,8 +449,8 @@ const handleSaveEdit = async () => {
               <Text style={styles.emptyEmoji}>📭</Text>
               <Text style={styles.emptyText}>
                 {search || activeFilter !== 'All' 
-                  ? 'No expenses match your filters' 
-                  : 'No expenses yet. Tap + to add your first expense!'}
+                  ? t('history.emptyFiltered')
+                  : t('history.emptyAll')}
               </Text>
             </View>
           }
@@ -447,7 +460,9 @@ const handleSaveEdit = async () => {
         {filtered.length > 0 && (
           <View style={styles.footer}>
             <Text style={styles.footerLabel}>
-              {activeFilter !== 'All' ? activeFilter : 'Total'} (filtered)
+              {activeFilter !== 'All' 
+                ? t('history.filteredTotal', { filter: t(`categories.${activeFilter}`, activeFilter) })
+                : t('history.totalLabel')}
             </Text>
             <Text style={styles.footerAmount}>₹{totalFiltered.toLocaleString('en-IN')}</Text>
           </View>
@@ -460,6 +475,7 @@ const handleSaveEdit = async () => {
   );
 }
 
+// Styles remain exactly the same as original
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.primary },
   header: { 

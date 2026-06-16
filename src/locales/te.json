@@ -1,0 +1,534 @@
+{
+  "common": {
+    "save": "సేవ్ చేయి",
+    "cancel": "రద్దు చేయి",
+    "delete": "తొలగించు",
+    "edit": "సవరించు",
+    "remove": "తీసివేయి",
+    "loading": "లోడ్ అవుతోంది...",
+    "success": "విజయం",
+    "error": "లోపం",
+    "ok": "సరే",
+    "retry": "మళ్లీ ప్రయత్నించు",
+    "back": "వెనుకకు",
+    "yes": "అవును",
+    "no": "కాదు",
+    "today": "నేడు",
+    "yesterday": "నిన్న",
+    "rupeeSymbol": "₹"
+  },
+
+  "language": {
+    "selectLanguage": "భాషను ఎంచుకోండి",
+   "english": "English",
+  "tamil": "தமிழ்",
+  "hindi": "हिन्दी",
+  "marathi": "मराठी",
+  "telugu": "తెలుగు",
+    "continue": "కొనసాగించు",
+    "changeLanguage": "భాష మార్చు"
+  },
+
+  "onboarding": {
+    "appName": "స్పెండ్‌వైజ్",
+    "tagline": "AI-శక్తితో పనిచేసే ఖర్చు ట్రాకర్",
+    "aiInsightsTitle": "AI-శక్తితో పనిచేసే అంతర్దృష్టులు",
+    "aiInsightsBody": "జెమిని AI మీ ఖర్చులను విశ్లేషిస్తుంది మరియు ప్రతి నెల 3 చర్యాత్మక అంతర్దృష్టులను ఇస్తుంది",
+    "getStarted": "ప్రారంభించండి",
+    "skip": "దాటవేయి →"
+  },
+
+  "auth": {
+    "welcomeBack": "తిరిగి స్వాగతం 👋",
+    "joinApp": "స్పెండ్‌వైజ్‌లో చేరండి 🎉",
+    "signInTitle": "స్పెండ్‌వైజ్‌లో సైన్ ఇన్ చేయండి",
+    "signUpTitle": "ఖాతాను సృష్టించండి",
+    "login": "లాగిన్",
+    "signUp": "సైన్ అప్",
+    "emailLabel": "ఇమెయిల్",
+    "emailPlaceholder": "మీ@ఇమెయిల్.com",
+    "passwordLabel": "పాస్‌వర్డ్",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "పాస్‌వర్డ్ మర్చిపోయారా?",
+    "passwordHint": "🔒 పాస్‌వర్డ్ కనీసం 6 అక్షరాలు ఉండాలి",
+    "usingSavedEmail": "✅ సేవ్ చేసిన ఇమెయిల్ ఉపయోగిస్తోంది: {{email}}",
+    "signIn": "సైన్ ఇన్ చేయండి",
+    "createAccount": "ఖాతాను సృష్టించండి",
+    "secureSignIn": "ఫైర్‌బేస్‌తో సురక్షిత సైన్-ఇన్",
+    "noAccount": "ఖాతా లేదా? సైన్ అప్ టాబ్‌కు మారండి",
+    "haveAccount": "ఇప్పటికే ఖాతా ఉందా? లాగిన్ టాబ్‌కు మారండి",
+
+    "clearSavedEmailTitle": "సేవ్ చేసిన ఇమెయిల్‌ను క్లియర్ చేయి",
+    "clearSavedEmailMessage": "మీరు సేవ్ చేసిన ఇమెయిల్‌ను క్లియర్ చేయాలనుకుంటున్నారా?",
+    "clear": "క్లియర్ చేయి",
+    "savedEmailCleared": "సేవ్ చేసిన ఇమెయిల్ క్లియర్ చేయబడింది!",
+
+    "errorEnterEmail": "దయచేసి మీ ఇమెయిల్‌ను నమోదు చేయండి",
+    "errorEnterPassword": "దయచేసి మీ పాస్‌వర్డ్ నమోదు చేయండి",
+    "errorPasswordLength": "పాస్‌వర్డ్ కనీసం 6 అక్షరాలు ఉండాలి",
+
+    "loginFailed": "లాగిన్ విఫలమైంది",
+    "signUpFailed": "సైన్ అప్ విఫలమైంది",
+    "loginSuccess": "విజయవంతంగా లాగిన్ చేయబడింది!",
+    "errorUserNotFound": "ఖాతా కనుగొనబడలేదు. దయచేసి ముందుగా సైన్ అప్ చేయండి.",
+    "errorWrongPassword": "తప్పు పాస్‌వర్డ్. దయచేసి మళ్లీ ప్రయత్నించండి.",
+    "errorInvalidEmail": "చెల్లని ఇమెయిల్ ఫార్మాట్.",
+    "errorTooManyRequests": "చాలా ఎక్కువ విఫల ప్రయత్నాలు. తర్వాత మళ్లీ ప్రయత్నించండి.",
+    "errorNetwork": "నెట్‌వర్క్ లోపం. మీ కనెక్షన్‌ను తనిఖీ చేయండి.",
+    "errorEmailInUse": "ఇమెయిల్ ఇప్పటికే నమోదు చేయబడింది. దయచేసి లాగిన్ చేయండి.",
+    "errorWeakPassword": "పాస్‌వర్డ్ చాలా బలహీనంగా ఉంది. కనీసం 6 అక్షరాలు ఉపయోగించండి.",
+    "errorUnexpected": "ఊహించని లోపం సంభవించింది",
+    "errorGeneric": "ఊహించని లోపం సంభవించింది"
+  },
+
+  "forgotPassword": {
+    "troubleSigningIn": "సైన్ ఇన్ చేయడంలో సమస్య?",
+    "resetPassword": "పాస్‌వర్డ్ రీసెట్ చేయండి",
+    "instructions": "మీ ఇమెయిల్‌ను నమోదు చేయండి, మేము మీకు పాస్‌వర్డ్ రీసెట్ చేయడానికి లింక్‌ను పంపుతాము",
+    "emailLabel": "ఇమెయిల్ చిరునామా",
+    "emailPlaceholder": "మీ@ఇమెయిల్.com",
+    "sendResetLink": "రీసెట్ లింక్ పంపు",
+    "backToLogin": "← లాగిన్‌కు తిరిగి వెళ్ళు",
+    "rememberPassword": "మీ పాస్‌వర్డ్ గుర్తుందా?",
+    "goToSignIn": "సైన్ ఇన్‌కు వెళ్ళు",
+
+    "checkEmailTitle": "మీ ఇమెయిల్‌ను తనిఖీ చేయండి 📧",
+    "linkSentTitle": "పాస్‌వర్డ్ రీసెట్ లింక్ పంపబడింది",
+    "resetLinkSentTo": "రీసెట్ లింక్ దీనికి పంపబడింది:",
+    "resetLinkInstructions": "మీ పాస్‌వర్డ్‌ను రీసెట్ చేయడానికి ఇమెయిల్‌లోని లింక్‌ను క్లిక్ చేయండి. లింక్ 1 గంటలో ముగుస్తుంది.",
+    "backToLoginButton": "లాగిన్‌కు తిరిగి వెళ్ళు",
+    "resendEmail": "ఇమెయిల్ మళ్లీ పంపు",
+
+    "errorEnterEmail": "దయచేసి మీ ఇమెయిల్ చిరునామాను నమోదు చేయండి",
+    "errorInvalidEmail": "దయచేసి చెల్లుబాటు అయ్యే ఇమెయిల్ చిరునామాను నమోదు చేయండి",
+    "successTitle": "పాస్‌వర్డ్ రీసెట్ ఇమెయిల్ పంపబడింది",
+    "successMessage": "మేము {{email}} కు పాస్‌వర్డ్ రీసెట్ లింక్‌ను పంపాము.\n\nదయచేసి మీ ఇన్‌బాక్స్‌ను తనిఖీ చేయండి మరియు మీ పాస్‌వర్డ్‌ను రీసెట్ చేయడానికి సూచనలను అనుసరించండి.",
+    "errorGeneric": "పాస్‌వర్డ్ రీసెట్ ఇమెయిల్ పంపడంలో విఫలమైంది",
+    "errorUserNotFound": "ఈ ఇమెయిల్ చిరునామాతో ఖాతా కనుగొనబడలేదు.",
+    "errorInvalidEmailFormat": "చెల్లని ఇమెయిల్ చిరునామా ఫార్మాట్.",
+    "errorTooManyRequests": "చాలా ఎక్కువ అభ్యర్థనలు. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి."
+  },
+
+  "categories": {
+    "Food": "ఆహారం",
+    "Travel": "ప్రయాణం",
+    "Shopping": "షాపింగ్",
+    "Health": "ఆరోగ్యం",
+    "Bills": "బిల్లులు",
+    "Entertainment": "వినోదం",
+    "Rent": "అద్దె",
+    "Other": "ఇతర",
+    "all": "అన్నీ",
+    "allWithIcon": "📋 అన్నీ"
+  },
+
+  "home": {
+    "goodMorning": "శుభోదయం",
+    "goodAfternoon": "శుభ మధ్యాహ్నం",
+    "goodEvening": "శుభ సాయంత్రం",
+    "loadingExpenses": "మీ ఖర్చులను లోడ్ చేస్తోంది...",
+    "loadingExpensesShort": "ఖర్చులను లోడ్ చేస్తోంది...",
+    "initializing": "ప్రారంభిస్తోంది...",
+
+    "loadingBudget": "బడ్జెట్ లోడ్ చేస్తోంది...",
+    "fetchingBudget": "మీ బడ్జెట్ సమాచారాన్ని పొందుతోంది",
+    "budgetUnavailable": "బడ్జెట్ అందుబాటులో లేదు",
+    "spentThisMonth": "ఈ నెలలో ఖర్చు చేసినది",
+    "defaultBudget": "డిఫాల్ట్ బడ్జెట్: ₹50,000",
+    "retryLoadingBudget": "↻ బడ్జెట్ లోడ్ చేయడానికి మళ్లీ ప్రయత్నించు",
+
+    "totalSpentThisMonth": "ఈ నెలలో మొత్తం ఖర్చు",
+    "budgetRemaining": "బడ్జెట్: {{budget}} · మిగిలినది: {{remaining}}",
+    "spentPercent": "{{percent}}% ఖర్చు చేసినది",
+
+    "geminiInsight": "🤖 జెమిని AI అంతర్దృష్టి",
+    "insightOverBudget": "⚠️ మీరు మీ బడ్జెట్‌లో {{percent}}% ఖర్చు చేసారు. వివరణాత్మక అంతర్దృష్టుల కోసం నొక్కండి.",
+    "insightOnTrack": "🎯 మీరు సరైన ట్రాక్‌లో ఉన్నారు! బడ్జెట్‌లో {{percent}}% మిగిలి ఉంది. AI విశ్లేషణ కోసం నొక్కండి.",
+
+    "add": "జోడించు",
+    "charts": "చార్ట్‌లు",
+    "history": "చరిత్ర",
+
+    "recentExpenses": "ఇటీవలి ఖర్చులు",
+    "seeAll": "అన్నీ చూడండి →",
+    "noExpenses": "ఇంకా ఖర్చులు లేవు. మీ మొదటి ఖర్చును జోడించడానికి + నొక్కండి!",
+
+    "errorLoadFailed": "⚠️ {{error}}"
+  },
+
+  "addExpense": {
+    "title": "ఖర్చును జోడించు",
+    "amountLabel": "మొత్తం (₹)",
+    "category": "వర్గం",
+    "receiptOptional": "రసీదు (ఐచ్ఛికం)",
+    "camera": "కెమెరా",
+    "gallery": "గ్యాలరీ",
+    "receiptAttached": "✓ రసీదు జోడించబడింది",
+    "remove": "తీసివేయి",
+    "notePlaceholder": "✏️ ఒక నోట్ జోడించండి (ఐచ్ఛికం)...",
+    "saveExpense": "ఖర్చును సేవ్ చేయి",
+    "defaultNote": "{{category}} ఖర్చు",
+
+    "invalidAmountTitle": "చెల్లని మొత్తం",
+    "invalidAmountMessage": "దయచేసి చెల్లుబాటు అయ్యే ఖర్చు మొత్తాన్ని నమోదు చేయండి.",
+
+    "loginRequiredTitle": "లోపం",
+    "loginRequiredMessage": "ఖర్చులను జోడించడానికి మీరు లాగిన్ అయి ఉండాలి.",
+
+    "uploadFailedTitle": "అప్‌లోడ్ విఫలమైంది",
+    "uploadFailedMessage": "రసీదును అప్‌లోడ్ చేయడంలో విఫలమైంది. ఖర్చు రసీదు లేకుండా సేవ్ చేయబడుతుంది.",
+
+    "successTitle": "విజయం! 🎉",
+    "successMessage": "₹{{amount}} ఖర్చు విజయవంతంగా జోడించబడింది.",
+
+    "errorTitle": "లోపం",
+    "errorSaveFailed": "ఖర్చును సేవ్ చేయడంలో విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.",
+    "errorUnexpected": "ఊహించని లోపం సంభవించింది",
+
+    "imagePickError": "చిత్రాన్ని ఎంచుకోవడంలో విఫలమైంది: {{error}}",
+    "imagePickSuccessTitle": "విజయం",
+    "imagePickSuccessMessage": "రసీదు విజయవంతంగా జోడించబడింది!",
+
+    "removeReceiptTitle": "రసీదును తీసివేయి",
+    "removeReceiptMessage": "మీరు జోడించిన రసీదును తీసివేయాలనుకుంటున్నారా?",
+
+    "calendar": {
+      "selectDate": "తేదీని ఎంచుకోండి",
+      "today": "నేడు",
+      "weekDays": {
+        "sun": "ఆది",
+        "mon": "సోమ",
+        "tue": "మంగళ",
+        "wed": "బుధ",
+        "thu": "గురు",
+        "fri": "శుక్ర",
+        "sat": "శని"
+      }
+    }
+  },
+
+  "aiInsights": {
+    "title": "AI అంతర్దృష్టులు",
+    "poweredByGemini": "జెమిని ద్వారా ఆధారితం",
+    "geminiAI": "🤖 జెమిని AI ద్వారా ఆధారితం",
+    "smartAnalytics": "📊 స్మార్ట్ విశ్లేషణ",
+    "analyzing": "మీ ఖర్చులను విశ్లేషిస్తోంది...",
+    "justNow": "ఇప్పుడే",
+    "minAgo": "{{count}} నిమిషం క్రితం",
+    "hoursAgo": "{{count}} గంటల క్రితం",
+
+    "scoreExcellent": "అద్భుతమైన ఖర్చు అలవాట్లు! 🎉",
+    "scoreGood": "మంచి ఖర్చు అలవాట్లు",
+    "scoreAverage": "సగటు - మెరుగుదలకు అవకాశం",
+    "scoreNeedsAttention": "శ్రద్ధ అవసరం - మీ ఖర్చును సమీక్షించండి",
+    "scoreSummary": "{{count}} ఖర్చుల ఆధారంగా మొత్తం {{amount}}",
+    "aiGenerated": "✨ AI రూపొందించినది",
+
+    "viewExpenses": "ఖర్చులను చూడండి →",
+    "viewFoodExpenses": "ఆహార ఖర్చులను చూడండి →",
+
+    "highSpendingTitle": "అధిక {{category}} ఖర్చు",
+    "highSpendingBody": "{{category}} మీ ఖర్చులో {{percent}}% ({{amount}}) ఉంది. ఈ వర్గాన్ని తగ్గించడాన్ని పరిగణించండి.",
+
+    "budgetAlertTitle": "బడ్జెట్ హెచ్చరిక! ⚠️",
+    "budgetAlertBody": "మీరు మీ {{budget}} బడ్జెట్‌లో {{percent}}% ఖర్చు చేసారు. {{remaining}} మాత్రమే మిగిలి ఉంది!",
+
+    "budgetWarningTitle": "బడ్జెట్ హెచ్చరిక",
+    "budgetWarningBody": "మీరు మీ బడ్జెట్‌లో {{percent}}% ఖర్చు చేసారు. {{remaining}}% నెలకు మిగిలి ఉంది.",
+
+    "onTrackTitle": "సరైన ట్రాక్‌లో! 🎯",
+    "onTrackBody": "చాలా బాగుంది! మీరు మీ {{budget}} బడ్జెట్‌లో {{percent}}% మాత్రమే ఖర్చు చేసారు. కొనసాగించండి!",
+
+    "saveFoodTitle": "ఆహారంపై ఆదా చేయండి",
+    "saveFoodBody": "మీరు ఆహారంపై {{amount}} ఖర్చు చేసారు. వారానికి 3 సార్లు ఇంట్లో వంట చేయడం వలన నెలకు ₹800-1200 ఆదా అవుతుంది.",
+
+    "trackEverythingTitle": "ప్రతిదాన్ని ట్రాక్ చేయండి",
+    "trackEverythingBody": "మీకు {{count}} చురుకైన ఖర్చు వర్గాలు ఉన్నాయి. మరిన్ని ఖర్చులను జోడించడం AI మంచి అంతర్దృష్టులను ఇవ్వడానికి సహాయపడుతుంది!",
+
+    "footerAI": "✨ Google జెమిని AI ద్వారా మీ ఖర్చు విధానాల ఆధారంగా రూపొందించబడిన అంతర్దృష్టులు",
+    "footerFallback": "📊 స్మార్ట్ విశ్లేషణను ఉపయోగిస్తోంది (జెమిని API అందుబాటులో లేదు)",
+
+    "refresh": "🔄 విశ్లేషణను రిఫ్రెష్ చేయి"
+  },
+
+  "analytics": {
+    "title": "విశ్లేషణ",
+    "spendingByCategory": "వర్గం వారీగా ఖర్చు",
+    "total": "మొత్తం",
+    "noExpensesThisMonth": "ఈ నెలలో ఖర్చులు లేవు",
+    "sixMonthTrend": "6 నెలల ధోరణి",
+    "exportPdf": "PDF నివేదికను ఎగుమతి చేయి",
+    "exportTitle": "ఎగుమతి",
+    "exportMessage": "PDF నివేదిక త్వరలో డౌన్‌లోడ్ అవుతుంది."
+  },
+
+  "history": {
+    "title": "ఖర్చు చరిత్ర",
+    "totalExpenses": "{{count}} మొత్తం ఖర్చులు",
+    "searchPlaceholder": "ఖర్చులను శోధించండి...",
+
+    "filteredTotal": "{{filter}} (ఫిల్టర్ చేయబడింది)",
+    "totalLabel": "మొత్తం",
+
+    "emptyFiltered": "మీ ఫిల్టర్‌లతో సరిపోలే ఖర్చులు లేవు",
+    "emptyAll": "ఇంకా ఖర్చులు లేవు. మీ మొదటి ఖర్చును జోడించడానికి + నొక్కండి!",
+
+    "deleteTitle": "ఖర్చును తొలగించు",
+    "deleteMessage": "\"{{note}}\" ను తొలగించాలనుకుంటున్నారా?",
+    "deleteErrorMessage": "ఖర్చును తొలగించడంలో విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.",
+    "deleteSuccessMessage": "ఖర్చు విజయవంతంగా తొలగించబడింది!",
+
+    "editExpense": "ఖర్చును సవరించు",
+    "amountLabel": "మొత్తం (₹)",
+    "categoryLabel": "వర్గం",
+    "noteLabel": "నోట్",
+    "notePlaceholder": "నోట్ (ఐచ్ఛికం)",
+    "amountPlaceholder": "మొత్తం",
+
+    "editErrorInvalidAmount": "దయచేసి చెల్లుబాటు అయ్యే మొత్తాన్ని నమోదు చేయండి",
+    "editErrorFailed": "ఖర్చును అప్‌డేట్ చేయడంలో విఫలమైంది",
+    "editSuccessMessage": "ఖర్చు విజయవంతంగా అప్‌డేట్ చేయబడింది",
+
+    "receiptBadge": "📋 రసీదు",
+    "swipeDelete": "🗑️ తొలగించు",
+
+    "dateToday": "నేడు — {{date}}",
+    "dateYesterday": "నిన్న — {{date}}"
+  },
+
+  "budget": {
+    "editTitle": "బడ్జెట్‌లను సవరించు",
+    "monthlyBudgetCard": "💰 నెలవారీ బడ్జెట్",
+    "monthlyBudgetPlaceholder": "నెలవారీ బడ్జెట్‌ను నమోదు చేయండి",
+    "categoryBudgetsCard": "📋 వర్గ బడ్జెట్‌లు",
+
+    "summaryTitle": "బడ్జెట్ సారాంశం",
+    "monthlyBudgetLabel": "నెలవారీ బడ్జెట్:",
+    "categoryTotalLabel": "వర్గ మొత్తం:",
+    "remainingLabel": "మిగిలినది:",
+    "exceedWarning": "⚠️ వర్గ బడ్జెట్‌లు నెలవారీ బడ్జెట్ కంటే ఎక్కువగా ఉన్నాయి!",
+
+    "saveAllChanges": "అన్ని మార్పులను సేవ్ చేయి",
+
+    "invalidBudgetTitle": "చెల్లని బడ్జెట్",
+    "invalidBudgetMessage": "దయచేసి చెల్లుబాటు అయ్యే నెలవారీ బడ్జెట్ మొత్తాన్ని నమోదు చేయండి.",
+    "saveSuccessMessage": "అన్ని బడ్జెట్‌లు విజయవంతంగా అప్‌డేట్ చేయబడ్డాయి!",
+    "saveErrorMessage": "బడ్జెట్‌లను అప్‌డేట్ చేయడంలో విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి."
+  },
+
+  "budgetSetup": {
+    "title": "మీ బడ్జెట్‌ను సెట్ చేయండి",
+    "subtitle": "మీ ఖర్చు పరిమితులను అనుకూలీకరించండి",
+    "monthlyBudgetLabel": "💰 నెలవారీ బడ్జెట్ (₹)",
+    "monthlyBudgetPlaceholder": "నెలవారీ బడ్జెట్‌ను నమోదు చేయండి",
+
+    "categoryBudgetsTitle": "📋 వర్గ బడ్జెట్‌లు",
+    "categoryBudgetsNote": "ప్రతి వర్గానికి నెలవారీ పరిమితులను సెట్ చేయండి",
+    "customCategoriesTitle": "✨ అనుకూల వర్గాలు",
+
+    "addCustomCategory": "+ అనుకూల వర్గాన్ని జోడించు",
+    "addCustomCategoryModalTitle": "అనుకూల వర్గాన్ని జోడించు",
+    "categoryNameLabel": "వర్గం పేరు",
+    "categoryNamePlaceholder": "ఉదా., కాఫీ, జిమ్, సబ్స్క్రిప్షన్",
+    "categoryIconLabel": "వర్గం చిహ్నం",
+    "change": "మార్చు",
+    "monthlyBudgetFieldLabel": "నెలవారీ బడ్జెట్ (₹)",
+    "enterBudgetPlaceholder": "బడ్జెట్ నమోదు చేయండి",
+    "addCategory": "వర్గాన్ని జోడించు",
+
+    "chooseIcon": "ఒక చిహ్నాన్ని ఎంచుకోండి",
+
+    "summaryTitle": "బడ్జెట్ సారాంశం",
+    "totalMonthlyBudget": "మొత్తం నెలవారీ బడ్జెట్:",
+    "totalCategoryBudgets": "మొత్తం వర్గ బడ్జెట్‌లు:",
+    "remainingForOther": "ఇతరత్రా మిగిలినది:",
+    "exceedMessage": "⚠️ వర్గ బడ్జెట్‌లు నెలవారీ బడ్జెట్ కంటే ₹{{amount}} ఎక్కువగా ఉన్నాయి!",
+
+    "createAccountAndStart": "ఖాతాను సృష్టించండి & ట్రాకింగ్ ప్రారంభించండి",
+    "fixBudgetExceeded": "దయచేసి బడ్జెట్ మించిపోవడాన్ని సరిచేయండి",
+
+    "errorSignUpFirstTitle": "లోపం",
+    "errorSignUpFirstMessage": "దయచేసి ముందుగా సైన్ అప్ చేయండి",
+
+    "errorEnterCategoryName": "దయచేసి వర్గం పేరును నమోదు చేయండి",
+    "errorCategoryExists": "వర్గం ఇప్పటికే ఉంది",
+    "errorInvalidBudgetAmount": "దయచేసి చెల్లుబాటు అయ్యే బడ్జెట్ మొత్తాన్ని నమోదు చేయండి",
+
+    "categoryAddedMessage": "\"{{name}}\" వర్గం విజయవంతంగా జోడించబడింది!",
+
+    "removeCategoryTitle": "వర్గాన్ని తీసివేయి",
+    "removeCategoryMessage": "మీరు \"{{name}}\" ను తీసివేయాలనుకుంటున్నారా?",
+    "categoryRemovedMessage": "\"{{name}}\" వర్గం విజయవంతంగా తీసివేయబడింది!",
+
+    "budgetLimitExceededTitle": "బడ్జెట్ పరిమితి మించిపోయింది! ⚠️",
+    "budgetLimitExceededMessage": "మీ వర్గ బడ్జెట్‌ల మొత్తం ₹{{total}}, ఇది మీ నెలవారీ బడ్జెట్ ₹{{budget}} కంటే ₹{{excess}} ఎక్కువ.\n\nదయచేసి కొన్ని వర్గ బడ్జెట్‌లను తగ్గించండి లేదా మీ నెలవారీ బడ్జెట్‌ను పెంచండి.",
+    "adjustBudgets": "బడ్జెట్‌లను సర్దుబాటు చేయండి",
+
+    "budgetLimitExceededAddMessage": "\"{{name}}\" ను ₹{{requested}} బడ్జెట్‌తో జోడించడం వలన మీ నెలవారీ బడ్జెట్ మించిపోతుంది.\n\nమిగిలిన బడ్జెట్: ₹{{remaining}}\nఅభ్యర్థించిన బడ్జెట్: ₹{{requested}}\n\nదయచేసి బడ్జెట్ మొత్తాన్ని తగ్గించండి లేదా మీ నెలవారీ బడ్జెట్‌ను పెంచండి.",
+
+    "userNotFoundTitle": "లోపం",
+    "userNotFoundMessage": "వినియోగదారు కనుగొనబడలేదు. దయచేసి మళ్లీ సైన్ అప్ చేయండి.",
+    "invalidMonthlyBudgetMessage": "దయచేసి చెల్లుబాటు అయ్యే నెలవారీ బడ్జెట్‌ను నమోదు చేయండి",
+
+    "invalidBudgetAmountsTitle": "చెల్లని బడ్జెట్ మొత్తాలు",
+    "invalidBudgetAmountsMessage": "దయచేసి వీటికి చెల్లుబాటు అయ్యే బడ్జెట్ మొత్తాలను నమోదు చేయండి: {{categories}}",
+
+    "welcomeTitle": "స్పెండ్‌వైజ్‌కు స్వాగతం! 🎉",
+    "welcomeMessage": "మీ బడ్జెట్ విజయవంతంగా సెట్ చేయబడింది!",
+    "startTracking": "ట్రాకింగ్ ప్రారంభించండి",
+
+    "saveErrorMessage": "బడ్జెట్‌ను సేవ్ చేయడంలో విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.",
+    "loading": "లోడ్ అవుతోంది..."
+  },
+
+  "profile": {
+    "title": "ప్రొఫైల్ & సెట్టింగ్‌లు",
+
+    "budgetSection": "బడ్జెట్",
+    "monthlyBudget": "నెలవారీ బడ్జెట్",
+
+    "categoryBudgetsSection": "వర్గ బడ్జెట్‌లు",
+    "addNew": "+ కొత్తది జోడించు",
+    "noCategories": "ఇంకా ఏ వర్గాలు జోడించబడలేదు. ఒకటి సృష్టించడానికి \"+ కొత్తది జోడించు\" నొక్కండి.",
+
+    "summaryTitle": "బడ్జెట్ సారాంశం",
+    "totalCategoryBudgets": "మొత్తం వర్గ బడ్జెట్‌లు:",
+    "remaining": "మిగిలినది:",
+    "exceedMessage": "⚠️ వర్గ బడ్జెట్‌లు నెలవారీ బడ్జెట్ కంటే ₹{{amount}} ఎక్కువగా ఉన్నాయి!",
+
+    "notificationsSection": "నోటిఫికేషన్‌లు",
+    "permissionWarning": "నోటిఫికేషన్‌లు నిలిపివేయబడ్డాయి. హెచ్చరికలను స్వీకరించడానికి సెట్టింగ్‌లలో వాటిని ప్రారంభించండి.",
+
+    "budgetAlertsTitle": "బడ్జెట్ హెచ్చరికలు",
+    "budgetAlertsDescriptionEnabled": "మీరు బడ్జెట్‌లో 80% కి చేరుకున్నప్పుడు హెచ్చరికలను పొందండి",
+    "budgetAlertsDescriptionDisabled": "హెచ్చరికలను స్వీకరించడానికి సెట్టింగ్‌లలో నోటిఫికేషన్‌లను ప్రారంభించండి",
+
+    "dailyRemindersTitle": "రోజువారీ రిమైండర్‌లు",
+    "dailyRemindersDescriptionEnabled": "ఖర్చులను అప్‌డేట్ చేయడానికి రాత్రి 9:30 కి నాకు గుర్తు చేయి",
+    "dailyRemindersDescriptionDisabled": "రిమైండర్‌లను స్వీకరించడానికి సెట్టింగ్‌లలో నోటిఫికేషన్‌లను ప్రారంభించండి",
+
+    "appearanceSection": "స్వరూపం",
+    "darkMode": "డార్క్ మోడ్",
+    "comingSoon": "త్వరలో వస్తుంది",
+
+    "languageSection": "భాష",
+    "changeLanguage": "భాష మార్చు",
+
+    "version": "v1.0.0 · స్పెండ్‌వైజ్",
+    "logout": "🚪 లాగౌట్ చేయి",
+
+    "logoutTitle": "లాగౌట్",
+    "logoutMessage": "మీరు లాగౌట్ చేయాలనుకుంటున్నారా?",
+
+    "loadingBudgetData": "బడ్జెట్ డేటాను లోడ్ చేస్తోంది...",
+
+    "setMonthlyBudgetTitle": "నెలవారీ బడ్జెట్ సెట్ చేయండి",
+    "setMonthlyBudgetSubtitle": "మీ మొత్తం నెలవారీ బడ్జెట్‌ను నమోదు చేయండి (₹)",
+    "enterAmountPlaceholder": "మొత్తం నమోదు చేయండి",
+
+    "setCategoryBudgetTitle": "{{category}} బడ్జెట్ సెట్ చేయండి",
+    "setCategoryBudgetSubtitle": "{{category}} కోసం నెలవారీ బడ్జెట్ నమోదు చేయండి (₹)",
+    "remainingBudgetAvailable": "మిగిలిన బడ్జెట్ అందుబాటులో ఉంది: ₹{{amount}}",
+
+    "addCustomCategoryTitle": "అనుకూల వర్గాన్ని జోడించు",
+    "categoryNameLabel": "వర్గం పేరు",
+    "categoryNamePlaceholder": "ఉదా., కాఫీ, జిమ్, సబ్స్క్రిప్షన్",
+    "categoryIconLabel": "వర్గం చిహ్నం",
+    "change": "మార్చు",
+    "monthlyBudgetFieldLabel": "నెలవారీ బడ్జెట్ (₹)",
+    "enterBudgetPlaceholder": "బడ్జెట్ నమోదు చేయండి",
+    "addCategory": "వర్గాన్ని జోడించు",
+    "chooseIcon": "ఒక చిహ్నాన్ని ఎంచుకోండి",
+
+    "errorEnterValidAmount": "దయచేసి చెల్లుబాటు అయ్యే మొత్తాన్ని నమోదు చేయండి",
+
+    "cannotReduceBudgetTitle": "బడ్జెట్‌ను తగ్గించలేము",
+    "cannotReduceBudgetMessage": "మీ వర్గ బడ్జెట్‌ల మొత్తం ₹{{total}}, ఇది కొత్త నెలవారీ బడ్జెట్ ₹{{budget}} కంటే ₹{{excess}} ఎక్కువ.\n\nదయచేసి ముందుగా మీ వర్గ బడ్జెట్‌లను తగ్గించండి.",
+
+    "monthlyBudgetUpdated": "నెలవారీ బడ్జెట్ ₹{{amount}} కు అప్‌డేట్ చేయబడింది",
+    "monthlyBudgetUpdateFailed": "నెలవారీ బడ్జెట్ అప్‌డేట్ చేయడంలో విఫలమైంది",
+
+    "categoryBudgetUpdated": "{{category}} బడ్జెట్ ₹{{amount}} కు అప్‌డేట్ చేయబడింది",
+    "categoryBudgetUpdateFailed": "వర్గ బడ్జెట్ అప్‌డేట్ చేయడంలో విఫలమైంది",
+
+    "budgetLimitExceededTitle": "బడ్జెట్ పరిమితి మించిపోయింది",
+    "categoryBudgetExceededMessage": "{{category}} బడ్జెట్ ₹{{amount}} కు సెట్ చేయడం వలన మీ నెలవారీ బడ్జెట్ మించిపోతుంది.\n\nమిగిలిన బడ్జెట్ అందుబాటులో ఉంది: ₹{{remaining}}\n\nదయచేసి మొత్తాన్ని తగ్గించండి లేదా మీ నెలవారీ బడ్జెట్‌ను పెంచండి.",
+
+    "errorDefaultCategory": "ఇది డిఫాల్ట్ వర్గం. దయచేసి వేరొక పేరును ఎంచుకోండి.",
+    "errorCategoryExists": "వర్గం ఇప్పటికే ఉంది",
+    "errorEnterCategoryName": "దయచేసి వర్గం పేరును నమోదు చేయండి",
+    "errorInvalidBudgetAmount": "దయచేసి చెల్లుబాటు అయ్యే బడ్జెట్ మొత్తాన్ని నమోదు చేయండి",
+
+    "addCategoryExceededMessage": "\"{{name}}\" ను ₹{{amount}} బడ్జెట్‌తో జోడించడం వలన మీ నెలవారీ బడ్జెట్ మించిపోతుంది.\n\nమిగిలిన బడ్జెట్ అందుబాటులో ఉంది: ₹{{remaining}}\n\nదయచేసి బడ్జెట్ మొత్తాన్ని తగ్గించండి లేదా మీ నెలవారీ బడ్జెట్‌ను పెంచండి.",
+
+    "categoryAddedSuccess": "{{name}} వర్గం విజయవంతంగా జోడించబడింది!",
+    "categoryAddFailed": "వర్గాన్ని జోడించడంలో విఫలమైంది",
+    "categoryAddError": "వర్గాన్ని జోడించడంలో విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.",
+
+    "removeCategoryTitle": "వర్గాన్ని తీసివేయి",
+    "removeCategoryMessage": "మీరు \"{{name}}\" ను తీసివేయాలనుకుంటున్నారా?",
+    "categoryRemovedSuccess": "{{name}} వర్గం తీసివేయబడింది",
+    "categoryRemoveFailed": "వర్గాన్ని తీసివేయడంలో విఫలమైంది",
+    "categoryRemoveError": "వర్గాన్ని తీసివేయడంలో విఫలమైంది",
+
+    "notificationToggleFailed": "నోటిఫికేషన్ సెట్టింగ్‌లను అప్‌డేట్ చేయడంలో విఫలమైంది",
+    "notificationToggleError": "ఊహించని లోపం సంభవించింది",
+    "budgetAlertsEnabled": "బడ్జెట్ హెచ్చరికలు ప్రారంభించబడ్డాయి",
+    "budgetAlertsDisabled": "బడ్జెట్ హెచ్చరికలు నిలిపివేయబడ్డాయి",
+    "dailyRemindersEnabled": "రోజువారీ రిమైండర్‌లు ప్రారంభించబడ్డాయి. మీరు రాత్రి 9:30 కి నోటిఫికేషన్‌లను స్వీకరిస్తారు.",
+    "dailyRemindersDisabled": "రోజువారీ రిమైండర్‌లు నిలిపివేయబడ్డాయి"
+  },
+
+  "receipt": {
+    "title": "రసీదు",
+    "share": "📤 షేర్ చేయి",
+    "delete": "🗑️ తొలగించు",
+    "paid": "✓ చెల్లించబడింది · {{date}}",
+    "subtotal": "ఉప-మొత్తం",
+    "gst": "GST {{percent}}%",
+    "total": "మొత్తం"
+  },
+
+  "alerts": {
+    "loginToContinue": "దయచేసి కొనసాగడానికి లాగిన్ చేయండి",
+    "networkError": "నెట్‌వర్క్ లోపం. దయచేసి మీ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",
+    "somethingWentWrong": "ఏదో తప్పు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి."
+  },
+
+  "notifications": {
+    "permissionModal": {
+      "title": "నోటిఫికేషన్‌లను ప్రారంభించండి",
+      "message": "మీ ఫైనాన్స్‌పై నిఘా ఉంచండి! బడ్జెట్ హెచ్చరికలు మరియు రోజువారీ రిమైండర్‌లను పొందండి.",
+      "feature1": "80% కి చేరుకున్నప్పుడు బడ్జెట్ హెచ్చరికలు",
+      "feature2": "రాత్రి 9:30 కి రోజువారీ రిమైండర్‌లు",
+      "feature3": "నిజ-సమయ ఖర్చు అప్‌డేట్‌లు",
+      "enable": "నోటిఫికేషన్‌లను ప్రారంభించండి",
+      "maybeLater": "తర్వాత నిర్ణయించుకుంటాను"
+    },
+    "preferencePopup": {
+      "checkingPermissions": "అనుమతులను తనిఖీ చేస్తోంది...",
+      "title": "అప్‌డేట్‌గా ఉండండి!",
+      "subtitle": "మీరు నోటిఫికేషన్‌లను ఎలా స్వీకరించాలనుకుంటున్నారో ఎంచుకోండి",
+      "permissionWarning": "హెచ్చరికలను స్వీకరించడానికి నోటిఫికేషన్‌లను అనుమతించండి",
+
+      "budgetAlertsTitle": "బడ్జెట్ హెచ్చరికలు",
+      "budgetAlertsDescription": "బడ్జెట్‌లో 80% మరియు 100% వద్ద హెచ్చరికలను పొందండి",
+
+      "dailyRemindersTitle": "రోజువారీ రిమైండర్‌లు",
+      "dailyRemindersDescription": "ఖర్చులను లాగ్ చేయడానికి రాత్రి 9:30 కి నాకు గుర్తు చేయి",
+
+      "infoText": "మీరు వీటిని ఎప్పుడైనా ప్రొఫైల్ → నోటిఫికేషన్‌లలో మార్చవచ్చు",
+
+      "skip": "దాటవేయి",
+      "continue": "కొనసాగించు",
+      "saving": "సేవ్ చేస్తోంది..."
+    },
+
+    "budgetAlertTitle": "బడ్జెట్ హెచ్చరిక",
+    "budgetAlertBody": "మీరు మీ నెలవారీ బడ్జెట్‌లో {{percent}}% ఖర్చు చేసారు (₹{{budget}} లో ₹{{spent}})",
+    "categoryBudgetAlertTitle": "{{category}} బడ్జెట్ హెచ్చరిక",
+    "categoryBudgetAlertBody": "మీరు మీ {{category}} బడ్జెట్‌లో {{percent}}% ఖర్చు చేసారు (₹{{budget}} లో ₹{{spent}})",
+    "dailyReminderTitle": "📝 మీ ఖర్చులను లాగ్ చేసే సమయం!",
+    "dailyReminderBody": "నేటి ఖర్చును స్పెండ్‌వైజ్‌లో రికార్డ్ చేయడం మర్చిపోవద్దు."
+  }
+}

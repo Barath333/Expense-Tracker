@@ -12,10 +12,13 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import auth from '@react-native-firebase/auth';
+import { useTranslation } from 'react-i18next';
 import { getItem, saveItem, removeItem } from '../utils/storage';
 import { useAlertStore } from '../services/stores/alertStore';
 
 export default function LoginScreen({ navigation }: any) {
+  const { t } = useTranslation();
+  
   // State declarations
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('signup');
   const [email, setEmail] = useState('');
@@ -56,13 +59,13 @@ export default function LoginScreen({ navigation }: any) {
 
   const clearSavedEmail = () => {
     showAlert({
-      title: 'Clear Saved Email',
-      message: 'Are you sure you want to clear the saved email?',
+      title: t('auth.clearSavedEmailTitle'),
+      message: t('auth.clearSavedEmailMessage'),
       type: 'warning',
       buttons: [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Clear',
+          text: t('auth.clear'),
           style: 'destructive',
           onPress: async () => {
             await removeItem('lastUserEmail');
@@ -70,8 +73,8 @@ export default function LoginScreen({ navigation }: any) {
             setRememberedEmail('');
             setActiveTab('signup');
             showAlert({
-              title: 'Success',
-              message: 'Saved email cleared!',
+              title: t('common.success'),
+              message: t('auth.savedEmailCleared'),
               type: 'success',
             });
           }
@@ -92,24 +95,24 @@ export default function LoginScreen({ navigation }: any) {
   const handleAuth = async () => {
     if (!email.trim()) {
       showAlert({
-        title: 'Error',
-        message: 'Please enter your email',
+        title: t('common.error'),
+        message: t('auth.errorEnterEmail'),
         type: 'error',
       });
       return;
     }
     if (!password.trim()) {
       showAlert({
-        title: 'Error',
-        message: 'Please enter your password',
+        title: t('common.error'),
+        message: t('auth.errorEnterPassword'),
         type: 'error',
       });
       return;
     }
     if (activeTab === 'signup' && password.length < 6) {
       showAlert({
-        title: 'Error',
-        message: 'Password must be at least 6 characters',
+        title: t('common.error'),
+        message: t('auth.errorPasswordLength'),
         type: 'error',
       });
       return;
@@ -124,24 +127,24 @@ export default function LoginScreen({ navigation }: any) {
         if (user) {
           saveEmail(email);
           showAlert({
-            title: 'Success',
-            message: 'Logged in successfully!',
+            title: t('common.success'),
+            message: t('auth.loginSuccess'),
             type: 'success',
             onDismiss: () => navigation.replace('Main'),
           });
         } else {
-          let errorMessage = 'Login failed';
+          let errorMessage = t('auth.loginFailed');
           if (error?.code === 'auth/user-not-found') {
-            errorMessage = 'No account found. Please sign up first.';
+            errorMessage = t('auth.errorUserNotFound');
             // Offer to switch to signup tab
             showAlert({
-              title: 'Login Failed',
+              title: t('auth.loginFailed'),
               message: errorMessage,
               type: 'error',
               buttons: [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 { 
-                  text: 'Sign Up', 
+                  text: t('auth.signUp'), 
                   style: 'default',
                   onPress: () => {
                     setActiveTab('signup');
@@ -152,16 +155,16 @@ export default function LoginScreen({ navigation }: any) {
             });
             return;
           } else if (error?.code === 'auth/wrong-password') {
-            errorMessage = 'Incorrect password. Please try again.';
+            errorMessage = t('auth.errorWrongPassword');
           } else if (error?.code === 'auth/invalid-email') {
-            errorMessage = 'Invalid email format.';
+            errorMessage = t('auth.errorInvalidEmail');
           } else if (error?.code === 'auth/too-many-requests') {
-            errorMessage = 'Too many failed attempts. Try again later.';
+            errorMessage = t('auth.errorTooManyRequests');
           } else if (error?.code === 'auth/network-request-failed') {
-            errorMessage = 'Network error. Check your connection.';
+            errorMessage = t('auth.errorNetwork');
           }
           showAlert({
-            title: 'Login Failed',
+            title: t('auth.loginFailed'),
             message: errorMessage,
             type: 'error',
           });
@@ -180,18 +183,18 @@ export default function LoginScreen({ navigation }: any) {
           });
           
         } catch (error: any) {
-          let errorMessage = 'Signup failed';
+          let errorMessage = t('auth.signUpFailed');
           if (error?.code === 'auth/email-already-in-use') {
-            errorMessage = 'Email already registered. Please login instead.';
+            errorMessage = t('auth.errorEmailInUse');
             // Offer to switch to login tab
             showAlert({
-              title: 'Sign Up Failed',
+              title: t('auth.signUpFailed'),
               message: errorMessage,
               type: 'error',
               buttons: [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 { 
-                  text: 'Login', 
+                  text: t('auth.login'), 
                   style: 'default',
                   onPress: () => {
                     setActiveTab('login');
@@ -202,14 +205,14 @@ export default function LoginScreen({ navigation }: any) {
             });
             return;
           } else if (error?.code === 'auth/invalid-email') {
-            errorMessage = 'Invalid email format.';
+            errorMessage = t('auth.errorInvalidEmail');
           } else if (error?.code === 'auth/weak-password') {
-            errorMessage = 'Password is too weak. Use at least 6 characters.';
+            errorMessage = t('auth.errorWeakPassword');
           } else if (error?.code === 'auth/network-request-failed') {
-            errorMessage = 'Network error. Check your connection.';
+            errorMessage = t('auth.errorNetwork');
           }
           showAlert({
-            title: 'Sign Up Failed',
+            title: t('auth.signUpFailed'),
             message: errorMessage,
             type: 'error',
           });
@@ -217,8 +220,8 @@ export default function LoginScreen({ navigation }: any) {
       }
     } catch (err: any) {
       showAlert({
-        title: 'Error',
-        message: err?.message || 'An unexpected error occurred',
+        title: t('common.error'),
+        message: err?.message || t('auth.errorGeneric'),
         type: 'error',
       });
     } finally {
@@ -239,10 +242,10 @@ export default function LoginScreen({ navigation }: any) {
           style={styles.header}
         >
           <Text style={styles.welcomeText}>
-            {activeTab === 'login' ? 'Welcome back 👋' : 'Join SpendWise 🎉'}
+            {activeTab === 'login' ? t('auth.welcomeBack') : t('auth.joinApp')}
           </Text>
           <Text style={styles.headingText}>
-            {activeTab === 'login' ? 'Sign in to SpendWise' : 'Create an Account'}
+            {activeTab === 'login' ? t('auth.signInTitle') : t('auth.signUpTitle')}
           </Text>
 
           <View style={styles.tabContainer}>
@@ -254,7 +257,7 @@ export default function LoginScreen({ navigation }: any) {
               }}
             >
               <Text style={[styles.tabText, activeTab === 'login' && styles.activeTabText]}>
-                Login
+                {t('auth.login')}
               </Text>
             </TouchableOpacity>
 
@@ -266,21 +269,21 @@ export default function LoginScreen({ navigation }: any) {
               }}
             >
               <Text style={[styles.tabText, activeTab === 'signup' && styles.activeTabText]}>
-                Sign Up
+                {t('auth.signUp')}
               </Text>
             </TouchableOpacity>
           </View>
         </LinearGradient>
 
         <View style={styles.formArea}>
-          <Text style={styles.label}>EMAIL</Text>
+          <Text style={styles.label}>{t('auth.emailLabel')}</Text>
           <View style={styles.inputWrapper}>
             <Text style={styles.inputIcon}>📧</Text>
             <TextInput
               style={styles.input}
               value={email}
               onChangeText={setEmail}
-              placeholder="your@email.com"
+              placeholder={t('auth.emailPlaceholder')}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -294,14 +297,14 @@ export default function LoginScreen({ navigation }: any) {
             )}
           </View>
 
-          <Text style={styles.label}>PASSWORD</Text>
+          <Text style={styles.label}>{t('auth.passwordLabel')}</Text>
           <View style={styles.inputWrapper}>
             <Text style={styles.inputIcon}>🔒</Text>
             <TextInput
               style={styles.input}
               value={password}
               onChangeText={setPassword}
-              placeholder="••••••••"
+              placeholder={t('auth.passwordPlaceholder')}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
               placeholderTextColor="#aaa"
@@ -317,21 +320,23 @@ export default function LoginScreen({ navigation }: any) {
               style={styles.forgotWrapper} 
               onPress={() => navigation.navigate('ForgotPassword')}
             >
-              <Text style={styles.forgotText}>Forgot password?</Text>
+              <Text style={styles.forgotText}>{t('auth.forgotPassword')}</Text>
             </TouchableOpacity>
           )}
 
           {activeTab === 'signup' && (
             <View style={styles.passwordHint}>
               <Text style={styles.passwordHintText}>
-                🔒 Password must be at least 6 characters
+                {t('auth.passwordHint')}
               </Text>
             </View>
           )}
 
           {rememberedEmail !== '' && activeTab === 'login' && (
             <View style={styles.savedInfo}>
-              <Text style={styles.savedInfoText}>✅ Using saved email: {rememberedEmail}</Text>
+              <Text style={styles.savedInfoText}>
+                {t('auth.usingSavedEmail', { email: rememberedEmail })}
+              </Text>
             </View>
           )}
 
@@ -341,21 +346,21 @@ export default function LoginScreen({ navigation }: any) {
             disabled={loading}
           >
             {loading ? <ActivityIndicator color="#ffffff" /> : <Text style={styles.signInText}>
-              {activeTab === 'login' ? 'Sign In' : 'Create Account'}
+              {activeTab === 'login' ? t('auth.signIn') : t('auth.createAccount')}
             </Text>}
           </TouchableOpacity>
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>Secure sign-in with Firebase</Text>
+            <Text style={styles.dividerText}>{t('auth.secureSignIn')}</Text>
             <View style={styles.dividerLine} />
           </View>
 
           <View style={styles.infoText}>
             <Text style={styles.infoTextContent}>
               {activeTab === 'login' 
-                ? "Don't have an account? Switch to Sign Up tab" 
-                : "Already have an account? Switch to Login tab"}
+                ? t('auth.noAccount')
+                : t('auth.haveAccount')}
             </Text>
           </View>
         </View>

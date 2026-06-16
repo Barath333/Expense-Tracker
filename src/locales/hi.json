@@ -1,0 +1,534 @@
+{
+  "common": {
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "delete": "हटाएँ",
+    "edit": "संपादित करें",
+    "remove": "हटाएँ",
+    "loading": "लोड हो रहा है...",
+    "success": "सफल",
+    "error": "त्रुटि",
+    "ok": "ठीक है",
+    "retry": "पुनः प्रयास करें",
+    "back": "वापस",
+    "yes": "हाँ",
+    "no": "नहीं",
+    "today": "आज",
+    "yesterday": "कल",
+    "rupeeSymbol": "₹"
+  },
+
+  "language": {
+    "selectLanguage": "भाषा चुनें",
+    "english": "English",
+  "tamil": "தமிழ்",
+  "hindi": "हिन्दी",
+  "marathi": "मराठी",
+  "telugu": "తెలుగు",
+    "continue": "जारी रखें",
+    "changeLanguage": "भाषा बदलें"
+  },
+
+  "onboarding": {
+    "appName": "स्पेंडवाइज़",
+    "tagline": "AI-संचालित व्यय ट्रैकर",
+    "aiInsightsTitle": "AI-संचालित अंतर्दृष्टि",
+    "aiInsightsBody": "जेमिनी AI आपके खर्चों का विश्लेषण करता है और हर महीने 3 कार्रवाई योग्य अंतर्दृष्टि देता है",
+    "getStarted": "शुरू करें",
+    "skip": "छोड़ें →"
+  },
+
+  "auth": {
+    "welcomeBack": "वापसी पर स्वागत है 👋",
+    "joinApp": "स्पेंडवाइज़ में शामिल हों 🎉",
+    "signInTitle": "स्पेंडवाइज़ में साइन इन करें",
+    "signUpTitle": "खाता बनाएँ",
+    "login": "लॉगिन",
+    "signUp": "साइन अप",
+    "emailLabel": "ईमेल",
+    "emailPlaceholder": "आपका@ईमेल.com",
+    "passwordLabel": "पासवर्ड",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "पासवर्ड भूल गए?",
+    "passwordHint": "🔒 पासवर्ड कम से कम 6 अक्षर का होना चाहिए",
+    "usingSavedEmail": "✅ सहेजा गया ईमेल उपयोग कर रहे हैं: {{email}}",
+    "signIn": "साइन इन करें",
+    "createAccount": "खाता बनाएँ",
+    "secureSignIn": "Firebase के साथ सुरक्षित साइन-इन",
+    "noAccount": "खाता नहीं है? साइन अप टैब पर जाएँ",
+    "haveAccount": "पहले से खाता है? लॉगिन टैब पर जाएँ",
+
+    "clearSavedEmailTitle": "सहेजा गया ईमेल हटाएँ",
+    "clearSavedEmailMessage": "क्या आप सहेजा गया ईमेल हटाना चाहते हैं?",
+    "clear": "हटाएँ",
+    "savedEmailCleared": "सहेजा गया ईमेल हटा दिया गया!",
+
+    "errorEnterEmail": "कृपया अपना ईमेल दर्ज करें",
+    "errorEnterPassword": "कृपया अपना पासवर्ड दर्ज करें",
+    "errorPasswordLength": "पासवर्ड कम से कम 6 अक्षर का होना चाहिए",
+
+    "loginFailed": "लॉगिन विफल",
+    "signUpFailed": "साइन अप विफल",
+    "loginSuccess": "सफलतापूर्वक लॉगिन किया!",
+    "errorUserNotFound": "कोई खाता नहीं मिला। कृपया पहले साइन अप करें।",
+    "errorWrongPassword": "गलत पासवर्ड। कृपया पुनः प्रयास करें।",
+    "errorInvalidEmail": "अमान्य ईमेल प्रारूप।",
+    "errorTooManyRequests": "बहुत अधिक असफल प्रयास। बाद में पुनः प्रयास करें।",
+    "errorNetwork": "नेटवर्क त्रुटि। अपना कनेक्शन जाँचें।",
+    "errorEmailInUse": "ईमेल पहले से पंजीकृत है। कृपया लॉगिन करें।",
+    "errorWeakPassword": "पासवर्ड बहुत कमजोर है। कम से कम 6 अक्षर का उपयोग करें।",
+    "errorUnexpected": "एक अप्रत्याशित त्रुटि हुई",
+    "errorGeneric": "एक अप्रत्याशित त्रुटि हुई"
+  },
+
+  "forgotPassword": {
+    "troubleSigningIn": "साइन इन करने में परेशानी?",
+    "resetPassword": "पासवर्ड रीसेट करें",
+    "instructions": "अपना ईमेल दर्ज करें और हम आपको पासवर्ड रीसेट करने के लिए एक लिंक भेजेंगे",
+    "emailLabel": "ईमेल पता",
+    "emailPlaceholder": "आपका@ईमेल.com",
+    "sendResetLink": "रीसेट लिंक भेजें",
+    "backToLogin": "← लॉगिन पर वापस जाएँ",
+    "rememberPassword": "अपना पासवर्ड याद है?",
+    "goToSignIn": "साइन इन पर जाएँ",
+
+    "checkEmailTitle": "अपना ईमेल जाँचें 📧",
+    "linkSentTitle": "पासवर्ड रीसेट लिंक भेजा गया",
+    "resetLinkSentTo": "रीसेट लिंक यहाँ भेजा गया:",
+    "resetLinkInstructions": "अपना पासवर्ड रीसेट करने के लिए ईमेल में दिए गए लिंक पर क्लिक करें। लिंक 1 घंटे में समाप्त हो जाएगा।",
+    "backToLoginButton": "लॉगिन पर वापस जाएँ",
+    "resendEmail": "ईमेल पुनः भेजें",
+
+    "errorEnterEmail": "कृपया अपना ईमेल पता दर्ज करें",
+    "errorInvalidEmail": "कृपया एक मान्य ईमेल पता दर्ज करें",
+    "successTitle": "पासवर्ड रीसेट ईमेल भेजा गया",
+    "successMessage": "हमने {{email}} को पासवर्ड रीसेट लिंक भेज दिया है।\n\nकृपया अपना इनबॉक्स जाँचें और अपना पासवर्ड रीसेट करने के लिए निर्देशों का पालन करें।",
+    "errorGeneric": "पासवर्ड रीसेट ईमेल भेजने में विफल",
+    "errorUserNotFound": "इस ईमेल पते के साथ कोई खाता नहीं मिला।",
+    "errorInvalidEmailFormat": "अमान्य ईमेल पता प्रारूप।",
+    "errorTooManyRequests": "बहुत सारे अनुरोध। कृपया बाद में पुनः प्रयास करें।"
+  },
+
+  "categories": {
+    "Food": "भोजन",
+    "Travel": "यात्रा",
+    "Shopping": "खरीदारी",
+    "Health": "स्वास्थ्य",
+    "Bills": "बिल",
+    "Entertainment": "मनोरंजन",
+    "Rent": "किराया",
+    "Other": "अन्य",
+    "all": "सभी",
+    "allWithIcon": "📋 सभी"
+  },
+
+  "home": {
+    "goodMorning": "सुप्रभात",
+    "goodAfternoon": "शुभ अपराह्न",
+    "goodEvening": "शुभ संध्या",
+    "loadingExpenses": "आपके खर्च लोड हो रहे हैं...",
+    "loadingExpensesShort": "खर्च लोड हो रहे हैं...",
+    "initializing": "आरंभ हो रहा है...",
+
+    "loadingBudget": "बजट लोड हो रहा है...",
+    "fetchingBudget": "आपकी बजट जानकारी प्राप्त की जा रही है",
+    "budgetUnavailable": "बजट उपलब्ध नहीं",
+    "spentThisMonth": "इस महीने खर्च किया",
+    "defaultBudget": "डिफ़ॉल्ट बजट: ₹50,000",
+    "retryLoadingBudget": "↻ बजट पुनः लोड करने का प्रयास करें",
+
+    "totalSpentThisMonth": "इस महीने कुल खर्च",
+    "budgetRemaining": "बजट: {{budget}} · शेष: {{remaining}}",
+    "spentPercent": "{{percent}}% खर्च किया",
+
+    "geminiInsight": "🤖 जेमिनी AI अंतर्दृष्टि",
+    "insightOverBudget": "⚠️ आपने अपने बजट का {{percent}}% खर्च कर लिया है। विस्तृत अंतर्दृष्टि के लिए टैप करें।",
+    "insightOnTrack": "🎯 आप सही रास्ते पर हैं! बजट का {{percent}}% शेष है। AI विश्लेषण के लिए टैप करें।",
+
+    "add": "जोड़ें",
+    "charts": "चार्ट",
+    "history": "इतिहास",
+
+    "recentExpenses": "हाल के खर्च",
+    "seeAll": "सभी देखें →",
+    "noExpenses": "अभी तक कोई खर्च नहीं। अपना पहला खर्च जोड़ने के लिए + टैप करें!",
+
+    "errorLoadFailed": "⚠️ {{error}}"
+  },
+
+  "addExpense": {
+    "title": "खर्च जोड़ें",
+    "amountLabel": "राशि (₹)",
+    "category": "श्रेणी",
+    "receiptOptional": "रसीद (वैकल्पिक)",
+    "camera": "कैमरा",
+    "gallery": "गैलरी",
+    "receiptAttached": "✓ रसीद संलग्न है",
+    "remove": "हटाएँ",
+    "notePlaceholder": "✏️ एक नोट जोड़ें (वैकल्पिक)...",
+    "saveExpense": "खर्च सहेजें",
+    "defaultNote": "{{category}} खर्च",
+
+    "invalidAmountTitle": "अमान्य राशि",
+    "invalidAmountMessage": "कृपया एक मान्य खर्च राशि दर्ज करें।",
+
+    "loginRequiredTitle": "त्रुटि",
+    "loginRequiredMessage": "खर्च जोड़ने के लिए आपको लॉगिन करना होगा।",
+
+    "uploadFailedTitle": "अपलोड विफल",
+    "uploadFailedMessage": "रसीद अपलोड करने में विफल। खर्च बिना रसीद के सहेजा जाएगा।",
+
+    "successTitle": "सफलता! 🎉",
+    "successMessage": "₹{{amount}} का खर्च सफलतापूर्वक जोड़ा गया।",
+
+    "errorTitle": "त्रुटि",
+    "errorSaveFailed": "खर्च सहेजने में विफल। कृपया पुनः प्रयास करें।",
+    "errorUnexpected": "एक अप्रत्याशित त्रुटि हुई",
+
+    "imagePickError": "छवि चुनने में विफल: {{error}}",
+    "imagePickSuccessTitle": "सफलता",
+    "imagePickSuccessMessage": "रसीद सफलतापूर्वक संलग्न!",
+
+    "removeReceiptTitle": "रसीद हटाएँ",
+    "removeReceiptMessage": "क्या आप संलग्न रसीद हटाना चाहते हैं?",
+
+    "calendar": {
+      "selectDate": "तिथि चुनें",
+      "today": "आज",
+      "weekDays": {
+        "sun": "रवि",
+        "mon": "सोम",
+        "tue": "मंगल",
+        "wed": "बुध",
+        "thu": "गुरु",
+        "fri": "शुक्र",
+        "sat": "शनि"
+      }
+    }
+  },
+
+  "aiInsights": {
+    "title": "AI अंतर्दृष्टि",
+    "poweredByGemini": "जेमिनी द्वारा संचालित",
+    "geminiAI": "🤖 जेमिनी AI द्वारा संचालित",
+    "smartAnalytics": "📊 स्मार्ट विश्लेषण",
+    "analyzing": "आपके खर्चों का विश्लेषण किया जा रहा है...",
+    "justNow": "अभी",
+    "minAgo": "{{count}} मिनट पहले",
+    "hoursAgo": "{{count}} घंटे पहले",
+
+    "scoreExcellent": "उत्कृष्ट खर्च की आदतें! 🎉",
+    "scoreGood": "अच्छी खर्च की आदतें",
+    "scoreAverage": "औसत - सुधार की गुंजाइश",
+    "scoreNeedsAttention": "ध्यान देने की आवश्यकता - अपने खर्च की समीक्षा करें",
+    "scoreSummary": "{{count}} खर्चों के आधार पर कुल {{amount}}",
+    "aiGenerated": "✨ AI जनरेटेड",
+
+    "viewExpenses": "खर्च देखें →",
+    "viewFoodExpenses": "भोजन खर्च देखें →",
+
+    "highSpendingTitle": "उच्च {{category}} खर्च",
+    "highSpendingBody": "{{category}} आपके खर्च का {{percent}}% ({{amount}}) है। इस श्रेणी को कम करने पर विचार करें।",
+
+    "budgetAlertTitle": "बजट चेतावनी! ⚠️",
+    "budgetAlertBody": "आपने अपने {{budget}} बजट का {{percent}}% खर्च कर लिया है। केवल {{remaining}} शेष है!",
+
+    "budgetWarningTitle": "बजट चेतावनी",
+    "budgetWarningBody": "आपने अपने बजट का {{percent}}% खर्च कर लिया है। {{remaining}}% महीने के लिए शेष है।",
+
+    "onTrackTitle": "सही रास्ते पर! 🎯",
+    "onTrackBody": "बहुत बढ़िया! आपने अपने {{budget}} बजट का केवल {{percent}}% खर्च किया है। इसे जारी रखें!",
+
+    "saveFoodTitle": "भोजन पर बचत करें",
+    "saveFoodBody": "आपने भोजन पर {{amount}} खर्च किया। सप्ताह में 3 बार घर पर खाना पकाने से ₹800-1200/माह बचा सकते हैं।",
+
+    "trackEverythingTitle": "सब कुछ ट्रैक करें",
+    "trackEverythingBody": "आपके पास {{count}} सक्रिय खर्च श्रेणियाँ हैं। अधिक खर्च जोड़ने से AI बेहतर अंतर्दृष्टि देने में मदद मिलती है!",
+
+    "footerAI": "✨ Google जेमिनी AI द्वारा आपके खर्च पैटर्न के आधार पर उत्पन्न अंतर्दृष्टि",
+    "footerFallback": "📊 स्मार्ट विश्लेषण का उपयोग कर रहा है (जेमिनी API उपलब्ध नहीं)",
+
+    "refresh": "🔄 विश्लेषण ताज़ा करें"
+  },
+
+  "analytics": {
+    "title": "विश्लेषण",
+    "spendingByCategory": "श्रेणी के अनुसार खर्च",
+    "total": "कुल",
+    "noExpensesThisMonth": "इस महीने कोई खर्च नहीं",
+    "sixMonthTrend": "6 महीने का रुझान",
+    "exportPdf": "PDF रिपोर्ट निर्यात करें",
+    "exportTitle": "निर्यात",
+    "exportMessage": "PDF रिपोर्ट जल्द ही डाउनलोड हो जाएगी।"
+  },
+
+  "history": {
+    "title": "खर्च इतिहास",
+    "totalExpenses": "{{count}} कुल खर्च",
+    "searchPlaceholder": "खर्च खोजें...",
+
+    "filteredTotal": "{{filter}} (फ़िल्टर किया गया)",
+    "totalLabel": "कुल",
+
+    "emptyFiltered": "आपके फ़िल्टर से मेल खाने वाला कोई खर्च नहीं",
+    "emptyAll": "अभी तक कोई खर्च नहीं। अपना पहला खर्च जोड़ने के लिए + टैप करें!",
+
+    "deleteTitle": "खर्च हटाएँ",
+    "deleteMessage": "क्या आप \"{{note}}\" हटाना चाहते हैं?",
+    "deleteErrorMessage": "खर्च हटाने में विफल। कृपया पुनः प्रयास करें।",
+    "deleteSuccessMessage": "खर्च सफलतापूर्वक हटाया गया!",
+
+    "editExpense": "खर्च संपादित करें",
+    "amountLabel": "राशि (₹)",
+    "categoryLabel": "श्रेणी",
+    "noteLabel": "नोट",
+    "notePlaceholder": "नोट (वैकल्पिक)",
+    "amountPlaceholder": "राशि",
+
+    "editErrorInvalidAmount": "कृपया एक मान्य राशि दर्ज करें",
+    "editErrorFailed": "खर्च अपडेट करने में विफल",
+    "editSuccessMessage": "खर्च सफलतापूर्वक अपडेट किया गया",
+
+    "receiptBadge": "📋 रसीद",
+    "swipeDelete": "🗑️ हटाएँ",
+
+    "dateToday": "आज — {{date}}",
+    "dateYesterday": "कल — {{date}}"
+  },
+
+  "budget": {
+    "editTitle": "बजट संपादित करें",
+    "monthlyBudgetCard": "💰 मासिक बजट",
+    "monthlyBudgetPlaceholder": "मासिक बजट दर्ज करें",
+    "categoryBudgetsCard": "📋 श्रेणी बजट",
+
+    "summaryTitle": "बजट सारांश",
+    "monthlyBudgetLabel": "मासिक बजट:",
+    "categoryTotalLabel": "श्रेणी कुल:",
+    "remainingLabel": "शेष:",
+    "exceedWarning": "⚠️ श्रेणी बजट मासिक बजट से अधिक है!",
+
+    "saveAllChanges": "सभी परिवर्तन सहेजें",
+
+    "invalidBudgetTitle": "अमान्य बजट",
+    "invalidBudgetMessage": "कृपया एक मान्य मासिक बजट राशि दर्ज करें।",
+    "saveSuccessMessage": "सभी बजट सफलतापूर्वक अपडेट किए गए!",
+    "saveErrorMessage": "बजट अपडेट करने में विफल। कृपया पुनः प्रयास करें।"
+  },
+
+  "budgetSetup": {
+    "title": "अपना बजट निर्धारित करें",
+    "subtitle": "अपनी खर्च सीमाएँ अनुकूलित करें",
+    "monthlyBudgetLabel": "💰 मासिक बजट (₹)",
+    "monthlyBudgetPlaceholder": "मासिक बजट दर्ज करें",
+
+    "categoryBudgetsTitle": "📋 श्रेणी बजट",
+    "categoryBudgetsNote": "प्रत्येक श्रेणी के लिए मासिक सीमाएँ निर्धारित करें",
+    "customCategoriesTitle": "✨ कस्टम श्रेणियाँ",
+
+    "addCustomCategory": "+ कस्टम श्रेणी जोड़ें",
+    "addCustomCategoryModalTitle": "कस्टम श्रेणी जोड़ें",
+    "categoryNameLabel": "श्रेणी का नाम",
+    "categoryNamePlaceholder": "जैसे, कॉफी, जिम, सदस्यता",
+    "categoryIconLabel": "श्रेणी आइकन",
+    "change": "बदलें",
+    "monthlyBudgetFieldLabel": "मासिक बजट (₹)",
+    "enterBudgetPlaceholder": "बजट दर्ज करें",
+    "addCategory": "श्रेणी जोड़ें",
+
+    "chooseIcon": "एक आइकन चुनें",
+
+    "summaryTitle": "बजट सारांश",
+    "totalMonthlyBudget": "कुल मासिक बजट:",
+    "totalCategoryBudgets": "कुल श्रेणी बजट:",
+    "remainingForOther": "अन्य के लिए शेष:",
+    "exceedMessage": "⚠️ श्रेणी बजट मासिक बजट से ₹{{amount}} अधिक है!",
+
+    "createAccountAndStart": "खाता बनाएँ और ट्रैकिंग शुरू करें",
+    "fixBudgetExceeded": "कृपया बजट अधिकता ठीक करें",
+
+    "errorSignUpFirstTitle": "त्रुटि",
+    "errorSignUpFirstMessage": "कृपया पहले साइन अप करें",
+
+    "errorEnterCategoryName": "कृपया एक श्रेणी का नाम दर्ज करें",
+    "errorCategoryExists": "श्रेणी पहले से मौजूद है",
+    "errorInvalidBudgetAmount": "कृपया एक मान्य बजट राशि दर्ज करें",
+
+    "categoryAddedMessage": "\"{{name}}\" श्रेणी सफलतापूर्वक जोड़ी गई!",
+
+    "removeCategoryTitle": "श्रेणी हटाएँ",
+    "removeCategoryMessage": "क्या आप \"{{name}}\" हटाना चाहते हैं?",
+    "categoryRemovedMessage": "\"{{name}}\" श्रेणी सफलतापूर्वक हटा दी गई!",
+
+    "budgetLimitExceededTitle": "बजट सीमा पार! ⚠️",
+    "budgetLimitExceededMessage": "आपकी श्रेणी बजट का कुल ₹{{total}} है, जो आपके मासिक बजट ₹{{budget}} से ₹{{excess}} अधिक है।\n\nकृपया कुछ श्रेणी बजट कम करें या अपना मासिक बजट बढ़ाएँ।",
+    "adjustBudgets": "बजट समायोजित करें",
+
+    "budgetLimitExceededAddMessage": "\"{{name}}\" को ₹{{requested}} बजट के साथ जोड़ने से आपका मासिक बजट पार हो जाएगा।\n\nशेष बजट: ₹{{remaining}}\nअनुरोधित बजट: ₹{{requested}}\n\nकृपया बजट राशि कम करें या अपना मासिक बजट बढ़ाएँ।",
+
+    "userNotFoundTitle": "त्रुटि",
+    "userNotFoundMessage": "उपयोगकर्ता नहीं मिला। कृपया फिर से साइन अप करें।",
+    "invalidMonthlyBudgetMessage": "कृपया एक मान्य मासिक बजट दर्ज करें",
+
+    "invalidBudgetAmountsTitle": "अमान्य बजट राशियाँ",
+    "invalidBudgetAmountsMessage": "कृपया इसके लिए मान्य बजट राशियाँ दर्ज करें: {{categories}}",
+
+    "welcomeTitle": "स्पेंडवाइज़ में आपका स्वागत है! 🎉",
+    "welcomeMessage": "आपका बजट सफलतापूर्वक सेट हो गया है!",
+    "startTracking": "ट्रैकिंग शुरू करें",
+
+    "saveErrorMessage": "बजट सहेजने में विफल। कृपया पुनः प्रयास करें।",
+    "loading": "लोड हो रहा है..."
+  },
+
+  "profile": {
+    "title": "प्रोफ़ाइल और सेटिंग्स",
+
+    "budgetSection": "बजट",
+    "monthlyBudget": "मासिक बजट",
+
+    "categoryBudgetsSection": "श्रेणी बजट",
+    "addNew": "+ नया जोड़ें",
+    "noCategories": "अभी तक कोई श्रेणी नहीं जोड़ी गई। एक बनाने के लिए \"+ नया जोड़ें\" टैप करें।",
+
+    "summaryTitle": "बजट सारांश",
+    "totalCategoryBudgets": "कुल श्रेणी बजट:",
+    "remaining": "शेष:",
+    "exceedMessage": "⚠️ श्रेणी बजट मासिक बजट से ₹{{amount}} अधिक है!",
+
+    "notificationsSection": "सूचनाएँ",
+    "permissionWarning": "सूचनाएँ अक्षम हैं। अलर्ट प्राप्त करने के लिए सेटिंग्स में सक्षम करें।",
+
+    "budgetAlertsTitle": "बजट अलर्ट",
+    "budgetAlertsDescriptionEnabled": "जब आप बजट के 80% तक पहुँचते हैं तो अलर्ट प्राप्त करें",
+    "budgetAlertsDescriptionDisabled": "अलर्ट प्राप्त करने के लिए सेटिंग्स में सूचनाएँ सक्षम करें",
+
+    "dailyRemindersTitle": "दैनिक अनुस्मारक",
+    "dailyRemindersDescriptionEnabled": "मुझे रात 9:30 बजे खर्च अपडेट करने की याद दिलाएँ",
+    "dailyRemindersDescriptionDisabled": "अनुस्मारक प्राप्त करने के लिए सेटिंग्स में सूचनाएँ सक्षम करें",
+
+    "appearanceSection": "उपस्थिति",
+    "darkMode": "डार्क मोड",
+    "comingSoon": "जल्द आ रहा है",
+
+    "languageSection": "भाषा",
+    "changeLanguage": "भाषा बदलें",
+
+    "version": "v1.0.0 · स्पेंडवाइज़",
+    "logout": "🚪 लॉगआउट करें",
+
+    "logoutTitle": "लॉगआउट",
+    "logoutMessage": "क्या आप लॉगआउट करना चाहते हैं?",
+
+    "loadingBudgetData": "बजट डेटा लोड हो रहा है...",
+
+    "setMonthlyBudgetTitle": "मासिक बजट निर्धारित करें",
+    "setMonthlyBudgetSubtitle": "अपना कुल मासिक बजट दर्ज करें (₹)",
+    "enterAmountPlaceholder": "राशि दर्ज करें",
+
+    "setCategoryBudgetTitle": "{{category}} बजट निर्धारित करें",
+    "setCategoryBudgetSubtitle": "{{category}} के लिए मासिक बजट दर्ज करें (₹)",
+    "remainingBudgetAvailable": "शेष बजट उपलब्ध: ₹{{amount}}",
+
+    "addCustomCategoryTitle": "कस्टम श्रेणी जोड़ें",
+    "categoryNameLabel": "श्रेणी का नाम",
+    "categoryNamePlaceholder": "जैसे, कॉफी, जिम, सदस्यता",
+    "categoryIconLabel": "श्रेणी आइकन",
+    "change": "बदलें",
+    "monthlyBudgetFieldLabel": "मासिक बजट (₹)",
+    "enterBudgetPlaceholder": "बजट दर्ज करें",
+    "addCategory": "श्रेणी जोड़ें",
+    "chooseIcon": "एक आइकन चुनें",
+
+    "errorEnterValidAmount": "कृपया एक मान्य राशि दर्ज करें",
+
+    "cannotReduceBudgetTitle": "बजट कम नहीं किया जा सकता",
+    "cannotReduceBudgetMessage": "आपकी श्रेणी बजट का कुल ₹{{total}} है, जो नए मासिक बजट ₹{{budget}} से ₹{{excess}} अधिक है।\n\nकृपया पहले अपनी श्रेणी बजट कम करें।",
+
+    "monthlyBudgetUpdated": "मासिक बजट ₹{{amount}} में अपडेट किया गया",
+    "monthlyBudgetUpdateFailed": "मासिक बजट अपडेट करने में विफल",
+
+    "categoryBudgetUpdated": "{{category}} बजट ₹{{amount}} में अपडेट किया गया",
+    "categoryBudgetUpdateFailed": "श्रेणी बजट अपडेट करने में विफल",
+
+    "budgetLimitExceededTitle": "बजट सीमा पार",
+    "categoryBudgetExceededMessage": "{{category}} बजट ₹{{amount}} करने से आपका मासिक बजट पार हो जाएगा।\n\nशेष बजट उपलब्ध: ₹{{remaining}}\n\nकृपया राशि कम करें या अपना मासिक बजट बढ़ाएँ।",
+
+    "errorDefaultCategory": "यह एक डिफ़ॉल्ट श्रेणी है। कृपया एक अलग नाम चुनें।",
+    "errorCategoryExists": "श्रेणी पहले से मौजूद है",
+    "errorEnterCategoryName": "कृपया एक श्रेणी का नाम दर्ज करें",
+    "errorInvalidBudgetAmount": "कृपया एक मान्य बजट राशि दर्ज करें",
+
+    "addCategoryExceededMessage": "\"{{name}}\" को ₹{{amount}} बजट के साथ जोड़ने से आपका मासिक बजट पार हो जाएगा।\n\nशेष बजट उपलब्ध: ₹{{remaining}}\n\nकृपया बजट राशि कम करें या अपना मासिक बजट बढ़ाएँ।",
+
+    "categoryAddedSuccess": "{{name}} श्रेणी सफलतापूर्वक जोड़ी गई!",
+    "categoryAddFailed": "श्रेणी जोड़ने में विफल",
+    "categoryAddError": "श्रेणी जोड़ने में विफल। कृपया पुनः प्रयास करें।",
+
+    "removeCategoryTitle": "श्रेणी हटाएँ",
+    "removeCategoryMessage": "क्या आप \"{{name}}\" हटाना चाहते हैं?",
+    "categoryRemovedSuccess": "{{name}} श्रेणी हटा दी गई",
+    "categoryRemoveFailed": "श्रेणी हटाने में विफल",
+    "categoryRemoveError": "श्रेणी हटाने में विफल",
+
+    "notificationToggleFailed": "सूचना सेटिंग्स अपडेट करने में विफल",
+    "notificationToggleError": "एक अप्रत्याशित त्रुटि हुई",
+    "budgetAlertsEnabled": "बजट अलर्ट सक्षम किए गए",
+    "budgetAlertsDisabled": "बजट अलर्ट अक्षम किए गए",
+    "dailyRemindersEnabled": "दैनिक अनुस्मारक सक्षम किए गए। आपको रात 9:30 बजे सूचनाएँ प्राप्त होंगी।",
+    "dailyRemindersDisabled": "दैनिक अनुस्मारक अक्षम किए गए"
+  },
+
+  "receipt": {
+    "title": "रसीद",
+    "share": "📤 साझा करें",
+    "delete": "🗑️ हटाएँ",
+    "paid": "✓ भुगतान किया · {{date}}",
+    "subtotal": "उप-योग",
+    "gst": "GST {{percent}}%",
+    "total": "कुल"
+  },
+
+  "alerts": {
+    "loginToContinue": "जारी रखने के लिए कृपया लॉगिन करें",
+    "networkError": "नेटवर्क त्रुटि। कृपया अपना कनेक्शन जाँचें और पुनः प्रयास करें।",
+    "somethingWentWrong": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।"
+  },
+
+  "notifications": {
+    "permissionModal": {
+      "title": "सूचनाएँ सक्षम करें",
+      "message": "अपने वित्त पर नज़र रखें! बजट अलर्ट और दैनिक अनुस्मारक प्राप्त करें।",
+      "feature1": "80% तक पहुँचने पर बजट अलर्ट",
+      "feature2": "रात 9:30 बजे दैनिक अनुस्मारक",
+      "feature3": "वास्तविक समय खर्च अपडेट",
+      "enable": "सूचनाएँ सक्षम करें",
+      "maybeLater": "बाद में"
+    },
+    "preferencePopup": {
+      "checkingPermissions": "अनुमतियाँ जाँची जा रही हैं...",
+      "title": "अपडेट रहें!",
+      "subtitle": "चुनें कि आप सूचनाएँ कैसे प्राप्त करना चाहते हैं",
+      "permissionWarning": "अलर्ट प्राप्त करने के लिए सूचनाओं की अनुमति दें",
+
+      "budgetAlertsTitle": "बजट अलर्ट",
+      "budgetAlertsDescription": "बजट के 80% और 100% पर अलर्ट प्राप्त करें",
+
+      "dailyRemindersTitle": "दैनिक अनुस्मारक",
+      "dailyRemindersDescription": "खर्च लॉग करने के लिए रात 9:30 बजे याद दिलाएँ",
+
+      "infoText": "आप इन्हें कभी भी प्रोफ़ाइल → सूचनाएँ में बदल सकते हैं",
+
+      "skip": "छोड़ें",
+      "continue": "जारी रखें",
+      "saving": "सहेजा जा रहा है..."
+    },
+
+    "budgetAlertTitle": "बजट अलर्ट",
+    "budgetAlertBody": "आपने अपने मासिक बजट का {{percent}}% खर्च कर लिया है (₹{{budget}} में से ₹{{spent}})",
+    "categoryBudgetAlertTitle": "{{category}} बजट अलर्ट",
+    "categoryBudgetAlertBody": "आपने अपने {{category}} बजट का {{percent}}% खर्च कर लिया है (₹{{budget}} में से ₹{{spent}})",
+    "dailyReminderTitle": "📝 अपने खर्च लॉग करने का समय!",
+    "dailyReminderBody": "आज के खर्च को स्पेंडवाइज़ में रिकॉर्ड करना न भूलें।"
+  }
+}

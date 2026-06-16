@@ -11,6 +11,7 @@ import {
   Modal,
   TextInput,
   Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import auth from '@react-native-firebase/auth';
@@ -19,6 +20,10 @@ import { signOut } from '../services/firebase/authService';
 import { useAlertStore } from '../services/stores/alertStore';
 import { useNotificationSettings } from '../hooks/useNotificationSettings';
 import { checkNotificationPermissions, requestNotificationPermissions, showPermissionDeniedDialog } from '../services/permissionService';
+import { useTranslation } from 'react-i18next';
+import { changeLanguage, getSavedLanguage } from '../i18n';
+
+import LanguageQuickSwitchModal from '../components/LanguageQuickSwitchModal';
 
 const COLORS = {
   primary: '#1A9B5E',
@@ -73,6 +78,9 @@ export default function ProfileScreen({ navigation }: any) {
   const [darkMode, setDarkMode] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [hasNotificationPermissions, setHasNotificationPermissions] = useState(true);
+
+  const { t, i18n } = useTranslation();
+  const [showLangModal, setShowLangModal] = useState(false);
   
   // Track the actual display state for toggles (respecting permissions)
   const [displayBudgetAlerts, setDisplayBudgetAlerts] = useState(false);
@@ -162,13 +170,13 @@ export default function ProfileScreen({ navigation }: any) {
 
   const handleLogout = async () => {
     showAlert({
-      title: 'Logout',
-      message: 'Are you sure you want to logout?',
+      title: t('profile.logoutTitle'),
+      message: t('profile.logoutMessage'),
       type: 'warning',
       buttons: [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         { 
-          text: 'Logout', 
+          text: t('profile.logout'), 
           style: 'destructive', 
           onPress: async () => {
             setLogoutLoading(true);
@@ -197,8 +205,8 @@ export default function ProfileScreen({ navigation }: any) {
           if (success) {
             setDisplayBudgetAlerts(value);
             showAlert({
-              title: 'Success',
-              message: value ? 'Budget alerts enabled' : 'Budget alerts disabled',
+              title: t('common.success'),
+              message: value ? t('profile.budgetAlertsEnabled') : t('profile.budgetAlertsDisabled'),
               type: 'success',
             });
           }
@@ -214,22 +222,22 @@ export default function ProfileScreen({ navigation }: any) {
       if (success) {
         setDisplayBudgetAlerts(value);
         showAlert({
-          title: 'Success',
-          message: value ? 'Budget alerts enabled' : 'Budget alerts disabled',
+          title: t('common.success'),
+          message: value ? t('profile.budgetAlertsEnabled') : t('profile.budgetAlertsDisabled'),
           type: 'success',
         });
       } else {
         showAlert({
-          title: 'Error',
-          message: 'Failed to update notification settings',
+          title: t('common.error'),
+          message: t('profile.notificationToggleFailed'),
           type: 'error',
         });
       }
     } catch (error) {
       console.error('Error in handleBudgetAlertsToggle:', error);
       showAlert({
-        title: 'Error',
-        message: 'An unexpected error occurred',
+        title: t('common.error'),
+        message: t('profile.notificationToggleError'),
         type: 'error',
       });
     }
@@ -250,10 +258,8 @@ export default function ProfileScreen({ navigation }: any) {
           if (success) {
             setDisplayDailyReminders(value);
             showAlert({
-              title: 'Success',
-              message: value 
-                ? 'Daily reminders enabled. You will receive notifications at 9:30 PM.' 
-                : 'Daily reminders disabled',
+              title: t('common.success'),
+              message: value ? t('profile.dailyRemindersEnabled') : t('profile.dailyRemindersDisabled'),
               type: 'success',
             });
           }
@@ -269,24 +275,22 @@ export default function ProfileScreen({ navigation }: any) {
       if (success) {
         setDisplayDailyReminders(value);
         showAlert({
-          title: 'Success',
-          message: value 
-            ? 'Daily reminders enabled. You will receive notifications at 9:30 PM.' 
-            : 'Daily reminders disabled',
+          title: t('common.success'),
+          message: value ? t('profile.dailyRemindersEnabled') : t('profile.dailyRemindersDisabled'),
           type: 'success',
         });
       } else {
         showAlert({
-          title: 'Error',
-          message: 'Failed to update notification settings',
+          title: t('common.error'),
+          message: t('profile.notificationToggleFailed'),
           type: 'error',
         });
       }
     } catch (error) {
       console.error('Error in handleDailyRemindersToggle:', error);
       showAlert({
-        title: 'Error',
-        message: 'An unexpected error occurred',
+        title: t('common.error'),
+        message: t('profile.notificationToggleError'),
         type: 'error',
       });
     }
@@ -305,11 +309,15 @@ export default function ProfileScreen({ navigation }: any) {
       const currentTotal = calculateTotalCategoryBudget();
       if (currentTotal > numAmount) {
         showAlert({
-          title: 'Cannot Reduce Budget',
-          message: `Your category budgets total ₹${currentTotal.toLocaleString('en-IN')} which exceeds the new monthly budget of ₹${numAmount.toLocaleString('en-IN')} by ₹${(currentTotal - numAmount).toLocaleString('en-IN')}.\n\nPlease reduce your category budgets first.`,
+          title: t('profile.cannotReduceBudgetTitle'),
+          message: t('profile.cannotReduceBudgetMessage', {
+            total: currentTotal.toLocaleString('en-IN'),
+            budget: numAmount.toLocaleString('en-IN'),
+            excess: (currentTotal - numAmount).toLocaleString('en-IN'),
+          }),
           type: 'warning',
           buttons: [
-            { text: 'OK', style: 'default' }
+            { text: t('common.ok'), style: 'default' }
           ]
         });
         return;
@@ -319,21 +327,21 @@ export default function ProfileScreen({ navigation }: any) {
       if (result.success) {
         setMonthlyModalVisible(false);
         showAlert({
-          title: 'Success',
-          message: `Monthly budget updated to ₹${numAmount.toLocaleString('en-IN')}`,
+          title: t('common.success'),
+          message: t('profile.monthlyBudgetUpdated', { amount: numAmount.toLocaleString('en-IN') }),
           type: 'success',
         });
       } else {
         showAlert({
-          title: 'Error',
-          message: result.error || 'Failed to update monthly budget',
+          title: t('common.error'),
+          message: result.error || t('profile.monthlyBudgetUpdateFailed'),
           type: 'error',
         });
       }
     } else {
       showAlert({
-        title: 'Error',
-        message: 'Please enter a valid amount',
+        title: t('common.error'),
+        message: t('profile.errorEnterValidAmount'),
         type: 'error',
       });
     }
@@ -353,11 +361,15 @@ export default function ProfileScreen({ navigation }: any) {
       if (wouldExceedBudget(numAmount, selectedCategory)) {
         const remaining = getRemainingBudget(selectedCategory);
         showAlert({
-          title: 'Budget Limit Exceeded',
-          message: `Setting ${selectedCategory} budget to ₹${numAmount.toLocaleString('en-IN')} would exceed your monthly budget.\n\nRemaining budget available: ₹${remaining.toLocaleString('en-IN')}\n\nPlease reduce the amount or increase your monthly budget.`,
+          title: t('profile.budgetLimitExceededTitle'),
+          message: t('profile.categoryBudgetExceededMessage', {
+            category: selectedCategory,
+            amount: numAmount.toLocaleString('en-IN'),
+            remaining: remaining.toLocaleString('en-IN'),
+          }),
           type: 'warning',
           buttons: [
-            { text: 'OK', style: 'default' }
+            { text: t('common.ok'), style: 'default' }
           ]
         });
         return;
@@ -367,21 +379,24 @@ export default function ProfileScreen({ navigation }: any) {
       if (result.success) {
         setCategoryModalVisible(false);
         showAlert({
-          title: 'Success',
-          message: `${selectedCategory} budget updated to ₹${numAmount.toLocaleString('en-IN')}`,
+          title: t('common.success'),
+          message: t('profile.categoryBudgetUpdated', {
+            category: selectedCategory,
+            amount: numAmount.toLocaleString('en-IN'),
+          }),
           type: 'success',
         });
       } else {
         showAlert({
-          title: 'Error',
-          message: result.error || 'Failed to update category budget',
+          title: t('common.error'),
+          message: result.error || t('profile.categoryBudgetUpdateFailed'),
           type: 'error',
         });
       }
     } else {
       showAlert({
-        title: 'Error',
-        message: 'Please enter a valid amount',
+        title: t('common.error'),
+        message: t('profile.errorEnterValidAmount'),
         type: 'error',
       });
     }
@@ -398,8 +413,8 @@ export default function ProfileScreen({ navigation }: any) {
   const handleAddCustomCategory = async () => {
     if (!newCategoryName.trim()) {
       showAlert({
-        title: 'Error',
-        message: 'Please enter a category name',
+        title: t('common.error'),
+        message: t('profile.errorEnterCategoryName'),
         type: 'error',
       });
       return;
@@ -411,8 +426,8 @@ export default function ProfileScreen({ navigation }: any) {
     const defaultCategories = ['Food', 'Travel', 'Shopping', 'Health', 'Bills', 'Entertainment', 'Rent', 'Other'];
     if (defaultCategories.includes(categoryName)) {
       showAlert({
-        title: 'Error',
-        message: 'This is a default category. Please choose a different name.',
+        title: t('common.error'),
+        message: t('profile.errorDefaultCategory'),
         type: 'error',
       });
       return;
@@ -420,8 +435,8 @@ export default function ProfileScreen({ navigation }: any) {
     
     if (categoryBudgets[categoryName] || (customCategories && customCategories.some((c: any) => c.name === categoryName))) {
       showAlert({
-        title: 'Error',
-        message: 'Category already exists',
+        title: t('common.error'),
+        message: t('profile.errorCategoryExists'),
         type: 'error',
       });
       return;
@@ -430,8 +445,8 @@ export default function ProfileScreen({ navigation }: any) {
     const budgetNum = parseFloat(newCategoryBudget);
     if (isNaN(budgetNum) || budgetNum <= 0) {
       showAlert({
-        title: 'Error',
-        message: 'Please enter a valid budget amount',
+        title: t('common.error'),
+        message: t('profile.errorInvalidBudgetAmount'),
         type: 'error',
       });
       return;
@@ -441,11 +456,15 @@ export default function ProfileScreen({ navigation }: any) {
     if (wouldExceedBudget(budgetNum)) {
       const remaining = getRemainingBudget();
       showAlert({
-        title: 'Budget Limit Exceeded',
-        message: `Adding "${categoryName}" with budget ₹${budgetNum.toLocaleString('en-IN')} would exceed your monthly budget.\n\nRemaining budget available: ₹${remaining.toLocaleString('en-IN')}\n\nPlease reduce the budget amount or increase your monthly budget.`,
+        title: t('profile.budgetLimitExceededTitle'),
+        message: t('profile.addCategoryExceededMessage', {
+          name: categoryName,
+          amount: budgetNum.toLocaleString('en-IN'),
+          remaining: remaining.toLocaleString('en-IN'),
+        }),
         type: 'warning',
         buttons: [
-          { text: 'OK', style: 'default' }
+          { text: t('common.ok'), style: 'default' }
         ]
       });
       return;
@@ -460,23 +479,23 @@ export default function ProfileScreen({ navigation }: any) {
         setNewCategoryIcon('📌');
         setNewCategoryBudget('');
         showAlert({
-          title: 'Success',
-          message: `${categoryName} category added successfully!`,
+          title: t('common.success'),
+          message: t('profile.categoryAddedSuccess', { name: categoryName }),
           type: 'success',
         });
         await fetchBudget();
       } else {
         showAlert({
-          title: 'Error',
-          message: result?.error || 'Failed to add category',
+          title: t('common.error'),
+          message: result?.error || t('profile.categoryAddFailed'),
           type: 'error',
         });
       }
     } catch (error: any) {
       console.error('Error adding category:', error);
       showAlert({
-        title: 'Error',
-        message: error.message || 'Failed to add category. Please try again.',
+        title: t('common.error'),
+        message: error.message || t('profile.categoryAddError'),
         type: 'error',
       });
     } finally {
@@ -486,35 +505,35 @@ export default function ProfileScreen({ navigation }: any) {
 
   const handleRemoveCustomCategory = (categoryName: string) => {
     showAlert({
-      title: 'Remove Category',
-      message: `Are you sure you want to remove "${categoryName}"?`,
+      title: t('profile.removeCategoryTitle'),
+      message: t('profile.removeCategoryMessage', { name: categoryName }),
       type: 'warning',
       buttons: [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         { 
-          text: 'Remove', 
+          text: t('common.remove'), 
           style: 'destructive',
           onPress: async () => {
             try {
               const result = await removeCustomCategory(categoryName);
               if (result && result.success) {
                 showAlert({
-                  title: 'Success',
-                  message: `${categoryName} category removed`,
+                  title: t('common.success'),
+                  message: t('profile.categoryRemovedSuccess', { name: categoryName }),
                   type: 'success',
                 });
                 await fetchBudget();
               } else {
                 showAlert({
-                  title: 'Error',
-                  message: result?.error || 'Failed to remove category',
+                  title: t('common.error'),
+                  message: result?.error || t('profile.categoryRemoveFailed'),
                   type: 'error',
                 });
               }
             } catch (error: any) {
               showAlert({
-                title: 'Error',
-                message: error.message || 'Failed to remove category',
+                title: t('common.error'),
+                message: error.message || t('profile.categoryRemoveError'),
                 type: 'error',
               });
             }
@@ -534,7 +553,7 @@ export default function ProfileScreen({ navigation }: any) {
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Choose an Icon</Text>
+          <Text style={styles.modalTitle}>{t('profile.chooseIcon')}</Text>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.iconGrid}>
               {ICON_OPTIONS.map((item, index) => (
@@ -555,7 +574,7 @@ export default function ProfileScreen({ navigation }: any) {
             style={styles.closeModalBtn}
             onPress={() => setShowIconPicker(false)}
           >
-            <Text style={styles.closeModalBtnText}>Cancel</Text>
+            <Text style={styles.closeModalBtnText}>{t('common.cancel')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -570,12 +589,12 @@ export default function ProfileScreen({ navigation }: any) {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
             <Text style={styles.backButtonText}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Profile & Settings</Text>
+          <Text style={styles.headerTitle}>{t('profile.title')}</Text>
           <View style={styles.placeholder} />
         </View>
         <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
           <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={{ marginTop: 10, color: COLORS.textMuted }}>Loading budget data...</Text>
+          <Text style={{ marginTop: 10, color: COLORS.textMuted }}>{t('profile.loadingBudgetData')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -589,7 +608,7 @@ export default function ProfileScreen({ navigation }: any) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile & Settings</Text>
+        <Text style={styles.headerTitle}>{t('profile.title')}</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -609,22 +628,22 @@ export default function ProfileScreen({ navigation }: any) {
         </View>
 
         {/* BUDGET Section */}
-        <Text style={styles.sectionLabel}>BUDGET</Text>
+        <Text style={styles.sectionLabel}>{t('profile.budgetSection')}</Text>
 
         {/* Monthly Budget Card */}
         <TouchableOpacity style={styles.settingsCard} onPress={openMonthlyBudgetModal} activeOpacity={0.8}>
           <View style={[styles.settingsIconWrap, { backgroundColor: '#E8F8F0' }]}>
             <Text style={styles.settingsIcon}>💰</Text>
           </View>
-          <Text style={styles.settingsLabel}>Monthly Budget</Text>
+          <Text style={styles.settingsLabel}>{t('profile.monthlyBudget')}</Text>
           <Text style={styles.settingsValue}>₹{monthlyBudget.toLocaleString('en-IN')} ›</Text>
         </TouchableOpacity>
 
         {/* Category Budgets Section */}
         <View style={styles.categoryHeader}>
-          <Text style={styles.sectionLabel}>CATEGORY BUDGETS</Text>
+          <Text style={styles.sectionLabel}>{t('profile.categoryBudgetsSection')}</Text>
           <TouchableOpacity onPress={openAddCategoryModal} style={styles.addCategoryBtn}>
-            <Text style={styles.addCategoryBtnText}>+ Add New</Text>
+            <Text style={styles.addCategoryBtnText}>{t('profile.addNew')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -664,45 +683,57 @@ export default function ProfileScreen({ navigation }: any) {
           })}
           
           {Object.keys(categoryBudgets).length === 0 && (
-            <Text style={styles.emptyText}>No categories added yet. Tap "+ Add New" to create one.</Text>
+            <Text style={styles.emptyText}>{t('profile.noCategories')}</Text>
           )}
         </View>
 
         {/* Budget Summary */}
         <View style={[styles.summaryCard, calculateTotalCategoryBudget() > monthlyBudget && styles.warningCard]}>
-          <Text style={styles.summaryTitle}>Budget Summary</Text>
+          <Text style={styles.summaryTitle}>{t('profile.summaryTitle')}</Text>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Monthly Budget:</Text>
-            <Text style={styles.summaryValue}>₹{monthlyBudget.toLocaleString('en-IN')}</Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Total Category Budgets:</Text>
+            <Text style={styles.summaryLabel}>{t('profile.totalCategoryBudgets')}</Text>
             <Text style={[styles.summaryValue, calculateTotalCategoryBudget() > monthlyBudget && styles.warningText]}>
               ₹{calculateTotalCategoryBudget().toLocaleString('en-IN')}
             </Text>
           </View>
           <View style={[styles.summaryRow, calculateTotalCategoryBudget() > monthlyBudget && styles.warningRow]}>
-            <Text style={styles.summaryLabel}>Remaining:</Text>
+            <Text style={styles.summaryLabel}>{t('profile.remaining')}</Text>
             <Text style={[styles.summaryValue, calculateTotalCategoryBudget() > monthlyBudget && styles.warningText]}>
               ₹{getRemainingBudget().toLocaleString('en-IN')}
             </Text>
           </View>
           {calculateTotalCategoryBudget() > monthlyBudget && (
             <Text style={styles.warningMessage}>
-              ⚠️ Category budgets exceed monthly budget by ₹{(calculateTotalCategoryBudget() - monthlyBudget).toLocaleString('en-IN')}!
+              {t('profile.exceedMessage', { amount: (calculateTotalCategoryBudget() - monthlyBudget).toLocaleString('en-IN') })}
             </Text>
           )}
         </View>
 
+        {/* LANGUAGE Section */}
+        <Text style={styles.sectionLabel}>{t('language.selectLanguage').toUpperCase()}</Text>
+        <TouchableOpacity 
+          style={styles.settingsCard} 
+          onPress={() => setShowLangModal(true)} 
+          activeOpacity={0.8}
+        >
+          <View style={[styles.settingsIconWrap, { backgroundColor: '#E8F8F0' }]}>
+            <Text style={styles.settingsIcon}>🌐</Text>
+          </View>
+          <Text style={styles.settingsLabel}>{t('language.changeLanguage')}</Text>
+          <Text style={styles.settingsValue}>
+            {i18n.language === 'ta' ? t('language.tamil') : t('language.english')} ›
+          </Text>
+        </TouchableOpacity>
+
         {/* NOTIFICATIONS Section */}
-        <Text style={styles.sectionLabel}>NOTIFICATIONS</Text>
+        <Text style={styles.sectionLabel}>{t('profile.notificationsSection')}</Text>
 
         {/* Permission Warning */}
         {!hasNotificationPermissions && (
           <View style={styles.permissionWarning}>
             <Text style={styles.permissionWarningIcon}>🔔</Text>
             <Text style={styles.permissionWarningText}>
-              Notifications are disabled. Enable them in Settings to receive alerts.
+              {t('profile.permissionWarning')}
             </Text>
           </View>
         )}
@@ -713,11 +744,11 @@ export default function ProfileScreen({ navigation }: any) {
             <Text style={styles.settingsIcon}>💰</Text>
           </View>
           <View style={styles.settingTextContainer}>
-            <Text style={styles.settingsLabel}>Budget Alerts</Text>
+            <Text style={styles.settingsLabel}>{t('profile.budgetAlertsTitle')}</Text>
             <Text style={styles.settingDescription}>
               {hasNotificationPermissions 
-                ? 'Get alerts when you reach 80% of budget'
-                : 'Enable notifications in Settings to receive alerts'}
+                ? t('profile.budgetAlertsDescriptionEnabled')
+                : t('profile.budgetAlertsDescriptionDisabled')}
             </Text>
           </View>
           <Switch
@@ -735,11 +766,11 @@ export default function ProfileScreen({ navigation }: any) {
             <Text style={styles.settingsIcon}>⏰</Text>
           </View>
           <View style={styles.settingTextContainer}>
-            <Text style={styles.settingsLabel}>Daily Reminders</Text>
+            <Text style={styles.settingsLabel}>{t('profile.dailyRemindersTitle')}</Text>
             <Text style={styles.settingDescription}>
               {hasNotificationPermissions 
-                ? 'Remind me at 9:30 PM to update expenses'
-                : 'Enable notifications in Settings to receive reminders'}
+                ? t('profile.dailyRemindersDescriptionEnabled')
+                : t('profile.dailyRemindersDescriptionDisabled')}
             </Text>
           </View>
           <Switch
@@ -752,7 +783,7 @@ export default function ProfileScreen({ navigation }: any) {
         </View>
 
         {/* Appearance Section */}
-        <Text style={styles.sectionLabel}>APPEARANCE</Text>
+        <Text style={styles.sectionLabel}>{t('profile.appearanceSection')}</Text>
 
         {/* Dark Mode Card */}
         <View style={styles.settingsCard}>
@@ -760,8 +791,8 @@ export default function ProfileScreen({ navigation }: any) {
             <Text style={styles.settingsIcon}>🌙</Text>
           </View>
           <View style={styles.settingTextContainer}>
-            <Text style={styles.settingsLabel}>Dark Mode</Text>
-            <Text style={styles.settingDescription}>Coming soon</Text>
+            <Text style={styles.settingsLabel}>{t('profile.darkMode')}</Text>
+            <Text style={styles.settingDescription}>{t('profile.comingSoon')}</Text>
           </View>
           <Switch
             value={darkMode}
@@ -773,17 +804,22 @@ export default function ProfileScreen({ navigation }: any) {
         </View>
 
         {/* Version */}
-        <Text style={styles.version}>v1.0.0 · SpendWise</Text>
+        <Text style={styles.version}>{t('profile.version')}</Text>
 
         {/* Logout Button */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.85} disabled={logoutLoading}>
           {logoutLoading ? (
             <ActivityIndicator color={COLORS.danger} />
           ) : (
-            <Text style={styles.logoutText}>🚪  Logout</Text>
+            <Text style={styles.logoutText}>{t('profile.logout')}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>
+
+      <LanguageQuickSwitchModal
+        visible={showLangModal} 
+        onClose={() => setShowLangModal(false)} 
+      />
 
       {/* Monthly Budget Modal */}
       <Modal
@@ -794,14 +830,14 @@ export default function ProfileScreen({ navigation }: any) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Set Monthly Budget</Text>
-            <Text style={styles.modalSubtitle}>Enter your total monthly budget (₹)</Text>
+            <Text style={styles.modalTitle}>{t('profile.setMonthlyBudgetTitle')}</Text>
+            <Text style={styles.modalSubtitle}>{t('profile.setMonthlyBudgetSubtitle')}</Text>
             <TextInput
               style={styles.modalInput}
               value={tempMonthlyBudget}
               onChangeText={setTempMonthlyBudget}
               keyboardType="numeric"
-              placeholder="Enter amount"
+              placeholder={t('profile.enterAmountPlaceholder')}
               autoFocus
             />
             <View style={styles.modalButtons}>
@@ -809,13 +845,13 @@ export default function ProfileScreen({ navigation }: any) {
                 style={[styles.modalButton, styles.cancelButton]} 
                 onPress={() => setMonthlyModalVisible(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.modalButton, styles.saveButton]} 
                 onPress={saveMonthlyBudget}
               >
-                <Text style={styles.saveButtonText}>Save</Text>
+                <Text style={styles.saveButtonText}>{t('common.save')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -831,17 +867,17 @@ export default function ProfileScreen({ navigation }: any) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Set {selectedCategory} Budget</Text>
-            <Text style={styles.modalSubtitle}>Enter monthly budget for {selectedCategory} (₹)</Text>
+            <Text style={styles.modalTitle}>{t('profile.setCategoryBudgetTitle', { category: selectedCategory })}</Text>
+            <Text style={styles.modalSubtitle}>{t('profile.setCategoryBudgetSubtitle', { category: selectedCategory })}</Text>
             <Text style={styles.modalRemaining}>
-              Remaining budget available: ₹{getRemainingBudget(selectedCategory).toLocaleString('en-IN')}
+              {t('profile.remainingBudgetAvailable', { amount: getRemainingBudget(selectedCategory).toLocaleString('en-IN') })}
             </Text>
             <TextInput
               style={styles.modalInput}
               value={tempCategoryBudget}
               onChangeText={setTempCategoryBudget}
               keyboardType="numeric"
-              placeholder="Enter amount"
+              placeholder={t('profile.enterAmountPlaceholder')}
               autoFocus
             />
             <View style={styles.modalButtons}>
@@ -849,13 +885,13 @@ export default function ProfileScreen({ navigation }: any) {
                 style={[styles.modalButton, styles.cancelButton]} 
                 onPress={() => setCategoryModalVisible(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.modalButton, styles.saveButton]} 
                 onPress={saveCategoryBudget}
               >
-                <Text style={styles.saveButtonText}>Save</Text>
+                <Text style={styles.saveButtonText}>{t('common.save')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -863,73 +899,87 @@ export default function ProfileScreen({ navigation }: any) {
       </Modal>
 
       {/* Add Custom Category Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={addCategoryModalVisible}
-        onRequestClose={() => setAddCategoryModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Custom Category</Text>
-            
-            <Text style={styles.modalLabel}>Category Name</Text>
-            <TextInput
-              style={styles.modalInput}
-              value={newCategoryName}
-              onChangeText={setNewCategoryName}
-              placeholder="e.g., Coffee, Gym, Subscription"
-              placeholderTextColor="#999"
-            />
-            
-            <Text style={styles.modalLabel}>Category Icon</Text>
-            <TouchableOpacity
-              style={styles.iconPickerBtn}
-              onPress={() => setShowIconPicker(true)}
-            >
-              <Text style={styles.iconPickerText}>{newCategoryIcon}</Text>
-              <Text style={styles.iconPickerChange}>Change</Text>
-            </TouchableOpacity>
-            
-            <Text style={styles.modalLabel}>Monthly Budget (₹)</Text>
-            <Text style={styles.modalRemaining}>
-              Remaining budget available: ₹{getRemainingBudget().toLocaleString('en-IN')}
-            </Text>
-            <TextInput
-              style={styles.modalInput}
-              value={newCategoryBudget}
-              onChangeText={setNewCategoryBudget}
-              keyboardType="numeric"
-              placeholder="Enter budget"
-              placeholderTextColor="#999"
-            />
-            
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setAddCategoryModalVisible(false)}
-                disabled={addingCategory}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalButton, styles.saveButton]}
-                onPress={handleAddCustomCategory}
-                disabled={addingCategory}
-              >
-                {addingCategory ? (
-                  <ActivityIndicator size="small" color={COLORS.white} />
-                ) : (
-                  <Text style={styles.saveButtonText}>Add Category</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
+      {/* Add Custom Category Modal */}
+<Modal
+  animationType="slide"
+  transparent={true}
+  visible={addCategoryModalVisible}
+  onRequestClose={() => setAddCategoryModalVisible(false)}
+>
+  <KeyboardAvoidingView
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    style={{ flex: 1 }}
+  >
+    <View style={styles.modalOverlay}>
+      <View style={[styles.modalContent, { maxHeight: '85%' }]}>
+        <Text style={styles.modalTitle}>{t('profile.addCustomCategoryTitle')}</Text>
+        
+        {/* Wrap everything except buttons in ScrollView */}
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"  // ← KEY FIX for Samsung
+        >
+          <Text style={styles.modalLabel}>{t('profile.categoryNameLabel')}</Text>
+          <TextInput
+            style={styles.modalInput}
+            value={newCategoryName}
+            onChangeText={setNewCategoryName}
+            placeholder={t('profile.categoryNamePlaceholder')}
+            placeholderTextColor="#999"
+          />
+          
+          <Text style={styles.modalLabel}>{t('profile.categoryIconLabel')}</Text>
+          <TouchableOpacity
+            style={styles.iconPickerBtn}
+            onPress={() => setShowIconPicker(true)}
+          >
+            <Text style={styles.iconPickerText}>{newCategoryIcon}</Text>
+            <Text style={styles.iconPickerChange}>{t('profile.change')}</Text>
+          </TouchableOpacity>
+          
+          <Text style={styles.modalLabel}>{t('profile.monthlyBudgetFieldLabel')}</Text>
+          <Text style={styles.modalRemaining}>
+            {t('profile.remainingBudgetAvailable', { amount: getRemainingBudget().toLocaleString('en-IN') })}
+          </Text>
+          <TextInput
+            style={styles.modalInput}
+            value={newCategoryBudget}
+            onChangeText={setNewCategoryBudget}
+            keyboardType="numeric"
+            placeholder={t('profile.enterBudgetPlaceholder')}
+            placeholderTextColor="#999"
+          />
+        </ScrollView>
+
+        {/* Buttons OUTSIDE ScrollView so they're always visible */}
+        <View style={styles.modalButtons}>
+          <TouchableOpacity
+            style={[styles.modalButton, styles.cancelButton]}
+            onPress={() => setAddCategoryModalVisible(false)}
+            disabled={addingCategory}
+          >
+            <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.modalButton, styles.saveButton]}
+            onPress={handleAddCustomCategory}
+            disabled={addingCategory}
+          >
+            {addingCategory ? (
+              <ActivityIndicator size="small" color={COLORS.white} />
+            ) : (
+              <Text style={styles.saveButtonText}>{t('profile.addCategory')}</Text>
+            )}
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </View>
+    </View>
+  </KeyboardAvoidingView>
+</Modal>
 
       {/* Icon Picker Modal */}
       {renderIconPickerModal()}
+      
     </SafeAreaView>
   );
 }
@@ -1157,12 +1207,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+ modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  justifyContent: 'center',      // ← keep this
+  alignItems: 'center',
+  padding: 20,                   // ← add padding so modal doesn't touch edges
+},
   modalContent: {
     backgroundColor: COLORS.white,
     borderRadius: 20,

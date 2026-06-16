@@ -1,0 +1,534 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "remove": "Remove",
+    "loading": "Loading...",
+    "success": "Success",
+    "error": "Error",
+    "ok": "OK",
+    "retry": "Retry",
+    "back": "Back",
+    "yes": "Yes",
+    "no": "No",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "rupeeSymbol": "₹"
+  },
+
+  "language": {
+    "selectLanguage": "Select Language",
+   "english": "English",
+  "tamil": "தமிழ்",
+  "hindi": "हिन्दी",
+  "marathi": "मराठी",
+  "telugu": "తెలుగు",
+    "continue": "Continue",
+    "changeLanguage": "Change Language"
+  },
+
+  "onboarding": {
+    "appName": "SpendWise",
+    "tagline": "AI-Powered Expense Tracker",
+    "aiInsightsTitle": "AI-Powered Insights",
+    "aiInsightsBody": "Gemini AI analyses your spending and gives you 3 actionable insights every month",
+    "getStarted": "Get Started",
+    "skip": "Skip →"
+  },
+
+  "auth": {
+    "welcomeBack": "Welcome back 👋",
+    "joinApp": "Join SpendWise 🎉",
+    "signInTitle": "Sign in to SpendWise",
+    "signUpTitle": "Create an Account",
+    "login": "Login",
+    "signUp": "Sign Up",
+    "emailLabel": "EMAIL",
+    "emailPlaceholder": "your@email.com",
+    "passwordLabel": "PASSWORD",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Forgot password?",
+    "passwordHint": "🔒 Password must be at least 6 characters",
+    "usingSavedEmail": "✅ Using saved email: {{email}}",
+    "signIn": "Sign In",
+    "createAccount": "Create Account",
+    "secureSignIn": "Secure sign-in with Firebase",
+    "noAccount": "Don't have an account? Switch to Sign Up tab",
+    "haveAccount": "Already have an account? Switch to Login tab",
+
+    "clearSavedEmailTitle": "Clear Saved Email",
+    "clearSavedEmailMessage": "Are you sure you want to clear the saved email?",
+    "clear": "Clear",
+    "savedEmailCleared": "Saved email cleared!",
+
+    "errorEnterEmail": "Please enter your email",
+    "errorEnterPassword": "Please enter your password",
+    "errorPasswordLength": "Password must be at least 6 characters",
+
+    "loginFailed": "Login Failed",
+    "signUpFailed": "Sign Up Failed",
+    "loginSuccess": "Logged in successfully!",
+    "errorUserNotFound": "No account found. Please sign up first.",
+    "errorWrongPassword": "Incorrect password. Please try again.",
+    "errorInvalidEmail": "Invalid email format.",
+    "errorTooManyRequests": "Too many failed attempts. Try again later.",
+    "errorNetwork": "Network error. Check your connection.",
+    "errorEmailInUse": "Email already registered. Please login instead.",
+    "errorWeakPassword": "Password is too weak. Use at least 6 characters.",
+    "errorUnexpected": "An unexpected error occurred",
+    "errorGeneric": "An unexpected error occurred"
+  },
+
+  "forgotPassword": {
+    "troubleSigningIn": "Trouble signing in?",
+    "resetPassword": "Reset Password",
+    "instructions": "Enter your email and we'll send you a link to reset your password",
+    "emailLabel": "EMAIL ADDRESS",
+    "emailPlaceholder": "your@email.com",
+    "sendResetLink": "Send Reset Link",
+    "backToLogin": "← Back to Login",
+    "rememberPassword": "Remember your password?",
+    "goToSignIn": "Go to Sign In",
+
+    "checkEmailTitle": "Check Your Email 📧",
+    "linkSentTitle": "Password Reset Link Sent",
+    "resetLinkSentTo": "Reset link sent to:",
+    "resetLinkInstructions": "Click the link in the email to reset your password. The link will expire in 1 hour.",
+    "backToLoginButton": "Back to Login",
+    "resendEmail": "Resend Email",
+
+    "errorEnterEmail": "Please enter your email address",
+    "errorInvalidEmail": "Please enter a valid email address",
+    "successTitle": "Password Reset Email Sent",
+    "successMessage": "We've sent a password reset link to {{email}}.\n\nPlease check your inbox and follow the instructions to reset your password.",
+    "errorGeneric": "Failed to send password reset email",
+    "errorUserNotFound": "No account found with this email address.",
+    "errorInvalidEmailFormat": "Invalid email address format.",
+    "errorTooManyRequests": "Too many requests. Please try again later."
+  },
+
+  "categories": {
+    "Food": "Food",
+    "Travel": "Travel",
+    "Shopping": "Shopping",
+    "Health": "Health",
+    "Bills": "Bills",
+    "Entertainment": "Entertainment",
+    "Rent": "Rent",
+    "Other": "Other",
+    "all": "All",
+    "allWithIcon": "📋 All"
+  },
+
+  "home": {
+    "goodMorning": "Good morning",
+    "goodAfternoon": "Good afternoon",
+    "goodEvening": "Good evening",
+    "loadingExpenses": "Loading your expenses...",
+    "loadingExpensesShort": "Loading expenses...",
+    "initializing": "Initializing...",
+
+    "loadingBudget": "LOADING BUDGET...",
+    "fetchingBudget": "Fetching your budget information",
+    "budgetUnavailable": "BUDGET UNAVAILABLE",
+    "spentThisMonth": "Spent this month",
+    "defaultBudget": "Default budget: ₹50,000",
+    "retryLoadingBudget": "↻ Retry loading budget",
+
+    "totalSpentThisMonth": "TOTAL SPENT THIS MONTH",
+    "budgetRemaining": "Budget: {{budget}} · Remaining: {{remaining}}",
+    "spentPercent": "Spent {{percent}}%",
+
+    "geminiInsight": "🤖 Gemini AI Insight",
+    "insightOverBudget": "⚠️ You've spent {{percent}}% of your budget. Tap for detailed insights.",
+    "insightOnTrack": "🎯 You're on track! {{percent}}% of budget remaining. Tap for AI analysis.",
+
+    "add": "Add",
+    "charts": "Charts",
+    "history": "History",
+
+    "recentExpenses": "Recent Expenses",
+    "seeAll": "See all →",
+    "noExpenses": "No expenses yet. Tap + to add your first expense!",
+
+    "errorLoadFailed": "⚠️ {{error}}"
+  },
+
+  "addExpense": {
+    "title": "Add Expense",
+    "amountLabel": "AMOUNT (₹)",
+    "category": "CATEGORY",
+    "receiptOptional": "RECEIPT (OPTIONAL)",
+    "camera": "Camera",
+    "gallery": "Gallery",
+    "receiptAttached": "✓ Receipt attached",
+    "remove": "Remove",
+    "notePlaceholder": "✏️  Add a note (optional)...",
+    "saveExpense": "Save Expense",
+    "defaultNote": "{{category}} expense",
+
+    "invalidAmountTitle": "Invalid Amount",
+    "invalidAmountMessage": "Please enter a valid expense amount.",
+
+    "loginRequiredTitle": "Error",
+    "loginRequiredMessage": "You must be logged in to add expenses.",
+
+    "uploadFailedTitle": "Upload Failed",
+    "uploadFailedMessage": "Failed to upload receipt. Expense will be saved without receipt.",
+
+    "successTitle": "Success! 🎉",
+    "successMessage": "₹{{amount}} expense added successfully.",
+
+    "errorTitle": "Error",
+    "errorSaveFailed": "Failed to save expense. Please try again.",
+    "errorUnexpected": "An unexpected error occurred",
+
+    "imagePickError": "Failed to pick image: {{error}}",
+    "imagePickSuccessTitle": "Success",
+    "imagePickSuccessMessage": "Receipt attached successfully!",
+
+    "removeReceiptTitle": "Remove Receipt",
+    "removeReceiptMessage": "Are you sure you want to remove the attached receipt?",
+
+    "calendar": {
+      "selectDate": "Select Date",
+      "today": "Today",
+      "weekDays": {
+        "sun": "Sun",
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat"
+      }
+    }
+  },
+
+  "aiInsights": {
+    "title": "AI Insights",
+    "poweredByGemini": "Powered by Gemini",
+    "geminiAI": "🤖 Powered by Gemini AI",
+    "smartAnalytics": "📊 Smart Analytics",
+    "analyzing": "Analyzing your spending...",
+    "justNow": "Just now",
+    "minAgo": "{{count}} min ago",
+    "hoursAgo": "{{count}} hours ago",
+
+    "scoreExcellent": "Excellent Spending Habits! 🎉",
+    "scoreGood": "Good Spending Habits",
+    "scoreAverage": "Average - Room for Improvement",
+    "scoreNeedsAttention": "Needs Attention - Review Your Spending",
+    "scoreSummary": "Based on {{count}} expenses totaling {{amount}}",
+    "aiGenerated": "✨ AI Generated",
+
+    "viewExpenses": "View expenses →",
+    "viewFoodExpenses": "View Food expenses →",
+
+    "highSpendingTitle": "High {{category}} Spending",
+    "highSpendingBody": "{{category}} is {{percent}}% of your spending ({{amount}}). Consider reducing this category.",
+
+    "budgetAlertTitle": "Budget Alert! ⚠️",
+    "budgetAlertBody": "You've spent {{percent}}% of your {{budget}} budget. Only {{remaining}} remaining!",
+
+    "budgetWarningTitle": "Budget Warning",
+    "budgetWarningBody": "You've spent {{percent}}% of your budget. {{remaining}}% remaining for the month.",
+
+    "onTrackTitle": "On Track! 🎯",
+    "onTrackBody": "Great job! You've spent only {{percent}}% of your {{budget}} budget. Keep it up!",
+
+    "saveFoodTitle": "Save on Food",
+    "saveFoodBody": "You spent {{amount}} on food. Cooking at home 3x/week could save ₹800-1200/month.",
+
+    "trackEverythingTitle": "Track Everything",
+    "trackEverythingBody": "You have {{count}} active spending categories. Adding more expenses helps AI give better insights!",
+
+    "footerAI": "✨ Insights generated by Google Gemini AI based on your spending patterns",
+    "footerFallback": "📊 Using smart analytics (Gemini API unavailable)",
+
+    "refresh": "🔄  Refresh Analysis"
+  },
+
+  "analytics": {
+    "title": "Analytics",
+    "spendingByCategory": "Spending by Category",
+    "total": "total",
+    "noExpensesThisMonth": "No expenses this month",
+    "sixMonthTrend": "6-Month Trend",
+    "exportPdf": "Export PDF Report",
+    "exportTitle": "Export",
+    "exportMessage": "PDF report will be downloaded soon."
+  },
+
+  "history": {
+    "title": "Expense History",
+    "totalExpenses": "{{count}} total expenses",
+    "searchPlaceholder": "Search expenses...",
+
+    "filteredTotal": "{{filter}} (filtered)",
+    "totalLabel": "Total",
+
+    "emptyFiltered": "No expenses match your filters",
+    "emptyAll": "No expenses yet. Tap + to add your first expense!",
+
+    "deleteTitle": "Delete Expense",
+    "deleteMessage": "Are you sure you want to delete \"{{note}}\"?",
+    "deleteErrorMessage": "Failed to delete expense. Please try again.",
+    "deleteSuccessMessage": "Expense deleted successfully!",
+
+    "editExpense": "Edit Expense",
+    "amountLabel": "Amount (₹)",
+    "categoryLabel": "Category",
+    "noteLabel": "Note",
+    "notePlaceholder": "Note (optional)",
+    "amountPlaceholder": "Amount",
+
+    "editErrorInvalidAmount": "Please enter a valid amount",
+    "editErrorFailed": "Failed to update expense",
+    "editSuccessMessage": "Expense updated successfully",
+
+    "receiptBadge": "📋 Receipt",
+    "swipeDelete": "🗑️ Delete",
+
+    "dateToday": "TODAY — {{date}}",
+    "dateYesterday": "YESTERDAY — {{date}}"
+  },
+
+  "budget": {
+    "editTitle": "Edit Budgets",
+    "monthlyBudgetCard": "💰 Monthly Budget",
+    "monthlyBudgetPlaceholder": "Enter monthly budget",
+    "categoryBudgetsCard": "📋 Category Budgets",
+
+    "summaryTitle": "Budget Summary",
+    "monthlyBudgetLabel": "Monthly Budget:",
+    "categoryTotalLabel": "Category Total:",
+    "remainingLabel": "Remaining:",
+    "exceedWarning": "⚠️ Category budgets exceed monthly budget!",
+
+    "saveAllChanges": "Save All Changes",
+
+    "invalidBudgetTitle": "Invalid Budget",
+    "invalidBudgetMessage": "Please enter a valid monthly budget amount.",
+    "saveSuccessMessage": "All budgets updated successfully!",
+    "saveErrorMessage": "Failed to update budgets. Please try again."
+  },
+
+  "budgetSetup": {
+    "title": "Set Your Budget",
+    "subtitle": "Customize your spending limits",
+    "monthlyBudgetLabel": "💰 Monthly Budget (₹)",
+    "monthlyBudgetPlaceholder": "Enter monthly budget",
+
+    "categoryBudgetsTitle": "📋 Category Budgets",
+    "categoryBudgetsNote": "Set monthly limits for each category",
+    "customCategoriesTitle": "✨ Custom Categories",
+
+    "addCustomCategory": "+ Add Custom Category",
+    "addCustomCategoryModalTitle": "Add Custom Category",
+    "categoryNameLabel": "Category Name",
+    "categoryNamePlaceholder": "e.g., Coffee, Gym, Subscription",
+    "categoryIconLabel": "Category Icon",
+    "change": "Change",
+    "monthlyBudgetFieldLabel": "Monthly Budget (₹)",
+    "enterBudgetPlaceholder": "Enter budget",
+    "addCategory": "Add Category",
+
+    "chooseIcon": "Choose an Icon",
+
+    "summaryTitle": "Budget Summary",
+    "totalMonthlyBudget": "Total Monthly Budget:",
+    "totalCategoryBudgets": "Total Category Budgets:",
+    "remainingForOther": "Remaining for Other:",
+    "exceedMessage": "⚠️ Category budgets exceed monthly budget by ₹{{amount}}!",
+
+    "createAccountAndStart": "Create Account & Start Tracking",
+    "fixBudgetExceeded": "Please Fix Budget Exceeded",
+
+    "errorSignUpFirstTitle": "Error",
+    "errorSignUpFirstMessage": "Please sign up first",
+
+    "errorEnterCategoryName": "Please enter a category name",
+    "errorCategoryExists": "Category already exists",
+    "errorInvalidBudgetAmount": "Please enter a valid budget amount",
+
+    "categoryAddedMessage": "Category \"{{name}}\" added successfully!",
+
+    "removeCategoryTitle": "Remove Category",
+    "removeCategoryMessage": "Are you sure you want to remove \"{{name}}\"?",
+    "categoryRemovedMessage": "Category \"{{name}}\" removed successfully!",
+
+    "budgetLimitExceededTitle": "Budget Limit Exceeded! ⚠️",
+    "budgetLimitExceededMessage": "Your category budgets total ₹{{total}} which exceeds your monthly budget of ₹{{budget}} by ₹{{excess}}.\n\nPlease reduce some category budgets or increase your monthly budget.",
+    "adjustBudgets": "Adjust Budgets",
+
+    "budgetLimitExceededAddMessage": "Adding \"{{name}}\" would exceed your monthly budget.\n\nRemaining budget: ₹{{remaining}}\nRequested budget: ₹{{requested}}\n\nPlease reduce the budget amount or increase your monthly budget.",
+
+    "userNotFoundTitle": "Error",
+    "userNotFoundMessage": "User not found. Please sign up again.",
+    "invalidMonthlyBudgetMessage": "Please enter a valid monthly budget",
+
+    "invalidBudgetAmountsTitle": "Invalid Budget Amounts",
+    "invalidBudgetAmountsMessage": "Please enter valid budget amounts for: {{categories}}",
+
+    "welcomeTitle": "Welcome to SpendWise! 🎉",
+    "welcomeMessage": "Your budget has been set up successfully!",
+    "startTracking": "Start Tracking",
+
+    "saveErrorMessage": "Failed to save budget. Please try again.",
+    "loading": "Loading..."
+  },
+
+  "profile": {
+    "title": "Profile & Settings",
+
+    "budgetSection": "BUDGET",
+    "monthlyBudget": "Monthly Budget",
+
+    "categoryBudgetsSection": "CATEGORY BUDGETS",
+    "addNew": "+ Add New",
+    "noCategories": "No categories added yet. Tap \"+ Add New\" to create one.",
+
+    "summaryTitle": "Budget Summary",
+    "totalCategoryBudgets": "Total Category Budgets:",
+    "remaining": "Remaining:",
+    "exceedMessage": "⚠️ Category budgets exceed monthly budget by ₹{{amount}}!",
+
+    "notificationsSection": "NOTIFICATIONS",
+    "permissionWarning": "Notifications are disabled. Enable them in Settings to receive alerts.",
+
+    "budgetAlertsTitle": "Budget Alerts",
+    "budgetAlertsDescriptionEnabled": "Get alerts when you reach 80% of budget",
+    "budgetAlertsDescriptionDisabled": "Enable notifications in Settings to receive alerts",
+
+    "dailyRemindersTitle": "Daily Reminders",
+    "dailyRemindersDescriptionEnabled": "Remind me at 9:30 PM to update expenses",
+    "dailyRemindersDescriptionDisabled": "Enable notifications in Settings to receive reminders",
+
+    "appearanceSection": "APPEARANCE",
+    "darkMode": "Dark Mode",
+    "comingSoon": "Coming soon",
+
+    "languageSection": "LANGUAGE",
+    "changeLanguage": "Change Language",
+
+    "version": "v1.0.0 · SpendWise",
+    "logout": "🚪  Logout",
+
+    "logoutTitle": "Logout",
+    "logoutMessage": "Are you sure you want to logout?",
+
+    "loadingBudgetData": "Loading budget data...",
+
+    "setMonthlyBudgetTitle": "Set Monthly Budget",
+    "setMonthlyBudgetSubtitle": "Enter your total monthly budget (₹)",
+    "enterAmountPlaceholder": "Enter amount",
+
+    "setCategoryBudgetTitle": "Set {{category}} Budget",
+    "setCategoryBudgetSubtitle": "Enter monthly budget for {{category}} (₹)",
+    "remainingBudgetAvailable": "Remaining budget available: ₹{{amount}}",
+
+    "addCustomCategoryTitle": "Add Custom Category",
+    "categoryNameLabel": "Category Name",
+    "categoryNamePlaceholder": "e.g., Coffee, Gym, Subscription",
+    "categoryIconLabel": "Category Icon",
+    "change": "Change",
+    "monthlyBudgetFieldLabel": "Monthly Budget (₹)",
+    "enterBudgetPlaceholder": "Enter budget",
+    "addCategory": "Add Category",
+    "chooseIcon": "Choose an Icon",
+
+    "errorEnterValidAmount": "Please enter a valid amount",
+
+    "cannotReduceBudgetTitle": "Cannot Reduce Budget",
+    "cannotReduceBudgetMessage": "Your category budgets total ₹{{total}} which exceeds the new monthly budget of ₹{{budget}} by ₹{{excess}}.\n\nPlease reduce your category budgets first.",
+
+    "monthlyBudgetUpdated": "Monthly budget updated to ₹{{amount}}",
+    "monthlyBudgetUpdateFailed": "Failed to update monthly budget",
+
+    "categoryBudgetUpdated": "{{category}} budget updated to ₹{{amount}}",
+    "categoryBudgetUpdateFailed": "Failed to update category budget",
+
+    "budgetLimitExceededTitle": "Budget Limit Exceeded",
+    "categoryBudgetExceededMessage": "Setting {{category}} budget to ₹{{amount}} would exceed your monthly budget.\n\nRemaining budget available: ₹{{remaining}}\n\nPlease reduce the amount or increase your monthly budget.",
+
+    "errorDefaultCategory": "This is a default category. Please choose a different name.",
+    "errorCategoryExists": "Category already exists",
+    "errorEnterCategoryName": "Please enter a category name",
+    "errorInvalidBudgetAmount": "Please enter a valid budget amount",
+
+    "addCategoryExceededMessage": "Adding \"{{name}}\" with budget ₹{{amount}} would exceed your monthly budget.\n\nRemaining budget available: ₹{{remaining}}\n\nPlease reduce the budget amount or increase your monthly budget.",
+
+    "categoryAddedSuccess": "{{name}} category added successfully!",
+    "categoryAddFailed": "Failed to add category",
+    "categoryAddError": "Failed to add category. Please try again.",
+
+    "removeCategoryTitle": "Remove Category",
+    "removeCategoryMessage": "Are you sure you want to remove \"{{name}}\"?",
+    "categoryRemovedSuccess": "{{name}} category removed",
+    "categoryRemoveFailed": "Failed to remove category",
+    "categoryRemoveError": "Failed to remove category",
+
+    "notificationToggleFailed": "Failed to update notification settings",
+    "notificationToggleError": "An unexpected error occurred",
+    "budgetAlertsEnabled": "Budget alerts enabled",
+    "budgetAlertsDisabled": "Budget alerts disabled",
+    "dailyRemindersEnabled": "Daily reminders enabled. You will receive notifications at 9:30 PM.",
+    "dailyRemindersDisabled": "Daily reminders disabled"
+  },
+
+  "receipt": {
+    "title": "Receipt",
+    "share": "📤  Share",
+    "delete": "🗑️  Delete",
+    "paid": "✓ Paid · {{date}}",
+    "subtotal": "Subtotal",
+    "gst": "GST {{percent}}%",
+    "total": "Total"
+  },
+
+  "alerts": {
+    "loginToContinue": "Please log in to continue",
+    "networkError": "Network error. Please check your connection and try again.",
+    "somethingWentWrong": "Something went wrong. Please try again."
+  },
+
+  "notifications": {
+    "permissionModal": {
+      "title": "Enable Notifications",
+      "message": "Stay on top of your finances! Get budget alerts and daily reminders to track your expenses.",
+      "feature1": "Budget alerts when you reach 80%",
+      "feature2": "Daily reminders at 9:30 PM",
+      "feature3": "Real-time spending updates",
+      "enable": "Enable Notifications",
+      "maybeLater": "Maybe Later"
+    },
+    "preferencePopup": {
+      "checkingPermissions": "Checking permissions...",
+      "title": "Stay Updated!",
+      "subtitle": "Choose how you want to receive notifications",
+      "permissionWarning": "Allow notifications to receive alerts",
+
+      "budgetAlertsTitle": "Budget Alerts",
+      "budgetAlertsDescription": "Get alerts at 80% and 100% of budget",
+
+      "dailyRemindersTitle": "Daily Reminders",
+      "dailyRemindersDescription": "Remind me at 9:30 PM to log expenses",
+
+      "infoText": "You can change these anytime in Profile → Notifications",
+
+      "skip": "Skip",
+      "continue": "Continue",
+      "saving": "Saving..."
+    },
+
+    "budgetAlertTitle": "Budget Alert",
+    "budgetAlertBody": "You've spent {{percent}}% of your monthly budget (₹{{spent}} of ₹{{budget}})",
+    "categoryBudgetAlertTitle": "{{category}} Budget Alert",
+    "categoryBudgetAlertBody": "You've spent {{percent}}% of your {{category}} budget (₹{{spent}} of ₹{{budget}})",
+    "dailyReminderTitle": "📝 Time to log your expenses!",
+    "dailyReminderBody": "Don't forget to record today's spending in SpendWise."
+  }
+}

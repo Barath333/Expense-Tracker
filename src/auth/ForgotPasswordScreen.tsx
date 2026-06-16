@@ -12,9 +12,11 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import auth from '@react-native-firebase/auth';
+import { useTranslation } from 'react-i18next';
 import { useAlertStore } from '../services/stores/alertStore';
 
 export default function ForgotPasswordScreen({ navigation }: any) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -24,8 +26,8 @@ export default function ForgotPasswordScreen({ navigation }: any) {
   const handleResetPassword = async () => {
     if (!email.trim()) {
       showAlert({
-        title: 'Error',
-        message: 'Please enter your email address',
+        title: t('common.error'),
+        message: t('forgotPassword.errorEnterEmail'),
         type: 'error',
       });
       return;
@@ -33,8 +35,8 @@ export default function ForgotPasswordScreen({ navigation }: any) {
 
     if (!email.includes('@') || !email.includes('.')) {
       showAlert({
-        title: 'Error',
-        message: 'Please enter a valid email address',
+        title: t('common.error'),
+        message: t('forgotPassword.errorInvalidEmail'),
         type: 'error',
       });
       return;
@@ -46,12 +48,12 @@ export default function ForgotPasswordScreen({ navigation }: any) {
       await auth().sendPasswordResetEmail(email);
       setEmailSent(true);
       showAlert({
-        title: 'Password Reset Email Sent',
-        message: `We've sent a password reset link to ${email}.\n\nPlease check your inbox and follow the instructions to reset your password.`,
+        title: t('forgotPassword.successTitle'),
+        message: t('forgotPassword.successMessage', { email }),
         type: 'success',
         buttons: [
           {
-            text: 'OK',
+            text: t('common.ok'),
             onPress: () => navigation.navigate('Login'),
           },
         ],
@@ -59,17 +61,17 @@ export default function ForgotPasswordScreen({ navigation }: any) {
     } catch (error: any) {
       console.error('Password reset error:', error);
       
-      let errorMessage = 'Failed to send password reset email';
+      let errorMessage = t('forgotPassword.errorGeneric');
       if (error.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email address.';
+        errorMessage = t('forgotPassword.errorUserNotFound');
       } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address format.';
+        errorMessage = t('forgotPassword.errorInvalidEmailFormat');
       } else if (error.code === 'auth/too-many-requests') {
-        errorMessage = 'Too many requests. Please try again later.';
+        errorMessage = t('forgotPassword.errorTooManyRequests');
       }
       
       showAlert({
-        title: 'Error',
+        title: t('common.error'),
         message: errorMessage,
         type: 'error',
       });
@@ -91,17 +93,17 @@ export default function ForgotPasswordScreen({ navigation }: any) {
             end={{ x: 1, y: 1 }}
             style={styles.header}
           >
-            <Text style={styles.welcomeText}>Check Your Email 📧</Text>
-            <Text style={styles.headingText}>Password Reset Link Sent</Text>
+            <Text style={styles.welcomeText}>{t('forgotPassword.checkEmailTitle')}</Text>
+            <Text style={styles.headingText}>{t('forgotPassword.linkSentTitle')}</Text>
           </LinearGradient>
 
           <View style={styles.formArea}>
             <View style={styles.successCard}>
               <Text style={styles.successIcon}>✉️</Text>
-              <Text style={styles.successTitle}>Reset link sent to:</Text>
+              <Text style={styles.successTitle}>{t('forgotPassword.resetLinkSentTo')}</Text>
               <Text style={styles.successEmail}>{email}</Text>
               <Text style={styles.successMessage}>
-                Click the link in the email to reset your password. The link will expire in 1 hour.
+                {t('forgotPassword.resetLinkInstructions')}
               </Text>
             </View>
 
@@ -110,7 +112,7 @@ export default function ForgotPasswordScreen({ navigation }: any) {
               onPress={() => navigation.navigate('Login')}
               activeOpacity={0.85}
             >
-              <Text style={styles.backButtonText}>Back to Login</Text>
+              <Text style={styles.backButtonText}>{t('forgotPassword.backToLoginButton')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -121,7 +123,7 @@ export default function ForgotPasswordScreen({ navigation }: any) {
               {loading ? (
                 <ActivityIndicator color="#1A9B5E" />
               ) : (
-                <Text style={styles.resendButtonText}>Resend Email</Text>
+                <Text style={styles.resendButtonText}>{t('forgotPassword.resendEmail')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -142,22 +144,22 @@ export default function ForgotPasswordScreen({ navigation }: any) {
           end={{ x: 1, y: 1 }}
           style={styles.header}
         >
-          <Text style={styles.welcomeText}>Trouble signing in?</Text>
-          <Text style={styles.headingText}>Reset Password</Text>
+          <Text style={styles.welcomeText}>{t('forgotPassword.troubleSigningIn')}</Text>
+          <Text style={styles.headingText}>{t('forgotPassword.resetPassword')}</Text>
           <Text style={styles.subHeadingText}>
-            Enter your email and we'll send you a link to reset your password
+            {t('forgotPassword.instructions')}
           </Text>
         </LinearGradient>
 
         <View style={styles.formArea}>
-          <Text style={styles.label}>EMAIL ADDRESS</Text>
+          <Text style={styles.label}>{t('forgotPassword.emailLabel')}</Text>
           <View style={styles.inputWrapper}>
             <Text style={styles.inputIcon}>📧</Text>
             <TextInput
               style={styles.input}
               value={email}
               onChangeText={setEmail}
-              placeholder="your@email.com"
+              placeholder={t('forgotPassword.emailPlaceholder')}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -174,7 +176,7 @@ export default function ForgotPasswordScreen({ navigation }: any) {
             {loading ? (
               <ActivityIndicator color="#ffffff" />
             ) : (
-              <Text style={styles.resetButtonText}>Send Reset Link</Text>
+              <Text style={styles.resetButtonText}>{t('forgotPassword.sendResetLink')}</Text>
             )}
           </TouchableOpacity>
 
@@ -183,12 +185,12 @@ export default function ForgotPasswordScreen({ navigation }: any) {
             onPress={() => navigation.navigate('Login')}
             activeOpacity={0.7}
           >
-            <Text style={styles.backToLoginText}>← Back to Login</Text>
+            <Text style={styles.backToLoginText}>{t('forgotPassword.backToLogin')}</Text>
           </TouchableOpacity>
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>Remember your password?</Text>
+            <Text style={styles.dividerText}>{t('forgotPassword.rememberPassword')}</Text>
             <View style={styles.dividerLine} />
           </View>
 
@@ -197,7 +199,7 @@ export default function ForgotPasswordScreen({ navigation }: any) {
             onPress={() => navigation.navigate('Login')}
             activeOpacity={0.7}
           >
-            <Text style={styles.signupButtonText}>Go to Sign In</Text>
+            <Text style={styles.signupButtonText}>{t('forgotPassword.goToSignIn')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

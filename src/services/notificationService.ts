@@ -1,4 +1,4 @@
-import notifee, { AndroidImportance, EventType, AndroidStyle, TriggerType } from '@notifee/react-native';
+import notifee, { AndroidImportance, EventType, AndroidStyle, TriggerType, RepeatFrequency } from '@notifee/react-native';
 import { storage } from '../utils/storage';
 
 
@@ -92,11 +92,11 @@ export const scheduleDailyReminder = async () => {
     await notifee.cancelTriggerNotification('daily_reminder');
     
     // Set trigger for 9:30 PM daily
-    const trigger = {
-      type: TriggerType.TIMESTAMP,
-      timestamp: getNextTriggerTime(),
-      repeatFrequency: 'daily',
-    };
+  const trigger = {
+  type: TriggerType.TIMESTAMP,
+  timestamp: getNextTriggerTime(),
+  repeatFrequency: RepeatFrequency.DAILY,  // ✅ enum, not a string
+};
     
     await notifee.createTriggerNotification(
       {
